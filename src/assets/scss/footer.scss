@@ -1,0 +1,153 @@
+/* --- Variables de Color (Copiadas de tu header.scss) --- */
+$primary-blue: #026fe4;
+$white: #ffffff;
+$light-gray: #f4f6f8;
+$text-light: #e0e0e0; // Usamos este para el texto secundario
+$text-dark: #333;
+$accent-fire: #ff6b00;
+
+/* --- Estilo Base del Footer --- */
+.app-footer {
+  background: $primary-blue;
+  color: $text-light; // Color de texto por defecto (ligero)
+  padding: 4rem 2rem 2rem 2rem; // Más padding superior
+  margin-top: 4rem; // Lo separamos del contenido de la página
+  width: 100%;
+}
+
+.footer-container {
+  max-width: 1300px; // Misma anchura que el .header-container
+  margin: 0 auto;
+}
+
+/* --- 1. Contenido Principal (Grid) --- */
+.footer-main {
+  display: grid;
+  // Grid responsive: 
+  // - En pantallas grandes: 4 columnas (2fr, 1fr, 1fr, 1fr)
+  // - En medianas/pequeñas: Se ajusta automáticamente
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 2.5rem; // Espacio entre columnas
+
+  // Media query para tablets y móviles
+  @media (max-width: 992px) {
+    grid-template-columns: repeat(2, 1fr); // 2 columnas
+  }
+  @media (max-width: 576px) {
+    grid-template-columns: 1fr; // 1 columna
+  }
+}
+
+/* --- 2. Estilo de Columnas --- */
+.footer-column {
+  
+  // Título de cada columna (ej. "Navegación")
+  h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: $white;
+    margin-bottom: 1.25rem;
+    position: relative;
+    padding-bottom: 0.5rem;
+
+    // Línea de acento sutil
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 30px;
+      height: 3px;
+      background: $accent-fire; // Usamos el color acento
+      border-radius: 2px;
+    }
+  }
+
+  // Listas de enlaces
+  .footer-links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+
+    li {
+      margin-bottom: 0.75rem;
+    }
+
+    a {
+      color: $text-light;
+      text-decoration: none;
+      font-size: 0.95rem;
+      transition: all 0.2s ease;
+
+      &:hover {
+        color: $white;
+        text-decoration: underline;
+        transform: translateX(3px); // Pequeño efecto al hacer hover
+        display: inline-block;
+      }
+    }
+  }
+
+  // --- Columna 1: Branding ---
+  &.brand {
+    // Reutilizamos el estilo del logo del header
+    .logo-footer {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: $white;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 1rem;
+    }
+    
+    .logo-image {
+      width: 32px;
+      height: 32px;
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
+    }
+
+    .footer-tagline {
+      font-size: 0.95rem;
+      line-height: 1.5;
+      max-width: 300px; // Evita que el texto sea muy largo
+    }
+  }
+
+  // --- Columna 4: Redes Sociales ---
+  .social-links {
+    display: flex;
+    gap: 1.25rem;
+    padding-top: 0.5rem;
+
+    .social-icon {
+      color: $white;
+      font-size: 1.75rem; // Iconos grandes y fáciles de pulsar
+      transition: all 0.2s ease;
+
+      &:hover {
+        color: $accent-fire;
+        transform: scale(1.1) translateY(-3px);
+      }
+    }
+  }
+}
+
+/* --- 3. Sub-Footer (Copyright) --- */
+.footer-bottom {
+  text-align: center;
+  margin-top: 3rem;
+  padding-top: 1.5rem;
+  // Borde sutil para separar el copyright
+  border-top: 1px solid rgba(255, 255, 255, 0.2); 
+
+  small {
+    font-size: 0.9rem;
+    color: $text-light;
+  }
+}

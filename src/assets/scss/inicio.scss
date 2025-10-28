@@ -1,0 +1,409 @@
+/* --- Variables --- */
+$bg: #f8f9fa;
+$primary: #007bff;
+$white: #ffffff;
+$text-dark: #212529;
+$text-muted: #6c757d;
+$shadow-sm: 0 4px 15px rgba(0, 0, 0, 0.06);
+$shadow-md: 0 8px 25px rgba(0, 0, 0, 0.1);
+$card-radius: 12px;
+$light-gray: #e9ecef;
+$accent-fire: #ff6b00;
+
+/* --- Base de Página --- */
+.inicio-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: $bg;
+}
+
+.inicio-main {
+  flex: 1;
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
+
+/* --- Hero Section --- */
+.hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: $white;
+  border: 1px solid $light-gray;
+  border-radius: $card-radius;
+  padding: 2.5rem;
+  gap: 1rem;
+  box-shadow: $shadow-sm;
+}
+.hero-content h1 {
+  margin: 0 0 0.5rem 0;
+  font-size: 2.2rem;
+  color: $text-dark;
+}
+.hero-sub {
+  margin: 0 0 1.5rem 0;
+  color: $text-muted;
+  font-size: 1.1rem;
+}
+.cta-join {
+  background: $primary;
+  color: $white;
+  border: none;
+  padding: 0.8rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba($primary, 0.3);
+  }
+}
+.hero-visual {
+  font-size: 4rem;
+}
+
+/* --- Secciones de Items (Motos y Repuestos) --- */
+.featured-items h2 {
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+  margin-top: 0;
+}
+
+/* --- NUEVO: Cabecera de Sección (Título + Ver todas) --- */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  
+  h2 {
+    margin: 0;
+    font-size: 1.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+  }
+  
+  .view-all-link {
+    color: $primary;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+/* Iconos en títulos */
+.section-icon {
+  font-size: 1.25rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.icon-moto { color: $primary; }
+.icon-tools { color: #2b8a3e; }
+.icon-forum { color: #6f42c1; }
+.icon-map { color: #e03e2d; }
+.hero-visual .hero-fire { color: $accent-fire; font-size: 3.2rem; }
+
+/* Icono para Temas Trending */
+.icon-fire { color: $accent-fire; }
+
+/* --- NUEVO: Estilo de Carrusel Horizontal --- */
+.item-cards-carousel {
+  display: flex;
+  overflow-x: auto; // La magia del carrusel
+  gap: 1.5rem;
+  padding: 0.5rem 2px 1.5rem 2px; // Espacio para sombra y scrollbar
+  
+  // Ocultar la barra de scroll (estética)
+  &::-webkit-scrollbar {
+    height: 8px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: $light-gray;
+    border-radius: 10px;
+  }
+  &::-webkit-scrollbar-thumb:hover {
+    background: #ccc;
+  }
+  scrollbar-width: thin; // Para Firefox
+  scrollbar-color: $light-gray transparent; // Para Firefox
+  
+  // Scroll-snap para un deslizamiento suave
+  scroll-snap-type: x mandatory; 
+  -webkit-overflow-scrolling: touch; 
+  
+  .item-card {
+    flex: 0 0 300px; // Cada tarjeta tiene 300px y no se encoge
+    scroll-snap-align: start; // Se alinea al inicio
+  }
+}
+
+/* --- Diseño de Tarjeta --- */
+.item-card {
+  background: $white;
+  border-radius: $card-radius;
+  box-shadow: $shadow-sm;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: $shadow-md;
+  }
+
+  .card-image {
+    position: relative;
+    height: 200px;
+    
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .card-price {
+      position: absolute;
+      bottom: 0.8rem;
+      left: 0.8rem;
+      background: rgba($primary, 0.9);
+      color: $white;
+      padding: 0.3rem 0.8rem;
+      border-radius: 50px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      backdrop-filter: blur(4px);
+    }
+  }
+
+  .card-content {
+    padding: 1.2rem;
+    
+    .card-category {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: $primary;
+      text-transform: uppercase;
+      margin-bottom: 0.25rem;
+    }
+
+    .card-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: $text-dark;
+      margin: 0 0 0.8rem 0;
+    }
+
+    .card-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.9rem;
+      color: $text-muted;
+
+      span {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+      }
+      
+      .star-icon {
+        color: #ffc107;
+      }
+    }
+  }
+}
+
+/* --- Grid de Comunidad --- */
+.community-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 1.5rem;
+}
+
+/* --- Actividad Reciente y Temas --- */
+.recent-posts, .trending-topics {
+  background: $white;
+  border-radius: $card-radius;
+  box-shadow: $shadow-sm;
+  padding: 1.5rem;
+  
+  // Usamos el mismo estilo de cabecera
+  .section-header h2 {
+    font-size: 1.5rem;
+  }
+}
+
+.post-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.post-item {
+  display: flex;
+  align-items: flex-start; // Alineado arriba para que quepa el link
+  gap: 1rem;
+  padding: 1rem 0.5rem;
+  border-bottom: 1px solid $light-gray;
+  
+  &:last-child { border-bottom: none; padding-bottom: 0; }
+  &:first-child { padding-top: 0; }
+
+  .post-avatar {
+    font-size: 2.5rem;
+    color: $light-gray;
+    margin-top: 4px;
+  }
+
+  .post-content {
+    flex: 1;
+    display: flex; // Para apilar los elementos
+    flex-direction: column;
+    gap: 0.25rem; // Espacio entre topic, meta y reply
+    
+    .post-topic {
+      font-weight: 600;
+      color: $text-dark;
+      text-decoration: none;
+      font-size: 1rem;
+      &:hover {
+        color: $primary;
+        text-decoration: underline;
+      }
+    }
+    .post-meta {
+      font-size: 0.9rem;
+      color: $text-muted;
+    }
+
+    /* --- NUEVO: Estilo del link "Responder" --- */
+    .post-reply-link {
+      color: $primary;
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      margin-top: 0.25rem;
+      width: fit-content; // Para que el hover no ocupe todo el ancho
+      
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+  
+  .post-time {
+    font-size: 0.85rem;
+    color: $text-muted;
+    margin-left: auto;
+    white-space: nowrap; // Evita que se rompa la línea
+  }
+}
+
+/* --- Temas Trending --- */
+.trending-topics h2 {
+  font-size: 1.5rem;
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+.topic-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  
+  li a {
+    color: $text-dark;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.5rem;
+    border-radius: 6px;
+    
+    .topic-icon {
+      color: $text-muted;
+    }
+    
+    &:hover {
+      background: $bg;
+      color: $primary;
+    }
+  }
+}
+
+/* --- Mapa --- */
+.map-for-sellers .section-header h2 {
+  font-size: 1.8rem;
+  margin: 0;
+}
+.map-placeholder {
+  height: 300px;
+  border-radius: $card-radius;
+  background: linear-gradient(135deg, #eaf2ff, #f8faff);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $text-muted;
+  box-shadow: $shadow-sm;
+  border: 1px solid $light-gray;
+  font-size: 1.1rem;
+  margin-top: 1rem;
+}
+
+/* --- Media Queries --- */
+@media (max-width: 900px) {
+  .community-grid {
+    grid-template-columns: 1fr; // Se apilan en móvil
+  }
+}
+@media (max-width: 600px) {
+  .hero {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 1.5rem;
+  }
+  .hero-content h1 {
+    font-size: 1.8rem;
+  }
+  
+  // Hacemos el carrusel un poco más pequeño en móvil
+  .item-cards-carousel .item-card {
+    flex-basis: 260px; // Tarjetas más pequeñas en móvil
+  }
+  
+  .post-item {
+    flex-wrap: wrap; // Permite que el tiempo baje si no cabe
+    .post-time {
+      margin-left: 0;
+      flex-basis: 100%;
+      text-align: right;
+      margin-top: -1rem; // Sube un poco
+    }
+  }
+}

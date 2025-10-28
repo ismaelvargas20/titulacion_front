@@ -1,0 +1,270 @@
+/* --- Variables de Color --- */
+$primary-blue: #007bff;
+$darker-blue: #0056b3;
+$light-gray-bg: #f4f7f6;
+$text-light: #ffffff;
+$text-dark: #333;
+$star-yellow: #fdd835;
+
+/* --- Reset y Estilos Globales --- */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body, html {
+  margin: 0;
+  padding: 0;
+  font-family: 'Arial', sans-serif;
+  min-height: 100vh;
+  overflow: auto; // permitir desplazamiento en páginas largas
+}
+
+#root {
+  min-height: 100vh;
+}
+
+.app-main {
+  min-height: 100vh !important;
+  padding: 0 !important;
+}
+
+/* --- Contenedor Principal --- */
+.login-container {
+  display: flex;
+  width: 100%;
+  min-height: 100vh;
+  position: relative;
+  background: $light-gray-bg;
+  margin: 0;
+  padding: 0;
+}
+
+/* --- Panel Izquierdo (Azul) --- */
+.info-panel {
+  flex: 0 0 65%;
+  background: linear-gradient(135deg, $primary-blue, $darker-blue);
+  color: $text-light;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-left: 5rem;
+  overflow: hidden;
+  z-index: 1;
+  height: 100vh; // Asegura que ocupe toda la altura
+  min-height: 100vh;
+
+  /* --- La Curva --- */
+  &::after {
+    content: '';
+    position: absolute;
+    top: -5%;
+    right: -150px; // La curva se sale 150px
+    width: 300px;  // Ancho del óvalo
+    height: 110%;
+    background: $light-gray-bg; // Mismo color del panel derecho
+    border-radius: 50%;
+    z-index: 1; // Sobre el panel azul, pero debajo de la moto
+  }
+}
+
+/* --- Contenido del Panel Izquierdo --- */
+.info-panel {
+  .background-text {
+    position: absolute;
+    top: 10%;
+    left: 5%;
+    font-size: clamp(2.5rem, 6vw, 5rem); // Reducido el tamaño
+    font-weight: 800;
+    color: $text-light;
+    opacity: 0.1;
+    line-height: 1;
+    z-index: 0;
+    user-select: none;
+    white-space: nowrap; // Evita que se rompa en múltiples líneas
+  }
+
+  .info-content {
+    position: relative;
+    z-index: 2;
+
+    h1 {
+      font-size: clamp(2.5rem, 5vw, 3.5rem);
+      font-weight: 900;
+      line-height: 1.1;
+      margin: 0;
+      text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .rating {
+      font-size: 1.5rem;
+      margin-top: 1rem;
+      display: flex;
+      gap: 0.25rem;
+
+      svg {
+        color: #FFD700; // Color amarillo dorado para todas las estrellas
+        filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.2));
+      }
+      
+      .star-empty {
+        color: #FFD700; // Misma estrella amarilla sin opacidad
+      }
+    }
+  }
+}
+
+/* --- Panel Derecho (Formulario) --- */
+.form-panel {
+  flex: 1;
+  background: $light-gray-bg;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem 3rem;
+  position: relative;
+  z-index: 1;
+  height: 100vh;
+  min-height: 100vh;
+}
+
+/* --- IMAGEN DE LA MOTO (AJUSTADA) --- */
+.motorcycle-img {
+  position: absolute;
+  z-index: 3;
+  max-width: 800px;
+  width: 50vw;
+  height: auto;
+  bottom: 5%; // Subida un poco más arriba del fondo
+  left: 55%; // Movida más a la derecha
+  transform: translateX(-50%);
+  object-fit: contain;
+  filter: drop-shadow(5px 5px 15px rgba(0, 0, 0, 0.4));
+  transition: all 0.3s ease-in-out; // Transición suave para la animación
+  cursor: pointer; // Indica que es interactiva
+
+  &:hover {
+    transform: translateX(-50%) scale(1.05); // Aumenta tamaño al 105%
+    filter: drop-shadow(8px 8px 20px rgba(0, 0, 0, 0.5)); // Sombra más pronunciada en hover
+  }
+}
+
+/* --- Estilos del Formulario (sin cambios) --- */
+.register-btn {
+  position: absolute;
+  top: 2rem;
+  right: 2rem;
+  background: $primary-blue;
+  color: $text-light;
+  border: none;
+  padding: 1rem 1.8rem; // Aumentado para hacerlo más prominente
+  border-radius: 50px;
+  font-weight: 700;
+  font-size: 1.02rem;
+  box-shadow: 0 6px 16px rgba(0, 123, 255, 0.12);
+  cursor: pointer;
+  transition: transform 0.12s ease, background 0.2s ease, box-shadow 0.2s ease;
+  z-index: 4; // Asegurar que quede por encima de la moto
+
+  &:focus {
+    outline: 3px solid rgba(0, 123, 255, 0.18);
+    outline-offset: 2px;
+  }
+
+  &:hover {
+    background: $darker-blue;
+    transform: translateY(-2px) scale(1.06);
+    box-shadow: 0 10px 24px rgba(0, 123, 255, 0.16);
+  }
+}
+
+.login-form {
+  width: 100%;
+  max-width: 440px; // Aumentado para que el formulario sea más grande
+  z-index: 2;
+
+  h2 {
+    font-size: 2rem;
+    color: $text-dark;
+    margin-bottom: 2rem;
+    text-align: center;
+  }
+
+  .input-group {
+    margin-bottom: 1.5rem;
+
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      color: #555;
+    }
+
+    /* Contenedor para icono + input */
+    .input-with-icon {
+      position: relative;
+
+      .input-icon {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #7a8a95;
+        font-size: 1.15rem;
+        pointer-events: none; // que el icono no interfiera con el input
+      }
+
+      input {
+        width: 100%;
+        padding: 0.95rem 1rem 0.95rem 3.4rem; // espacio extra a la izquierda para el icono
+        border: 1px solid #d0d7db;
+        border-radius: 10px;
+        font-size: 1.05rem;
+        box-sizing: border-box;
+        background-color: #ffffff !important;
+        color: $text-dark !important;
+        transition: box-shadow 0.15s ease, border-color 0.15s ease;
+      }
+
+      input:focus {
+        outline: none;
+        border-color: $primary-blue;
+        box-shadow: 0 4px 12px rgba(0, 123, 255, 0.08);
+      }
+    }
+  }
+
+  .login-btn {
+    width: 100%;
+    padding: 1rem;
+    border: none;
+    border-radius: 10px;
+    background: $primary-blue;
+    color: $text-light;
+    font-size: 1.12rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.25s ease, transform 0.08s ease;
+
+    &:hover {
+      background: $darker-blue;
+      transform: translateY(-1px);
+    }
+  }
+
+  .forgot-password {
+    display: block;
+    text-align: center;
+    margin-top: 1rem;
+    color: $primary-blue;
+    text-decoration: none;
+    font-size: 0.9rem;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}

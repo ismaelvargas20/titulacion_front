@@ -1,0 +1,158 @@
+/* Estilos del modal de registro */
+$reg-bg: #ffffff;
+$overlay: rgba(12, 18, 26, 0.6);
+$primary: #007bff;
+$darker: #0056b3;
+
+.reg-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: $overlay;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  animation: overlayShow 240ms ease-out;
+}
+
+.reg-modal-card {
+  width: 95%;
+  max-width: 840px; /* Aumentado de 720px */
+  background: $reg-bg;
+  border-radius: 14px;
+  padding: 2rem 2.4rem; /* Aumentado de 1.6rem 1.8rem */
+  box-shadow: 0 24px 60px rgba(10, 20, 30, 0.45);
+  position: relative;
+  transform-origin: center;
+  animation: cardShow 300ms cubic-bezier(.22,.9,.38,1);
+}
+
+.reg-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: transparent;
+  border: none;
+  font-size: 1.05rem;
+  cursor: pointer;
+  color: #556;
+}
+
+.reg-title {
+  margin: 0 0 0.15rem 0;
+  font-size: 1.5rem;
+  color: #222;
+}
+.reg-sub {
+  margin: 0 0 1.25rem 0;
+  color: #556;
+}
+
+.reg-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.9rem 1rem;
+}
+
+.reg-form label {
+  display: block;
+  font-size: 0.9rem;
+  color: #444;
+}
+
+.reg-form label span { display:block; margin-bottom:0.35rem; }
+
+.reg-input {
+  position: relative;
+}
+
+.reg-input .reg-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #7b8a94;
+  font-size: 1.05rem;
+  pointer-events: none;
+}
+
+.reg-input input {
+  width: 100%;
+  padding: 0.85rem 1rem 0.85rem 3.2rem; /* Inputs más altos */
+  border-radius: 10px;
+  border: 1px solid #d7dde1;
+  font-size: 1.02rem; /* Texto más grande */
+  background: #fff;
+}
+
+.reg-input input:focus {
+  outline: none;
+  box-shadow: 0 8px 20px rgba(0,123,255,0.06);
+  border-color: $primary;
+}
+
+.reg-form label:nth-child(n+7) { grid-column: 1 / -1; } /* Password spans full width */
+
+.reg-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 0.8rem;
+  justify-content: flex-end;
+  margin-top: 0.6rem;
+}
+
+.reg-btn {
+  padding: 0.7rem 1.1rem;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.reg-btn.secondary {
+  background: #f1f5f7;
+  color: #334;
+}
+
+.reg-btn.primary {
+  background: $primary;
+  color: #fff;
+  box-shadow: 0 8px 20px rgba(0,123,255,0.12);
+}
+
+@keyframes overlayShow {
+  from { opacity: 0 }
+  to { opacity: 1 }
+}
+
+@keyframes cardShow {
+  from { transform: scale(.96) translateY(8px); opacity: 0 }
+  to { transform: scale(1) translateY(0); opacity: 1 }
+}
+
+/* Animación de salida */
+.reg-modal-overlay.closing {
+  animation: overlayHide 200ms ease-in forwards;
+}
+
+.reg-modal-overlay.closing .reg-modal-card {
+  animation: cardHide 200ms ease-in forwards;
+}
+
+@keyframes overlayHide {
+  from { opacity: 1 }
+  to { opacity: 0 }
+}
+
+@keyframes cardHide {
+  from { transform: scale(1) translateY(0); opacity: 1 }
+  to { transform: scale(.96) translateY(8px); opacity: 0 }
+}
+
+/* Responsive */
+@media (max-width: 720px) {
+  .reg-form { grid-template-columns: 1fr; }
+  .reg-modal-card { padding: 1.2rem; }
+  .reg-actions { justify-content: stretch; }
+  .reg-btn { width: 100%; }
+}

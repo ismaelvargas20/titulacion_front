@@ -1,0 +1,344 @@
+/* --- Variables de Color --- */
+$primary-blue: #007bff;
+$white: #ffffff;
+$light-gray: #f4f6f8;
+$text-light: #e0e0e0;
+$text-dark: #333;
+$danger-red: #d9534f;
+$accent-fire: #ff6b00; // color acento para elementos tipo casco / fuego
+
+/* --- Estilo Base del Header --- */
+.app-header {
+  background: $primary-blue;
+  color: $white;
+  padding: 0.8rem 2rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  width: 100%;
+}
+
+.header-container {
+  max-width: 1300px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* --- 1. Logo --- */
+.logo {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: $white;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  transition: transform 0.2s ease;
+  &:hover {
+    transform: scale(1.05);
+  }
+}
+
+.logo-helmet {
+  width: 28px;
+  height: 28px;
+  color: $accent-fire; /* usa currentColor en el SVG */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 0.25rem;
+  /* garantizar que el SVG escale bien */
+  svg, path { width: 100%; height: 100%; }
+}
+
+/* Nueva clase para la llanta (logo-wheel) */
+.logo-wheel {
+  width: 28px;
+  height: 28px;
+  color: $accent-fire; /* controla stroke/fill vía currentColor */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 0.25rem;
+  svg { width: 100%; height: 100%; display: block; }
+}
+
+/* Clase para usar imagen como icono del logo (casco.png) */
+.logo-image {
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 0.25rem;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+  }
+}
+
+/* --- 2. Navegación --- */
+.nav-list {
+  list-style: none;
+  display: flex;
+  gap: 1.5rem; // Reducimos el gap un poco para que quepan bien
+  padding: 0;
+  margin: 0;
+  align-items: center;
+}
+
+.nav-link {
+  color: $text-light;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 1rem;
+  padding: 0.5rem 0.2rem;
+  transition: all 0.2s ease;
+  position: relative;
+
+  &:hover {
+    color: $white;
+  }
+
+  // Estilo de link activo para los que NO son botones
+  &.active:not(.cta-link) {
+    color: $white;
+    font-weight: 600;
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -8px;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: $white;
+      border-radius: 2px;
+    }
+  }
+
+  // Icono dentro de los botones
+  .nav-icon {
+    font-size: 0.95rem;
+    transform: translateY(1px);
+  }
+}
+
+/* --- Estilo de Botones CTA (Vender y Comunidad) --- */
+.nav-link.cta-link {
+  // --- Estilos COMUNES para AMBOS tipos de botones ---
+  display: flex;
+  align-items: center;
+  gap: 0.6rem; // Espacio entre icono y texto
+  font-weight: 600;
+  padding: 0.6rem 1.2rem;
+  border-radius: 50px;
+  transition: all 0.3s ease;
+
+  // Quitar el subrayado de link activo
+  &.active::after {
+    display: none;
+  }
+
+  // --- 1. Botón PRIMARIO (Vender) ---
+  // (Estilo por defecto si solo tiene .cta-link)
+  background: $white;
+  color: $primary-blue;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+  .nav-icon {
+    color: $primary-blue; // Icono azul
+  }
+
+  &:hover {
+    background: $light-gray;
+    color: $primary-blue;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  }
+
+  // --- 2. Botón SECUNDARIO (Motos, Repuestos, Comunidad) ---
+  &.secondary {
+    background: transparent;
+    color: $white;
+    border: 2px solid rgba(255, 255, 255, 0.7); // Borde blanco semi-transparente
+    box-shadow: none; // Quitar sombra
+
+    .nav-icon {
+      color: $white; // Icono blanco
+    }
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.1); // Fondo blanco sutil
+      border-color: $white; // Borde blanco sólido
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05); // Sombra muy sutil
+    }
+
+    // Estilo activo para el botón secundario
+    // (Cuando estás en la página de Motos, Repuestos o Comunidad)
+    &.active {
+      background: $white;
+      color: $primary-blue;
+      border-color: $white;
+
+      .nav-icon {
+        color: $primary-blue;
+      }
+    }
+  }
+}
+
+/* --- 3. Perfil de Usuario y Dropdown --- */
+.user-profile {
+  position: relative;
+
+  .profile-icon {
+    color: $white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    // --- Nuevo Estilo de Botón Circular ---
+    font-size: 2.2rem; // Icono aún más grande
+    width: 48px; // Círculo proporcionalmente más grande
+    height: 48px; // Altura igual al ancho para perfecta circunferencia
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1.5px solid rgba(255, 255, 255, 0.7);
+    background: rgba(255, 255, 255, 0.1);
+    padding: 11px; // Padding ajustado para el nuevo tamaño
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.1); // Hover igual a botones secundarios
+      border-color: $white;
+      transform: scale(1.05); // Un scale más sutil
+      filter: none; // Quitamos el drop-shadow que tenía antes
+    }
+  }
+}
+
+.profile-dropdown {
+  position: absolute;
+  top: calc(100% + 15px);
+  right: 0;
+  width: 240px;
+  background: $white;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  z-index: 101;
+  color: $text-dark;
+  overflow: hidden;
+  animation: fadeIn 0.2s ease-out;
+
+  // Pequeño triángulo/flecha que apunta al icono
+  &::before {
+    content: '';
+    position: absolute;
+    top: -6px;
+    right: 15px;
+    width: 12px;
+    height: 12px;
+    background: $white;
+    transform: rotate(45deg);
+    z-index: -1;
+  }
+
+  .dropdown-header {
+    padding: 1rem;
+    border-bottom: 1px solid $light-gray;
+    display: flex;
+    flex-direction: column;
+
+    strong {
+      font-size: 1rem;
+    }
+    small {
+      font-size: 0.8rem;
+      color: #777;
+    }
+  }
+
+  .dropdown-menu {
+    list-style: none;
+    padding: 0.5rem 0;
+    margin: 0;
+  }
+
+  .dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 0.8rem 1rem;
+    text-decoration: none;
+    color: $text-dark;
+    font-size: 0.95rem;
+    transition: background-color 0.2s ease;
+
+    .dropdown-icon {
+      font-size: 1.1rem;
+      color: $primary-blue;
+    }
+
+    &:hover {
+      background: $light-gray;
+    }
+
+    // Estilo especial para "Cerrar Sesión"
+    &.danger {
+      color: $danger-red;
+      .dropdown-icon {
+        color: $danger-red;
+      }
+      &:hover {
+        background: lighten($danger-red, 40%);
+      }
+    }
+  }
+
+  // Variante sin rectángulo: elimina fondo/borde/outline para links que solo deben navegar
+  .dropdown-item.plain {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 0.6rem 0.6rem; // mantener espaciado pero evitar apariencia de botón
+  }
+  .dropdown-item.plain:focus,
+  .dropdown-item.plain:active {
+    outline: none;
+    box-shadow: none;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* --- Media Query para móviles (Opcional pero recomendado) --- */
+@media (max-width: 992px) {
+  .main-nav {
+    // En pantallas más pequeñas, podrías ocultar el nav
+    // y mostrar un icono de hamburguesa que lo abra.
+    // Por ahora, solo reducimos el gap para que no se rompa.
+    .nav-list {
+      gap: 0.8rem;
+    }
+    .nav-link.cta-link {
+      padding: 0.5rem 1rem; // Hacemos los botones un poco más pequeños
+      font-size: 0.9rem;
+    }
+  }
+}
