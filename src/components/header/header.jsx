@@ -1,15 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { 
-    FaUserEdit, 
-    FaSignOutAlt, 
-    FaTag,        
-    FaUsers,      
-    FaMotorcycle, 
+import {
+    FaUserEdit,
+    FaSignOutAlt,
+    FaTag,
+    FaUsers,
+    FaMotorcycle,
     FaTools,
-    FaUser // <-- CAMBIO: Importamos FaUser
+    FaUser,
+    FaSun,
+    FaMoon,
 } from 'react-icons/fa';
-import '../../assets/scss/header.scss'; 
+import '../../assets/scss/header.scss';
 import cascoImg from '../../assets/img/casco.png';
 
 const Header = () => {
@@ -17,6 +19,19 @@ const Header = () => {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const dropdownRef = useRef(null);
     const navigate = useNavigate();
+
+    // Tema aplicado a la zona de contenido (.app-main)
+    const [theme, setTheme] = useState(() => {
+        try {
+            const t = localStorage.getItem('theme');
+            if (t) return t;
+        } catch (e) {
+            // ignore
+        }
+        // preferencia del sistema
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) return 'dark';
+        return 'light';
+    });
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -41,6 +56,31 @@ const Header = () => {
         // cerramos el dropdown; la navegación la hace el NavLink
         setIsDropdownOpen(false);
     };
+
+    // Toggle theme: apply class to the .app-main element so header remains unchanged.
+    const applyThemeToContent = (t) => {
+        try {
+            const main = document.querySelector('.app-main');
+            if (!main) return;
+            if (t === 'dark') main.classList.add('dark-theme');
+            else main.classList.remove('dark-theme');
+            // also set a global body class to avoid white gaps when main does not cover full page
+            try {
+                if (t === 'dark') document.body.classList.add('global-dark');
+                else document.body.classList.remove('global-dark');
+            } catch (e) {}
+        } catch (e) {
+            // ignore
+        }
+    };
+
+    useEffect(() => {
+        applyThemeToContent(theme);
+        try { localStorage.setItem('theme', theme); } catch (e) {}
+    }, [theme]);
+
+
+    const toggleTheme = () => setTheme((s) => (s === 'dark' ? 'light' : 'dark'));
 
 
     return (
@@ -98,13 +138,21 @@ const Header = () => {
 
                 {/* --- Perfil de Usuario con Dropdown --- */}
                 <div className="user-profile" ref={dropdownRef}>
-                    
-                    {/* vvv CAMBIO AQUÍ vvv */}
-                    <FaUser // <-- Usamos el nuevo icono
-                        className="profile-icon" 
+                    {/* Toggle de tema: colocado a la izquierda del perfil (orden: toggle | perfil) */}
+                    <button
+                        type="button"
+                        className="theme-toggle"
+                        onClick={toggleTheme}
+                        aria-label={theme === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
+                        title={theme === 'dark' ? 'Modo claro' : 'Modo oscuro'}
+                    >
+                        {theme === 'dark' ? <FaSun /> : <FaMoon />}
+                    </button>
+
+                    <FaUser
+                        className="profile-icon"
                         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                     />
-                    {/* ^^^ CAMBIO AQUÍ ^^^ */}
 
                     {isDropdownOpen && (
                         // ... (El dropdown se queda exactamente igual) ...
@@ -116,9 +164,23 @@ const Header = () => {
                             
                             <ul className="dropdown-menu">
                                 <li>
-                                    <NavLink to="/perfil/editar" className="dropdown-item">
+                                    <NavLink
+                                        to="/perfil"
+                                        className="dropdown-item"
+                                        onClick={(e) => {
+                                            // Cerramos el dropdown y navegamos al perfil en modo edición
+                                            e.preventDefault();
+                                            setIsDropdownOpen(false);
+                                            try {
+                                                navigate('/perfil', { state: { edit: true } });
+                                            } catch (err) {
+                                                // fallback: usar href
+                                                window.location.href = '/perfil';
+                                            }
+                                        }}
+                                    >
                                         <FaUserEdit className="dropdown-icon" />
-                                        Editar Perfil
+                                        Mi Perfil
                                     </NavLink>
                                 </li>
                                 <li>

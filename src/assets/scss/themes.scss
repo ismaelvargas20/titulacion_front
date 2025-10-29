@@ -1,0 +1,70 @@
+/* Theme tokens for content area. Do NOT change header colors here so header stays the same.
+   We toggle the class `dark-theme` on `.app-main` (not on body) so the header keeps its original appearance.
+*/
+
+:root {
+  /* page / content */
+  --page-bg: #f8f9fa; /* light page background */
+  --card-bg: #ffffff; /* cards/panels */
+  --text: #212529;
+  --muted: #6c757d;
+  --primary: #007bff;
+  --muted-border: #e9ecef;
+  --price-badge-bg: rgba(0,123,255,0.95);
+  --shadow-sm: 0 4px 15px rgba(0, 0, 0, 0.06);
+  --badge-text: #ffffff;
+}
+
+/* Apply a strong Google-like dark theme, but header will not be changed by this file.
+   We intend to add/remove the .dark-theme class on the .app-main element. */
+.app-main.dark-theme {
+  /* Palette inspired by Google Dark: softer dark grays, not pure black */
+  --page-bg: #202124; /* page background (soft very-dark gray) */
+  --card-bg: #242629; /* card / panel background (slightly lighter than page for contrast) */
+  --text: #e8eaed; /* light text */
+  --muted: #9aa0a6; /* muted text */
+  --primary: #8ab4f8; /* soft blue accent similar to Google */
+  --muted-border: #303134; /* subtle borders in dark */
+  --price-badge-bg: rgba(138,180,248,0.95);
+  --shadow-sm: 0 6px 20px rgba(0,0,0,0.45);
+  --badge-text: #0b0f12;
+}
+
+/* Also allow toggling a global body class to avoid white gaps between sections
+   when .app-main doesn't cover the full height. This won't change header colors
+   (header uses its own styles) but ensures page background matches the theme. */
+body.global-dark {
+  --page-bg: #202124;
+  --card-bg: #242629;
+  --text: #e8eaed;
+  --muted: #9aa0a6;
+  --primary: #8ab4f8;
+  --muted-border: #303134;
+  --price-badge-bg: rgba(138,180,248,0.95);
+  --shadow-sm: 0 6px 20px rgba(0,0,0,0.45);
+  --badge-text: #0b0f12;
+  background: var(--page-bg);
+}
+
+/* Header-specific tokens for dark mode (slightly different tone than content) */
+:root {
+  --header-bg-dark: #242629; /* use same tone as card-bg for visual harmony */
+  --header-text-dark: #e6eef7;
+  --header-cta-bg-dark: rgba(255,255,255,0.06);
+  --header-cta-text-dark: #ffffff;
+  --header-border-dark: rgba(255,255,255,0.06);
+}
+
+/* Allow customizing header tokens in global-dark as well */
+body.global-dark {
+  --header-bg-dark: #242629;
+  --header-text-dark: #e6eef7;
+  --header-cta-bg-dark: rgba(255,255,255,0.06);
+  --header-cta-text-dark: #ffffff;
+  --header-border-dark: rgba(255,255,255,0.06);
+}
+
+/* small helpers for transitions */
+.app-main, .app-main * {
+  transition: background-color 180ms ease, color 180ms ease, border-color 180ms ease;
+}

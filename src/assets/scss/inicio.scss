@@ -15,7 +15,7 @@ $accent-fire: #ff6b00;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: $bg;
+  background: var(--page-bg, $bg);
 }
 
 .inicio-main {
@@ -33,8 +33,8 @@ $accent-fire: #ff6b00;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: $white;
-  border: 1px solid $light-gray;
+  background: var(--card-bg, $white);
+  border: 1px solid var(--muted-border, $light-gray);
   border-radius: $card-radius;
   padding: 2.5rem;
   gap: 1rem;
@@ -43,11 +43,11 @@ $accent-fire: #ff6b00;
 .hero-content h1 {
   margin: 0 0 0.5rem 0;
   font-size: 2.2rem;
-  color: $text-dark;
+  color: var(--text, $text-dark);
 }
 .hero-sub {
   margin: 0 0 1.5rem 0;
-  color: $text-muted;
+  color: var(--muted, $text-muted);
   font-size: 1.1rem;
 }
 .cta-join {
@@ -74,6 +74,7 @@ $accent-fire: #ff6b00;
   font-size: 1.8rem;
   margin-bottom: 1rem;
   margin-top: 0;
+  color: var(--text, $text-dark);
 }
 
 /* --- NUEVO: Cabecera de Sección (Título + Ver todas) --- */
@@ -89,10 +90,11 @@ $accent-fire: #ff6b00;
     display: flex;
     align-items: center;
     gap: 0.8rem;
+    color: var(--text, $text-dark);
   }
   
   .view-all-link {
-    color: $primary;
+    color: var(--primary, $primary);
     text-decoration: none;
     font-weight: 600;
     font-size: 0.95rem;
@@ -153,11 +155,97 @@ $accent-fire: #ff6b00;
   }
 }
 
+/* --- Botones de navegación del carrusel ("<" ">") --- */
+.carousel-wrapper {
+  position: relative;
+  overflow: visible; /* permitimos que las flechas queden fuera */
+}
+
+/* Añadimos padding lateral al carrusel para que las flechas no queden encima de las tarjetas */
+.item-cards-carousel {
+  padding-left: 48px;
+  padding-right: 48px;
+}
+
+.carousel-button {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  transform: translate(-110%, -50%); /* acercamos un poco hacia las tarjetas */
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: rgba(255,255,255,0.95);
+  color: var(--primary, $primary); /* azul */
+  box-shadow: 0 10px 30px rgba(16,24,40,0.08);
+  cursor: pointer;
+  z-index: 30;
+  transition: transform 0.18s ease, background 0.18s ease, opacity 0.18s ease;
+  opacity: 0.98;
+
+  /* hover/active: no aplicar regla genérica para no sobreescribir la del botón derecho */
+}
+
+.carousel-button.right {
+  left: auto;
+  right: 0;
+  transform: translate(110%, -50%);
+}
+
+/* Hover/active específicos para cada lado (evita que el derecho adopte la transform del izquierdo) */
+.carousel-button.left:hover { transform: translate(-110%, -50%) scale(1.06); }
+.carousel-button.left:active { transform: translate(-110%, -50%) scale(0.98); }
+.carousel-button.right:hover { transform: translate(110%, -50%) scale(1.06); }
+.carousel-button.right:active { transform: translate(110%, -50%) scale(0.98); }
+
+/* Ajustes para pantallas muy grandes: más separación */
+@media (min-width: 1300px) {
+  .item-cards-carousel { padding-left: 72px; padding-right: 72px; }
+  .carousel-button { width: 64px; height: 64px; }
+  .carousel-button { transform: translate(-140%, -50%); }
+  .carousel-button.right { transform: translate(140%, -50%); }
+
+  /* hover/active para pantallas grandes */
+  .carousel-button.left:hover { transform: translate(-140%, -50%) scale(1.06); }
+  .carousel-button.left:active { transform: translate(-140%, -50%) scale(0.98); }
+  .carousel-button.right:hover { transform: translate(140%, -50%) scale(1.06); }
+  .carousel-button.right:active { transform: translate(140%, -50%) scale(0.98); }
+}
+
+/* Ajustes para pantallas pequeñas: ponerlas dentro del contenedor con menos separación */
+@media (max-width: 900px) {
+  .item-cards-carousel { padding-left: 18px; padding-right: 18px; }
+  .carousel-button { width: 44px; height: 44px; transform: translate(-50%, -50%); }
+  .carousel-button.left { left: 8px; transform: translate(0, -50%); }
+  .carousel-button.right { right: 8px; left: auto; transform: translate(0, -50%); }
+
+  /* hover/active en móvil: mantener la posición X e incrementar sólo la escala */
+  .carousel-button.left:hover { transform: translate(0, -50%) scale(1.04); }
+  .carousel-button.left:active { transform: translate(0, -50%) scale(0.98); }
+  .carousel-button.right:hover { transform: translate(0, -50%) scale(1.04); }
+  .carousel-button.right:active { transform: translate(0, -50%) scale(0.98); }
+}
+
+/* Modo oscuro: hacer las flechas visibles y acordes al tema */
+body.global-dark {
+  .carousel-button {
+    background: rgba(255,255,255,0.06); /* sutil sobre fondo oscuro */
+    color: var(--primary, $primary);
+    box-shadow: 0 8px 24px rgba(2,6,23,0.6);
+    border: 1px solid rgba(255,255,255,0.04);
+  }
+}
+
 /* --- Diseño de Tarjeta --- */
 .item-card {
-  background: $white;
+  background: var(--card-bg, $white);
   border-radius: $card-radius;
-  box-shadow: $shadow-sm;
+  border: 1px solid var(--muted-border, $light-gray);
+  box-shadow: var(--shadow-sm, $shadow-sm);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -182,8 +270,8 @@ $accent-fire: #ff6b00;
       position: absolute;
       bottom: 0.8rem;
       left: 0.8rem;
-      background: rgba($primary, 0.9);
-      color: $white;
+      background: var(--price-badge-bg, rgba($primary, 0.9));
+      color: var(--badge-text, $white);
       padding: 0.3rem 0.8rem;
       border-radius: 50px;
       font-size: 0.9rem;
@@ -198,10 +286,10 @@ $accent-fire: #ff6b00;
   .card-content {
     padding: 1.2rem;
     
-    .card-category {
+  .card-category {
       font-size: 0.8rem;
       font-weight: 600;
-      color: $primary;
+      color: var(--primary, $primary);
       text-transform: uppercase;
       margin-bottom: 0.25rem;
     }
@@ -209,7 +297,7 @@ $accent-fire: #ff6b00;
     .card-title {
       font-size: 1.2rem;
       font-weight: 600;
-      color: $text-dark;
+      color: var(--text, $text-dark);
       margin: 0 0 0.8rem 0;
     }
 
@@ -217,8 +305,8 @@ $accent-fire: #ff6b00;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      font-size: 0.9rem;
-      color: $text-muted;
+    font-size: 0.9rem;
+  color: var(--muted, $text-muted);
 
       span {
         display: flex;
@@ -242,9 +330,9 @@ $accent-fire: #ff6b00;
 
 /* --- Actividad Reciente y Temas --- */
 .recent-posts, .trending-topics {
-  background: $white;
+  background: var(--card-bg, $white);
   border-radius: $card-radius;
-  box-shadow: $shadow-sm;
+  box-shadow: var(--shadow-sm, $shadow-sm);
   padding: 1.5rem;
   
   // Usamos el mismo estilo de cabecera
@@ -263,14 +351,14 @@ $accent-fire: #ff6b00;
   align-items: flex-start; // Alineado arriba para que quepa el link
   gap: 1rem;
   padding: 1rem 0.5rem;
-  border-bottom: 1px solid $light-gray;
+  border-bottom: 1px solid var(--muted-border, $light-gray);
   
   &:last-child { border-bottom: none; padding-bottom: 0; }
   &:first-child { padding-top: 0; }
 
   .post-avatar {
     font-size: 2.5rem;
-    color: $light-gray;
+    color: var(--muted-border, $light-gray);
     margin-top: 4px;
   }
 
@@ -282,17 +370,17 @@ $accent-fire: #ff6b00;
     
     .post-topic {
       font-weight: 600;
-      color: $text-dark;
+      color: var(--text, $text-dark);
       text-decoration: none;
       font-size: 1rem;
       &:hover {
-        color: $primary;
+        color: var(--primary, $primary);
         text-decoration: underline;
       }
     }
     .post-meta {
       font-size: 0.9rem;
-      color: $text-muted;
+      color: var(--muted, $text-muted);
     }
 
     /* --- NUEVO: Estilo del link "Responder" --- */
@@ -326,6 +414,7 @@ $accent-fire: #ff6b00;
   font-size: 1.5rem;
   margin-top: 0;
   margin-bottom: 1rem;
+  color: var(--text, $text-dark);
 }
 .topic-list {
   list-style: none;
@@ -336,7 +425,7 @@ $accent-fire: #ff6b00;
   gap: 0.8rem;
   
   li a {
-    color: $text-dark;
+    color: var(--text, $text-dark);
     text-decoration: none;
     font-weight: 500;
     font-size: 0.95rem;
@@ -347,12 +436,12 @@ $accent-fire: #ff6b00;
     border-radius: 6px;
     
     .topic-icon {
-      color: $text-muted;
+      color: var(--muted, $text-muted);
     }
     
     &:hover {
-      background: $bg;
-      color: $primary;
+      background: var(--page-bg, $bg);
+      color: var(--primary, $primary);
     }
   }
 }
@@ -362,16 +451,20 @@ $accent-fire: #ff6b00;
   font-size: 1.8rem;
   margin: 0;
 }
+/* Título principal de la sección de vendedores */
+.map-for-sellers h2 {
+  color: var(--text, $text-dark);
+}
 .map-placeholder {
   height: 300px;
   border-radius: $card-radius;
-  background: linear-gradient(135deg, #eaf2ff, #f8faff);
+  background: var(--card-bg, linear-gradient(135deg, #eaf2ff, #f8faff));
   display: flex;
   align-items: center;
   justify-content: center;
-  color: $text-muted;
-  box-shadow: $shadow-sm;
-  border: 1px solid $light-gray;
+  color: var(--muted, $text-muted);
+  box-shadow: var(--shadow-sm, $shadow-sm);
+  border: 1px solid var(--muted-border, $light-gray);
   font-size: 1.1rem;
   margin-top: 1rem;
 }

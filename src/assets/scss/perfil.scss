@@ -1,0 +1,251 @@
+/* --- Variables de Color (basadas en tu imagen) --- */
+$primary-blue: #0d6efd; // El azul principal de tus botones
+$primary-blue-light: #e7f0ff; // Un azul muy claro para fondos
+$text-dark: #212529;
+$text-light: #6c757d;
+$border-color: #dee2e6;
+$background-page: #f8f9fa; // Fondo general de la página
+$background-card: #ffffff; // Fondo de la tarjeta
+$disabled-bg: #f5f5f5;
+
+/* --- Contenedor General de la Página --- */
+.perfil-page-container {
+    padding: 2rem 1rem;
+    background-color: $background-page;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; // Alinea arriba
+}
+
+/* --- Tarjeta Principal del Perfil --- */
+.perfil-card {
+    max-width: 700px;
+    width: 100%;
+    background-color: $background-card;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    overflow: hidden; // Para que el borde redondeado afecte a los hijos
+}
+
+/* --- Cabecera del Perfil (Avatar y Nombre) --- */
+.perfil-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2.5rem 1.5rem;
+    background-color: $primary-blue-light; // Fondo azul claro
+    border-bottom: 1px solid $border-color;
+
+    .perfil-avatar {
+        font-size: 80px;
+        color: $primary-blue;
+        margin-bottom: 1rem;
+    }
+
+    h2 {
+        font-size: 1.75rem;
+        font-weight: 600;
+        color: $text-dark;
+        margin: 0;
+    }
+
+    p {
+        font-size: 1rem;
+        color: $text-light;
+        margin: 0.25rem 0 1.5rem 0;
+    }
+}
+
+/* --- Botón de Editar Perfil --- */
+.perfil-edit-btn,
+.perfil-save-btn {
+    background-color: $primary-blue;
+    color: white;
+    font-size: 1rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem; // Espacio entre icono y texto
+
+    &:hover {
+        background-color: darken($primary-blue, 8%);
+        box-shadow: 0 6px 18px rgba(13,110,253,0.12);
+    }
+}
+
+/* Botón editar (cabecera): pequeño y posicionado en la esquina superior derecha de la cabecera */
+.perfil-header {
+    position: relative;
+}
+.perfil-edit-btn {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    padding: 0.45rem 0.95rem;
+    font-size: 0.95rem;
+    border-radius: 8px;
+}
+
+/* Botón guardar: más discreto, centrado y con ancho controlado */
+.perfil-save-btn {
+    min-width: 160px;
+    padding: 0.65rem 1.1rem;
+    margin: 1.5rem auto 0 auto; /* centrado */
+    display: inline-flex;
+    justify-content: center;
+}
+
+/* --- Estilos para tu Formulario (reg-form) --- */
+.reg-form {
+    padding: 2rem;
+
+    // El fieldset es clave para deshabilitar los inputs
+    fieldset {
+        border: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem; // Espacio entre cada campo (label)
+
+        // Cuando el fieldset está deshabilitado
+        &:disabled {
+            .reg-input input {
+                background-color: $disabled-bg;
+                color: $text-light;
+                border-color: #eee; // Borde más suave
+                cursor: not-allowed;
+            }
+            .reg-icon {
+                color: $text-light;
+            }
+        }
+    }
+
+    h3 {
+        font-size: 1.25rem;
+        color: $text-dark;
+        border-bottom: 1px solid $border-color;
+        padding-bottom: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .password-title {
+        margin-top: 1rem; // Espacio extra antes de "Cambiar Contraseña"
+    }
+
+    label {
+        width: 100%;
+        display: block;
+
+        span {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: $text-dark;
+            margin-bottom: 0.5rem;
+        }
+    }
+
+    // Usamos tus clases reg-input y reg-icon
+    .reg-input {
+        position: relative;
+        display: flex;
+        align-items: center;
+
+        .reg-icon {
+            position: absolute;
+            left: 12px;
+            font-size: 1.1rem;
+            color: $text-light;
+            transition: color 0.3s ease;
+        }
+
+        input {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 2.5rem; // Padding izquierdo para el icono
+            font-size: 1rem;
+            border: 1px solid $border-color;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            box-sizing: border-box; // Asegura que el padding no rompa el layout
+
+            &:focus {
+                outline: none;
+                border-color: $primary-blue;
+                box-shadow: 0 0 0 3px rgba($primary-blue, 0.15);
+
+                // El icono cambia de color al hacer focus
+                + .reg-icon, 
+                ~ .reg-icon { // Selector general de hermano
+                    color: $primary-blue;
+                }
+            }
+        }
+    }
+    
+    // Espacio antes del botón de guardar
+    button[type="submit"] {
+        margin-top: 2rem;
+    }
+}
+
+/* --- Layout de cuerpo: formulario + columna de acciones --- */
+.perfil-body {
+    display: grid;
+    grid-template-columns: 1fr 260px;
+    gap: 1.5rem;
+    align-items: start;
+    padding: 0 1.5rem 2rem 1.5rem; /* deja padding interno coherente */
+}
+
+.perfil-actions .action-card {
+    background: $background-card;
+    border-radius: 12px;
+    padding: 1.25rem;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.perfil-actions .action-avatar {
+    font-size: 48px;
+    color: $primary-blue;
+    width: 72px;
+    height: 72px;
+    border-radius: 999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(13,110,253,0.08);
+}
+
+.perfil-actions .action-text {
+    font-weight: 600;
+    color: $text-dark;
+}
+
+/* Botón guardar en la columna de acciones (más compacto) */
+.perfil-save-btn.action-save {
+    width: 100%;
+    padding: 0.7rem 1rem;
+    border-radius: 8px;
+    font-size: 0.95rem;
+}
+
+/* En pantallas pequeñas apilamos */
+@media (max-width: 900px) {
+    .perfil-body {
+        grid-template-columns: 1fr;
+    }
+    .perfil-actions { order: 2; }
+    .perfil-header { position: relative; }
+    .perfil-edit-btn { position: static; margin-top: 0.5rem; }
+}

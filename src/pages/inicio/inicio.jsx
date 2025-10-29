@@ -12,6 +12,7 @@ import {
   FaTools,
   FaFire
 } from 'react-icons/fa';
+import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import '../../assets/scss/inicio.scss';
 
 const Inicio = () => {
@@ -48,6 +49,21 @@ const Inicio = () => {
     'Mejores ofertas en neumáticos este mes'
   ];
 
+  // Refs para controlar el scroll de los carruseles
+  const motosRef = React.useRef(null);
+  const partsRef = React.useRef(null);
+
+  const scrollCarousel = (ref, dir = 1) => {
+    if (!ref || !ref.current) return;
+    const container = ref.current;
+    const card = container.querySelector('.item-card');
+    const style = window.getComputedStyle(container);
+    const gap = parseInt(style.gap) || 24;
+    const cardWidth = card ? card.clientWidth : 300;
+    const scrollAmount = Math.round((cardWidth + gap) * 1.5);
+    container.scrollBy({ left: dir * scrollAmount, behavior: 'smooth' });
+  };
+
   return (
     <div className="inicio-page">
       <main className="inicio-main">
@@ -69,8 +85,17 @@ const Inicio = () => {
               Ver todas <FaArrowRight />
             </NavLink>
           </div>
-          <div className="item-cards-carousel"> {/* CAMBIO: Ahora es carrusel */}
-            {recentMotos.map((moto) => (
+          <div className="carousel-wrapper">
+            <button
+              className="carousel-button left"
+              aria-label="Anterior"
+              onClick={() => scrollCarousel(motosRef, -1)}
+              title="Anterior"
+            >
+              <FaChevronLeft />
+            </button>
+            <div className="item-cards-carousel" ref={motosRef}> {/* CAMBIO: Ahora es carrusel */}
+              {recentMotos.map((moto) => (
               <article key={moto.id} className="item-card">
                 <div className="card-image">
                   <img src={`${moto.img}?${moto.id}`} alt={moto.title} />
@@ -85,6 +110,15 @@ const Inicio = () => {
                 </div>
               </article>
             ))}
+            </div>
+            <button
+              className="carousel-button right"
+              aria-label="Siguiente"
+              onClick={() => scrollCarousel(motosRef, 1)}
+              title="Siguiente"
+            >
+              <FaChevronRight />
+            </button>
           </div>
         </section>
         
@@ -96,8 +130,17 @@ const Inicio = () => {
               Ver todos <FaArrowRight />
             </NavLink>
           </div>
-          <div className="item-cards-carousel"> {/* CAMBIO: Ahora es carrusel */}
-            {featuredParts.map((part) => (
+          <div className="carousel-wrapper">
+            <button
+              className="carousel-button left"
+              aria-label="Anterior"
+              onClick={() => scrollCarousel(partsRef, -1)}
+              title="Anterior"
+            >
+              <FaChevronLeft />
+            </button>
+            <div className="item-cards-carousel" ref={partsRef}> {/* CAMBIO: Ahora es carrusel */}
+              {featuredParts.map((part) => (
               <article key={part.id} className="item-card">
                 <div className="card-image">
                   <img src={`${part.img}?${part.id}`} alt={part.title} />
@@ -109,6 +152,15 @@ const Inicio = () => {
                 </div>
               </article>
             ))}
+            </div>
+            <button
+              className="carousel-button right"
+              aria-label="Siguiente"
+              onClick={() => scrollCarousel(partsRef, 1)}
+              title="Siguiente"
+            >
+              <FaChevronRight />
+            </button>
           </div>
         </section>
 
