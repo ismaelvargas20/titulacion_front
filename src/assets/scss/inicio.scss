@@ -155,6 +155,15 @@ $accent-fire: #ff6b00;
   }
 }
 
+/* Ajuste específico para la página de Motos: hacer tarjetas un poco más estrechas
+   para que quepan más (aprox. 5 en pantallas grandes) y tengan aspecto horizontal */
+.motos-page {
+  .item-cards-carousel {
+    gap: 1rem;
+    .item-card { flex: 0 0 220px; }
+  }
+}
+
 /* --- Botones de navegación del carrusel ("<" ">") --- */
 .carousel-wrapper {
   position: relative;
@@ -499,4 +508,23 @@ body.global-dark {
       margin-top: -1rem; // Sube un poco
     }
   }
+  
+/* Additional responsive tweaks */
+@media (max-width: 900px) {
+  .hero {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 1.5rem;
+  }
+  .hero-visual { font-size: 2.8rem; margin-top: 0.8rem; }
+  .item-cards-carousel { padding-left: 18px; padding-right: 18px; }
+  .item-card { min-width: 210px; }
+  .community-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 480px) {
+  .hero-content h1 { font-size: 1.5rem; }
+  .cta-join { padding: 0.6rem 1rem; font-size: 0.95rem; }
+  .item-card { min-width: 180px; }
+}
 }

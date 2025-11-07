@@ -7,6 +7,7 @@ import Login from './pages/login/login';
 import Registro from './pages/registro.jsx/registro';
 import Inicio from './pages/inicio/inicio';
 import Perfil from './pages/perfil/perfil';
+import Motos from './pages/motos/motos';
 
 const AppContent = () => {
   const location = useLocation();
@@ -21,6 +22,7 @@ const AppContent = () => {
           <Route path="/" element={<Inicio />} />
           <Route path="/login" element={<Login />} />
           <Route path="/registro" element={<Registro />} />
+          <Route path="/motos" element={<Motos />} />
           <Route path="/perfil" element={<Perfil />} />
         </Routes>
       </main>

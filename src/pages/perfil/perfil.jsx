@@ -2,15 +2,17 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import '../../assets/scss/perfil.scss'; // Importamos el SCSS desde assets
 
-// Importamos los iconos que mencionaste y algunos adicionales
-import { FaUser, FaMapMarkerAlt, FaUserCircle, FaSave } from 'react-icons/fa';
+// Iconos
+import { FaUser, FaMapMarkerAlt, FaUserCircle, FaSave, FaEdit, FaTimes } from 'react-icons/fa';
 import { MdCalendarToday, MdEmail, MdPhone } from 'react-icons/md';
 import { RiLockPasswordFill } from 'react-icons/ri';
 
 const Perfil = () => {
     // Estado para controlar si el formulario es editable
     const location = useLocation();
-    const initialEdit = Boolean(location && location.state && location.state.edit);
+    // Por defecto mostramos el perfil en modo lectura. Solo cambiar a edición
+    // cuando el usuario pulse el botón "Editar perfil".
+    const initialEdit = false;
     const [isEditing, setIsEditing] = useState(initialEdit);
 
     // Estado para guardar los datos del usuario (puedes cargarlo desde tu backend)
@@ -28,6 +30,8 @@ const Perfil = () => {
     // Refs para foco y submit programático
     const firstInputRef = useRef(null);
     const formRef = useRef(null);
+    const originalDataRef = useRef(null); // Para restaurar al cancelar
+    const [showPasswordFields, setShowPasswordFields] = useState(false);
 
     // Cuando entramos en modo edición, hacemos foco en el primer campo
     useEffect(() => {
@@ -64,7 +68,45 @@ const Perfil = () => {
 
     // Activa el modo edición
     const handleEditClick = () => {
+        // Guardamos snapshot de datos actuales para poder cancelar
+        originalDataRef.current = { ...userData };
+        setShowPasswordFields(false);
         setIsEditing(true);
+    };
+
+    // Cancelar edición y restaurar datos
+    const handleCancel = (e) => {
+        e.preventDefault();
+        if (originalDataRef.current) {
+            setUserData(originalDataRef.current);
+        }
+        setIsEditing(false);
+        setShowPasswordFields(false);
+    };
+
+    // Manejar actualización de contraseña separada del submit general
+    const handlePasswordUpdate = (e) => {
+        e.preventDefault();
+        if (!userData.newPassword) {
+            alert('Escribe la nueva contraseña.');
+            return;
+        }
+        if (userData.newPassword !== userData.confirmPassword) {
+            alert('Las contraseñas no coinciden.');
+            return;
+        }
+        // Aquí iría la petición al backend para cambiar la contraseña
+        console.log('Contraseña actualizada a:', userData.newPassword);
+        alert('Contraseña actualizada con éxito.');
+        // Limpiamos campos y ocultamos sección
+        setUserData(prev => ({ ...prev, newPassword: '', confirmPassword: '' }));
+        setShowPasswordFields(false);
+    };
+
+    const handleCancelPasswordChange = (e) => {
+        e.preventDefault();
+        setUserData(prev => ({ ...prev, newPassword: '', confirmPassword: '' }));
+        setShowPasswordFields(false);
     };
 
     return (
@@ -73,14 +115,15 @@ const Perfil = () => {
 
                 {/* --- Cabecera del Perfil --- */}
                 <div className="perfil-header">
-                    <FaUserCircle className="perfil-avatar" />
+                    <FaUserCircle className="perfil-avatar" aria-hidden="true" />
                     <h2>{userData.fullname}</h2>
                     <p>{userData.city}</p>
-                    
+
                     {/* Mostramos "Editar" solo si NO estamos editando */}
                     {!isEditing && (
-                        <button className="perfil-edit-btn" onClick={handleEditClick}>
-                            Editar Perfil
+                        <button className="perfil-edit-btn" onClick={handleEditClick} aria-label="Editar perfil">
+                            <FaEdit className="edit-icon" />
+                            <span>Editar perfil</span>
                         </button>
                     )}
                 </div>
@@ -167,48 +210,73 @@ const Perfil = () => {
                             </div>
                         </label>
 
+                        {/* Acciones (Guardar + Cancelar) colocadas debajo de Ciudad / Provincia, alineadas a la izquierda */}
+                        {isEditing && (
+                            <div className="form-actions-inline left">
+                                <button type="submit" className="perfil-save-btn" aria-label="Guardar cambios">
+                                    <FaSave /> Guardar
+                                </button>
+                                <button type="button" className="perfil-cancel-btn" onClick={handleCancel} aria-label="Cancelar edición">
+                                    <FaTimes /> Cancelar
+                                </button>
+                            </div>
+                        )}
+
                         {/* Mostramos la sección de contraseña SÓLO en modo edición */}
                         {isEditing && (
                             <>
-                                <h3 className="password-title">Cambiar Contraseña</h3>
-                                <label>
-                                    <span>Nueva Contraseña</span>
-                                    <div className="reg-input">
-                                        <RiLockPasswordFill className="reg-icon" />
-                                        <input 
-                                            name="newPassword" 
-                                            type="password" 
-                                            placeholder="Nueva Contraseña" 
-                                            value={userData.newPassword}
-                                            onChange={handleChange}
-                                        />
+                                <h3 className="password-title">Contraseña</h3>
+                                {!showPasswordFields ? (
+                                    <div className="change-pass-cta">
+                                        <p className="muted">¿Quieres cambiar tu contraseña?</p>
+                                        <button type="button" className="perfil-edit-small" onClick={() => setShowPasswordFields(true)}>
+                                            Haz click aquí
+                                        </button>
                                     </div>
-                                </label>
-                                <label>
-                                    <span>Confirmar Contraseña</span>
-                                    <div className="reg-input">
-                                        <RiLockPasswordFill className="reg-icon" />
-                                        <input 
-                                            name="confirmPassword" 
-                                            type="password" 
-                                            placeholder="Confirmar Contraseña" 
-                                            value={userData.confirmPassword}
-                                            onChange={handleChange}
-                                        />
-                                    </div>
-                                </label>
+                                ) : (
+                                    <>
+                                        <label>
+                                            <span>Nueva Contraseña</span>
+                                            <div className="reg-input">
+                                                <RiLockPasswordFill className="reg-icon" />
+                                                <input 
+                                                    name="newPassword" 
+                                                    type="password" 
+                                                    placeholder="Nueva Contraseña" 
+                                                    value={userData.newPassword}
+                                                    onChange={handleChange}
+                                                />
+                                            </div>
+                                        </label>
+                                        <label>
+                                            <span>Confirmar Contraseña</span>
+                                            <div className="reg-input">
+                                                <RiLockPasswordFill className="reg-icon" />
+                                                <input 
+                                                    name="confirmPassword" 
+                                                    type="password" 
+                                                    placeholder="Confirmar Contraseña" 
+                                                    value={userData.confirmPassword}
+                                                    onChange={handleChange}
+                                                />
+                                            </div>
+                                        </label>
+
+                                        <div className="change-pass-actions">
+                                            <button type="button" className="perfil-pass-update-btn" onClick={handlePasswordUpdate}>
+                                                Actualizar contraseña
+                                            </button>
+                                            <button type="button" className="perfil-pass-cancel-small" onClick={handleCancelPasswordChange}>
+                                                Cancelar
+                                            </button>
+                                        </div>
+                                    </>
+                                )}
                             </>
                         )}
                     </fieldset>
 
-                    {/* Mostramos "Guardar" solo SI estamos editando (botón dentro del form por accesibilidad) */}
-                    {isEditing && (
-                        <div className="form-actions-inline">
-                            <button type="submit" className="perfil-save-btn">
-                                <FaSave /> Guardar Cambios
-                            </button>
-                        </div>
-                    )}
+                    
                     </form>
                 </div>
 

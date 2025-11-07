@@ -1,9 +1,9 @@
 /* --- Variables de Color --- */
 $primary-blue: #007bff;
 $darker-blue: #0056b3;
-$light-gray-bg: #f4f7f6;
-$text-light: #ffffff;
-$text-dark: #333;
+$light-gray-bg: var(--page-bg, #f4f7f6);
+$text-light: var(--text, #ffffff);
+$text-dark: var(--text, #333);
 $star-yellow: #fdd835;
 
 /* --- Reset y Estilos Globales --- */
@@ -36,7 +36,7 @@ body, html {
   width: 100%;
   min-height: 100vh;
   position: relative;
-  background: $light-gray-bg;
+  background: var(--page-bg, $light-gray-bg);
   margin: 0;
   padding: 0;
 }
@@ -64,7 +64,7 @@ body, html {
     right: -150px; // La curva se sale 150px
     width: 300px;  // Ancho del óvalo
     height: 110%;
-    background: $light-gray-bg; // Mismo color del panel derecho
+  background: var(--page-bg, $light-gray-bg); // Mismo color del panel derecho
     border-radius: 50%;
     z-index: 1; // Sobre el panel azul, pero debajo de la moto
   }
@@ -79,7 +79,7 @@ body, html {
     font-size: clamp(2.5rem, 6vw, 5rem); // Reducido el tamaño
     font-weight: 800;
     color: $text-light;
-    opacity: 0.1;
+    opacity: 0.08;
     line-height: 1;
     z-index: 0;
     user-select: none;
@@ -89,9 +89,12 @@ body, html {
   .info-content {
     position: relative;
     z-index: 2;
+    /* Evitar que el título quede pegado al filo blanco: espacio a la derecha */
+    padding-right: 3rem;
 
     h1 {
-      font-size: clamp(2.5rem, 5vw, 3.5rem);
+      /* Reducimos ligeramente el tamaño máximo para evitar solapes en pantallas grandes */
+      font-size: clamp(2.2rem, 5vw, 3.2rem);
       font-weight: 900;
       line-height: 1.1;
       margin: 0;
@@ -119,7 +122,7 @@ body, html {
 /* --- Panel Derecho (Formulario) --- */
 .form-panel {
   flex: 1;
-  background: $light-gray-bg;
+  background: var(--card-bg, $light-gray-bg);
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -220,18 +223,18 @@ body, html {
       input {
         width: 100%;
         padding: 0.95rem 1rem 0.95rem 3.4rem; // espacio extra a la izquierda para el icono
-        border: 1px solid #d0d7db;
+        border: 1px solid var(--muted-border, #d0d7db);
         border-radius: 10px;
         font-size: 1.05rem;
         box-sizing: border-box;
-        background-color: #ffffff !important;
-        color: $text-dark !important;
+        background-color: var(--card-bg, #ffffff) !important;
+        color: var(--text, $text-dark) !important;
         transition: box-shadow 0.15s ease, border-color 0.15s ease;
       }
 
       input:focus {
         outline: none;
-        border-color: $primary-blue;
+        border-color: var(--primary, $primary-blue);
         box-shadow: 0 4px 12px rgba(0, 123, 255, 0.08);
       }
     }
@@ -266,5 +269,183 @@ body, html {
     &:hover {
       text-decoration: underline;
     }
+  }
+}
+
+/* ------------------ Responsive: tablets y móviles ------------------ */
+@media (max-width: 900px) {
+  .login-container {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .info-panel {
+    flex: 0 0 auto;
+    width: 100%;
+    padding-left: 2rem;
+    padding-top: 2.25rem;
+    padding-bottom: 2.25rem;
+    height: auto;
+    min-height: auto;
+    &::after { display: none; }
+  }
+
+  .motorcycle-img {
+    /* Mostrar la moto centrada y más contenida en tablet/phone grande */
+    position: static; /* quitar posicionamiento absoluto/relativo para centrar con margin */
+    display: block;
+    width: 60vw;
+    max-width: 520px;
+    transform: none;
+    bottom: auto;
+    margin: 0.6rem auto 1rem auto;
+    filter: drop-shadow(4px 4px 12px rgba(0,0,0,0.25));
+  }
+
+  .form-panel {
+    padding: 2rem 1.25rem;
+    height: auto;
+    min-height: auto;
+  }
+
+  .login-form { max-width: 520px; }
+}
+
+@media (max-width: 480px) {
+  .info-panel {
+    padding-left: 1.25rem;
+  }
+  .info-panel .info-content h1 { font-size: clamp(1.6rem, 6vw, 2.2rem); }
+  .info-panel .info-content h1 { font-size: clamp(1.6rem, 6vw, 2.2rem); }
+
+  .motorcycle-img {
+    width: 86vw;
+    max-width: 420px;
+    transform: none;
+    margin: 0.6rem auto 0.8rem auto;
+    display: block;
+  }
+
+  .register-btn { top: 1rem; right: 1rem; padding: 0.8rem 1.2rem; font-size: 0.95rem; }
+
+  .login-form {
+    max-width: 380px;
+    padding: 0 0.25rem;
+  }
+
+  .input-with-icon .input-icon { left: 10px; font-size: 1rem; }
+  .input-with-icon input { padding-left: 3rem; font-size: 1rem; }
+}
+
+/* Si la pantalla es muy estrecha escondemos la moto para evitar scroll lateral */
+@media (max-width: 280px) {
+  /* Solo en pantallas extremadamente pequeñas escondemos la moto */
+  .motorcycle-img { display: none; }
+  .info-panel .background-text { display: none; }
+}
+
+/* Evitar que el texto grande se solape en tablets (ej. 768px) */
+@media (max-width: 768px) {
+  .info-panel .background-text { display: none; }
+}
+
+/* Ajustes finos para pantallas tipo 1024px (tablets grandes / small desktop) */
+@media (max-width: 1100px) and (min-width: 901px) {
+  .info-panel {
+    flex: 0 0 58%; /* dejar más espacio al formulario */
+    padding-left: 3rem;
+    &::after { right: -120px; width: 260px; }
+  }
+
+  .info-panel .background-text {
+    font-size: clamp(2rem, 4vw, 3rem);
+    opacity: 0.06;
+  }
+
+  .info-panel .info-content h1 {
+    font-size: clamp(2rem, 3.5vw, 3rem);
+    line-height: 1.05;
+  }
+}
+
+/* Ajuste específico para 1024px y cercanos */
+@media (max-width: 1024px) and (min-width: 769px) {
+  .info-panel {
+    flex: 0 0 56%;
+    padding-left: 2.4rem;
+    &::after { right: -110px; width: 240px; }
+  }
+
+  .info-panel .info-content h1 {
+    font-size: 2.2rem; /* menos grande para que no se salga */
+  }
+
+  .info-panel .background-text { opacity: 0.05; font-size: 2.6rem; }
+
+  .info-panel .info-content { padding-right: 2.8rem; }
+}
+
+/* Ajustar padding-right del contenido para evitar que el título quede pegado al filo */
+@media (max-width: 1100px) {
+  .info-panel .info-content { padding-right: 2rem; }
+}
+@media (max-width: 1024px) {
+  .info-panel .info-content { padding-right: 1.6rem; }
+}
+@media (max-width: 900px) {
+  .info-panel .info-content { padding-right: 1rem; }
+}
+
+/* --- Dark theme overrides: asegurar textos importantes en blanco --- */
+.app-main.dark-theme {
+  .login-container {
+    /* fuerza contraste para el panel izquierdo */
+    .info-panel {
+      color: var(--text, #e8eaed);
+      .info-content {
+        h1 { color: var(--text, #e8eaed); }
+      }
+    }
+
+    /* botones y textos del formulario deben permanecer claros sobre fondos oscuros */
+    .form-panel {
+      .register-btn { color: var(--badge-text, #ffffff); }
+      .login-form {
+        h2 { color: var(--text, #e8eaed); }
+        .forgot-password { color: var(--primary, #8ab4f8); }
+      }
+      .login-btn { color: var(--badge-text, #ffffff); }
+    }
+  }
+}
+
+/* --------------------------------------------------
+   Reglas forzadas: elementos que deben quedar blancos
+   independientemente del tema (según solicitud del UX)
+   -------------------------------------------------- */
+.login-container {
+  /* El título grande en el panel izquierdo siempre blanco */
+  .info-panel {
+    .info-content {
+      h1 { color: #ffffff !important; }
+    }
+  }
+
+  /* El panel del formulario del login debe mantenerse blanco */
+  .form-panel {
+    background: #ffffff !important;
+    /* asegurar que el contenido del formulario use texto oscuro para legibilidad */
+    color: #222 !important;
+
+    /* Inputs del formulario: fondo blanco y texto oscuro siempre */
+    .login-form input {
+      background-color: #ffffff !important;
+      color: #222 !important;
+      border: 1px solid #e6e9eb !important;
+    }
+
+    /* Botones: forzar texto blanco para 'Ingresar' y 'Registrate' */
+    .login-btn { color: #ffffff !important; }
+    .register-btn { color: #ffffff !important; }
   }
 }

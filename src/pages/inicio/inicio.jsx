@@ -1,5 +1,5 @@
-import React from 'react';
-import { NavLink } from 'react-router-dom';
+import React, { useState } from 'react';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { 
   FaStar, 
   FaMapMarkerAlt, 
@@ -13,9 +13,19 @@ import {
   FaFire
 } from 'react-icons/fa';
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+import { MdEmail } from 'react-icons/md';
+import { RiLockPasswordFill } from 'react-icons/ri';
 import '../../assets/scss/inicio.scss';
+import Registro from '../registro.jsx/registro.jsx';
 
 const Inicio = () => {
+  const navigate = useNavigate();
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showRegisterModal, setShowRegisterModal] = useState(false);
+
+  // estado local del formulario del modal
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
 
   // --- Datos de Ejemplo (Ampliados para el carrusel) ---
 
@@ -72,7 +82,7 @@ const Inicio = () => {
           <div className="hero-content">
             <h1>¡Bienvenido a la comunidad!</h1>
             <p className="hero-sub">Donde la aventura comienza — Conecta, Compra y Rodamos Juntos</p>
-            <button className="cta-join">¡Únete a la tribu!</button>
+            <button className="cta-join" onClick={() => setShowLoginModal(true)}>¡Únete a la tribu!</button>
           </div>
           <div className="hero-visual"><FaFire className="hero-fire" /></div>
         </section>
@@ -207,11 +217,44 @@ const Inicio = () => {
           </section>
         </div>
 
-        {/* --- Mapa --- */}
-        <section className="map-for-sellers">
-          <h2><FaMapMarkerAlt className="section-icon icon-map" />Vendedores cerca de ti</h2>
-          <div className="map-placeholder">Mapa interactivo (placeholder)</div>
-        </section>
+        {/* Mapa eliminado según indicación del cliente */}
+
+        {/* --- Login Modal (se abre al pulsar "¡Únete a la tribu!") --- */}
+        {showLoginModal && (
+          <div className="reg-modal-overlay" role="dialog" aria-modal="true">
+            <div className="reg-modal-card">
+              <button className="reg-close" onClick={() => setShowLoginModal(false)} aria-label="Cerrar">✕</button>
+              <h2 className="reg-title">Iniciar sesión</h2>
+              <p className="reg-sub">Accede para publicar, comentar y participar en la comunidad</p>
+
+              <form className="reg-form" onSubmit={(e) => { e.preventDefault(); if (loginEmail.trim() && loginPassword.trim()) { setShowLoginModal(false); navigate('/'); } else { alert('Ingresa email y contraseña'); } }}>
+                <label>
+                  <span>Email</span>
+                  <div className="reg-input">
+                    <MdEmail className="reg-icon" />
+                    <input name="email" type="email" placeholder="Email" value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)} required />
+                  </div>
+                </label>
+
+                <label>
+                  <span>Contraseña</span>
+                  <div className="reg-input">
+                    <RiLockPasswordFill className="reg-icon" />
+                    <input name="password" type="password" placeholder="Contraseña" value={loginPassword} onChange={(e) => setLoginPassword(e.target.value)} required />
+                  </div>
+                </label>
+
+                <div className="reg-actions">
+                  <button type="button" className="reg-btn secondary" onClick={() => { setShowLoginModal(false); setShowRegisterModal(true); }}>Crear cuenta</button>
+                  <button type="submit" className="reg-btn primary">Iniciar sesión</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* Registro modal reutilizando componente existente */}
+        <Registro isOpen={showRegisterModal} onClose={() => setShowRegisterModal(false)} />
 
       </main>
     </div>

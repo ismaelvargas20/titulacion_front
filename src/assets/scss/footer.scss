@@ -151,3 +151,11 @@ $accent-fire: #ff6b00;
     color: $text-light;
   }
 }
+
+/* Ajustes móviles extra para footer */
+@media (max-width: 576px) {
+  .footer-main { gap: 1.25rem; }
+  .footer-bottom small { font-size: 0.82rem; }
+  .footer-tagline { max-width: 100%; }
+  .social-links { gap: 0.85rem; }
+}

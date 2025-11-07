@@ -1,7 +1,7 @@
 /* Estilos del modal de registro */
-$reg-bg: #ffffff;
+$reg-bg: var(--card-bg, #ffffff);
 $overlay: rgba(12, 18, 26, 0.6);
-$primary: #007bff;
+$primary: var(--primary, #007bff);
 $darker: #0056b3;
 
 .reg-modal-overlay {
@@ -18,10 +18,11 @@ $darker: #0056b3;
 .reg-modal-card {
   width: 95%;
   max-width: 840px; /* Aumentado de 720px */
-  background: $reg-bg;
+  background: var(--card-bg, #ffffff);
+  color: var(--text, #222);
   border-radius: 14px;
   padding: 2rem 2.4rem; /* Aumentado de 1.6rem 1.8rem */
-  box-shadow: 0 24px 60px rgba(10, 20, 30, 0.45);
+  box-shadow: var(--shadow-sm, 0 24px 60px rgba(10, 20, 30, 0.45));
   position: relative;
   transform-origin: center;
   animation: cardShow 300ms cubic-bezier(.22,.9,.38,1);
@@ -35,17 +36,17 @@ $darker: #0056b3;
   border: none;
   font-size: 1.05rem;
   cursor: pointer;
-  color: #556;
+  color: var(--muted, #556);
 }
 
 .reg-title {
   margin: 0 0 0.15rem 0;
   font-size: 1.5rem;
-  color: #222;
+  color: var(--text, #222);
 }
 .reg-sub {
   margin: 0 0 1.25rem 0;
-  color: #556;
+  color: var(--muted, #556);
 }
 
 .reg-form {
@@ -71,7 +72,7 @@ $darker: #0056b3;
   left: 10px;
   top: 50%;
   transform: translateY(-50%);
-  color: #7b8a94;
+  color: var(--muted, #7b8a94);
   font-size: 1.05rem;
   pointer-events: none;
 }
@@ -80,15 +81,16 @@ $darker: #0056b3;
   width: 100%;
   padding: 0.85rem 1rem 0.85rem 3.2rem; /* Inputs más altos */
   border-radius: 10px;
-  border: 1px solid #d7dde1;
+  border: 1px solid var(--muted-border, #d7dde1);
   font-size: 1.02rem; /* Texto más grande */
-  background: #fff;
+  background: var(--card-bg, #fff);
+  color: var(--text, #222);
 }
 
 .reg-input input:focus {
   outline: none;
   box-shadow: 0 8px 20px rgba(0,123,255,0.06);
-  border-color: $primary;
+  border-color: var(--primary, $primary);
 }
 
 .reg-form label:nth-child(n+7) { grid-column: 1 / -1; } /* Password spans full width */
@@ -110,13 +112,13 @@ $darker: #0056b3;
 }
 
 .reg-btn.secondary {
-  background: #f1f5f7;
-  color: #334;
+  background: var(--page-bg, #f1f5f7);
+  color: var(--text, #334);
 }
 
 .reg-btn.primary {
-  background: $primary;
-  color: #fff;
+  background: var(--primary, #007bff);
+  color: var(--badge-text, #fff);
   box-shadow: 0 8px 20px rgba(0,123,255,0.12);
 }
 

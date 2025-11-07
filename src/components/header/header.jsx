@@ -10,6 +10,8 @@ import {
     FaUser,
     FaSun,
     FaMoon,
+    FaBars,
+    FaTimes,
 } from 'react-icons/fa';
 import '../../assets/scss/header.scss';
 import cascoImg from '../../assets/img/casco.png';
@@ -21,17 +23,22 @@ const Header = () => {
     const navigate = useNavigate();
 
     // Tema aplicado a la zona de contenido (.app-main)
+    // El tema por defecto será siempre 'light' a menos que el usuario haya guardado
+    // explícitamente una preferencia en localStorage. Esto evita que la app abra
+    // en modo oscuro por preferencia del sistema al cerrar sesión.
     const [theme, setTheme] = useState(() => {
         try {
             const t = localStorage.getItem('theme');
-            if (t) return t;
+            if (t === 'dark' || t === 'light') return t;
         } catch (e) {
             // ignore
         }
-        // preferencia del sistema
-        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) return 'dark';
+        // Forzamos 'light' como valor por defecto
         return 'light';
     });
+
+    // Menú móvil
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -46,14 +53,14 @@ const Header = () => {
     }, [dropdownRef]);
 
     const handleLogout = (e) => {
-        // limpiar almacenamiento (ajusta según tus keys si lo prefieres)
+        // Al cerrar sesión no queremos que quede guardado el tema oscuro.
+        // Eliminamos únicamente la key 'theme' y forzamos tema claro.
         try {
-            localStorage.clear();
-            sessionStorage.clear();
-        } catch (err) {
-            // ignore
-        }
-        // cerramos el dropdown; la navegación la hace el NavLink
+            localStorage.removeItem('theme');
+            // NO limpiamos todo el localStorage para no borrar otras prefs del usuario
+        } catch (err) {}
+        // Forzamos tema claro en la UI
+        setTheme('light');
         setIsDropdownOpen(false);
     };
 
@@ -94,13 +101,25 @@ const Header = () => {
                     </span>
                 </NavLink>
 
+                {/* Toggle nav móvil */}
+                <button
+                    type="button"
+                    className="nav-toggle"
+                    aria-label={mobileMenuOpen ? 'Cerrar menú' : 'Abrir menú'}
+                    aria-expanded={mobileMenuOpen}
+                    onClick={() => setMobileMenuOpen(s => !s)}
+                >
+                    {mobileMenuOpen ? <FaTimes /> : <FaBars />}
+                </button>
+
                 {/* --- NAV PRINCIPAL (Igual que antes) --- */}
                 <nav className="main-nav">
-                    <ul className="nav-list">
+                    <ul className={`nav-list ${mobileMenuOpen ? 'open' : ''}`}>
                         <li>
                             <NavLink 
                                 to="/motos" 
                                 className={({ isActive }) => (isActive ? 'nav-link cta-link secondary active' : 'nav-link cta-link secondary')}
+                                onClick={() => setMobileMenuOpen(false)}
                             >
                                 <FaMotorcycle className="nav-icon" />
                                 Motos
@@ -110,6 +129,7 @@ const Header = () => {
                             <NavLink 
                                 to="/repuestos" 
                                 className={({ isActive }) => (isActive ? 'nav-link cta-link secondary active' : 'nav-link cta-link secondary')}
+                                onClick={() => setMobileMenuOpen(false)}
                             >
                                 <FaTools className="nav-icon" />
                                 Repuestos
@@ -119,6 +139,7 @@ const Header = () => {
                             <NavLink 
                                 to="/comunidad" 
                                 className={({ isActive }) => (isActive ? 'nav-link cta-link secondary active' : 'nav-link cta-link secondary')}
+                                onClick={() => setMobileMenuOpen(false)}
                             >
                                 <FaUsers className="nav-icon" />
                                 Comunidad
@@ -128,6 +149,7 @@ const Header = () => {
                             <NavLink 
                                 to="/vender" 
                                 className={({ isActive }) => (isActive ? 'nav-link cta-link secondary active' : 'nav-link cta-link secondary')}
+                                onClick={() => setMobileMenuOpen(false)}
                             >
                                 <FaTag className="nav-icon" />
                                 Vender

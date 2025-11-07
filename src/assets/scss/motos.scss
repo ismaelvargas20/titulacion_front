@@ -1,0 +1,400 @@
+/* Estilos para la página motos: banner y tarjetas más vivas */
+
+$primary: #0b73ff;
+$accent: #00b4ff;
+$muted: #707582;
+$card-radius: 12px;
+$shadow: 0 6px 18px rgba(12, 35, 63, 0.12);
+
+.motos-main {
+  padding: 18px 24px 48px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Hero para invitar a vender */
+.sell-hero {
+  background: linear-gradient(90deg, $primary, $accent);
+  color: #fff;
+  border-radius: 14px;
+  padding: 22px;
+  margin-bottom: 22px;
+  box-shadow: 0 8px 30px rgba(11, 115, 255, 0.12);
+
+  .sell-hero-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+  }
+
+  h1 {
+    margin: 0 0 6px 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -0.2px;
+  }
+
+  p {
+    margin: 0;
+    color: rgba(255,255,255,0.92);
+  }
+
+  .btn {
+    display: inline-block;
+    text-decoration: none;
+    border-radius: 12px;
+    font-weight: 800;
+    padding: 14px 24px; /* más grande para que no quede recortado */
+    transition: transform 160ms ease, box-shadow 160ms ease;
+  }
+
+  .btn-primary {
+    background: #fff;
+    color: $primary;
+    box-shadow: 0 6px 18px rgba(11,115,255,0.12);
+    border: none;
+    font-size: 0.92rem; /* un poco menor: "Vender ahora" más balanceado */
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 30px rgba(11,115,255,0.14);
+  }
+}
+
+/* Sección de elementos destacados */
+.featured-items {
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+
+    h2 {
+      font-size: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0;
+    }
+
+    .view-all-link {
+      color: $primary;
+      font-weight: 600;
+      text-decoration: none;
+    }
+  }
+
+  .carousel-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .carousel-button {
+    background: var(--card-bg, #fff); /* usar token para adaptarse a tema */
+    border: 1px solid var(--muted-border, rgba(0,0,0,0.06));
+    color: $primary;
+    width: 48px; /* más grande */
+    height: 48px;
+    font-size: 1.1rem;
+    padding: 0;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%; /* circular */
+    box-shadow: 0 8px 18px rgba(2,6,23,0.06);
+  }
+
+  .carousel-button:hover { background: rgba(11,115,255,0.05); }
+
+  /* icono dentro del botón un poco más grande */
+  .carousel-button svg { width: 18px; height: 18px; }
+
+  /* Grid de tarjetas: 6 columnas en desktop, se adapta en responsive */
+  .item-cards-grid {
+    display: grid;
+    gap: 18px;
+    padding: 6px 8px;
+    grid-template-columns: repeat(6, 1fr);
+  }
+
+  /* Tarjeta individual */
+  .item-card {
+    background: var(--card-bg, #fff);
+    width: 100%;
+    border-radius: $card-radius;
+    box-shadow: var(--shadow-sm, $shadow);
+    overflow: hidden;
+    transition: transform 220ms cubic-bezier(.2,.9,.2,1), box-shadow 220ms;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .item-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(12,35,63,0.14);
+  }
+
+  .card-image {
+    position: relative;
+    height: 150px;
+    overflow: hidden;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 350ms ease;
+    }
+
+    .item-card:hover & img {
+      transform: scale(1.06);
+    }
+
+    /* precio como badge */
+    .card-price {
+      position: absolute;
+      left: 12px; /* mantener distancia cómoda del borde */
+      top: 12px;
+      background: var(--price-badge-bg, linear-gradient(90deg,#0b73ff,#00b4ff));
+      color: var(--badge-text, #fff);
+      height: 20px;               /* altura fija pequeña */
+      padding: 0 8px;            /* solo padding horizontal */
+      border-radius: 6px;        /* más pequeño y sutil */
+      font-weight: 700;
+      font-size: 0.72rem;        /* legible pero compacto */
+      line-height: 20px;         /* centrar el texto verticalmente */
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-width: 48px;           /* evitar que colapse demasiado */
+      box-shadow: 0 2px 6px rgba(11,115,255,0.08);
+      overflow: hidden;
+
+      /* icono del badge (FaTag) contenido y alineado */
+      svg { width: 12px; height: 12px; display: block; }
+    }
+
+    /* overlay sutil en la parte inferior de la imagen */
+    &::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 40%;
+      background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.18) 100%);
+    }
+  }
+
+  .card-content {
+    padding: 12px 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    color: var(--text); /* asegurar que el contenido respete el tema */
+
+    .card-title {
+      margin: 0;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .card-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: var(--muted);
+      font-size: 0.9rem;
+
+      .star-icon { color: #f5c518; }
+    }
+  }
+}
+
+/* Quitar scrollbar feo en navegadores */
+.item-cards-carousel::-webkit-scrollbar { height: 8px; }
+.item-cards-carousel::-webkit-scrollbar-thumb { background: rgba(11,115,255,0.12); border-radius: 99px; }
+
+/* Responsive */
+@media (max-width: 780px) {
+  .sell-hero-inner { flex-direction: column; align-items: flex-start; }
+  .item-cards-grid { grid-template-columns: repeat(3, 1fr); }
+  .card-image { height: 140px; }
+}
+
+@media (max-width: 420px) {
+  .motos-main { padding: 12px; }
+  .item-cards-grid { grid-template-columns: repeat(2, 1fr); }
+  .card-image { height: 120px; }
+}
+
+/* Formulario de venta embebido */
+.sell-form {
+  margin: 12px 0 20px;
+  padding: 14px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(2,6,23,0.06);
+  border: 1px solid rgba(255,255,255,0.04);
+}
+
+.sell-form-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr; /* formulario principal + preview */
+  gap: 18px;
+  align-items: start;
+}
+
+.sell-form-grid label { display: flex; flex-direction: column; font-size: 0.95rem; color: var(--text); }
+.sell-form-grid input, .sell-form-grid select, .sell-form-grid textarea { margin-top: 8px; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--muted-border); background: transparent; color: var(--text); box-shadow: inset 0 1px 0 rgba(255,255,255,0.02); }
+.sell-form-grid label.full { grid-column: 1 / -1; }
+.sell-form-main { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.sell-form-main label { margin: 0; }
+.sell-form-main label.full { grid-column: 1 / -1; }
+.sell-form-actions { display: flex; align-items: center; gap: 12px; grid-column: 1 / -1; justify-content: flex-end; }
+
+.sell-form-preview { grid-column: 2 / 3; }
+.preview-card { background: var(--card-bg, #fff); border-radius: 12px; padding: 12px; box-shadow: 0 8px 30px rgba(2,6,23,0.06); }
+.preview-image { position: relative; border-radius: 10px; overflow: hidden; height: 160px; background: linear-gradient(180deg, rgba(0,0,0,0.02), rgba(0,0,0,0.04)); }
+.preview-image img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.preview-price { position: absolute; left: 12px; top: 12px; background: var(--price-badge-bg, #0b73ff); color: #fff; padding: 6px 10px; border-radius: 8px; font-weight:800; font-size:0.85rem; box-shadow: 0 8px 20px rgba(11,115,255,0.12); }
+.preview-body { padding: 10px 6px; }
+.preview-body h4 { margin: 0 0 6px 0; font-size: 1rem; }
+.preview-desc { color: var(--muted); font-size: 0.92rem; margin: 8px 0; }
+.preview-contact { font-size: 0.88rem; color: var(--muted); }
+
+/* File input styling inside sell form */
+.sell-form-main input[type="file"] { margin-top: 8px; padding: 8px 6px; border-radius: 8px; background: transparent; color: var(--text); }
+.sell-form-main input[type="file"]::-webkit-file-upload-button { background: var(--cta-light, #0b73ff); color: #fff; border: none; padding: 6px 10px; border-radius: 6px; }
+
+/* Modal contact phone styling */
+.modal-contact-phone { margin-left: 12px; color: var(--muted); font-weight:700; }
+
+.sell-form-success { margin-top: 12px; padding: 10px 12px; background: linear-gradient(90deg, rgba(11,115,255,0.08), rgba(79,184,255,0.06)); color: #033a66; border-left: 4px solid var(--cta-light, #0b73ff); border-radius: 8px; font-weight: 700; }
+
+.btn.loading { opacity: 0.9; }
+
+.sell-form-preview .preview-empty { font-size: 0.85rem; color: var(--muted); padding: 8px; border-radius: 8px; background: rgba(0,0,0,0.03); }
+
+@media (max-width: 780px) {
+  .sell-form-grid { grid-template-columns: 1fr; }
+  .sell-form-main { grid-template-columns: 1fr; }
+  .sell-form-preview { grid-column: 1 / -1; }
+}
+@media (max-width: 420px) { .sell-form-grid { grid-template-columns: 1fr; } }
+
+/* Panel y animación */
+.sell-form-panel { overflow: hidden; max-height: 0; transition: max-height 320ms ease; }
+.sell-form-panel.open { max-height: 800px; }
+.fade-slide { animation: fadeSlide 320ms ease both; }
+@keyframes fadeSlide { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Hero button refinement */
+.hero-sell-btn { padding: 12px 20px; border-radius: 12px; font-weight: 800; box-shadow: 0 8px 22px rgba(11,115,255,0.12); background: #fff; color: $primary; border: none; }
+.hero-sell-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(11,115,255,0.14); }
+.hero-sell-btn:focus { outline: none; box-shadow: 0 12px 28px rgba(11,115,255,0.14); }
+
+/* Estilos para botones dentro del formulario embebido */
+.sell-form .btn { appearance: none; border: none; padding: 12px 16px; border-radius: 10px; font-weight: 700; cursor: pointer; }
+.sell-form .btn.btn-primary {
+  /* usar color sólido parecido a la 1ra imagen */
+  background: var(--cta-light, #0b73ff);
+  color: #fff;
+  box-shadow: 0 10px 26px rgba(11,115,255,0.12);
+  border: none;
+  font-size: 0.95rem;
+  padding: 12px 20px;
+  transition: transform 160ms ease, filter 120ms ease;
+}
+.sell-form .btn.btn-primary:hover { transform: translateY(-2px); filter: brightness(0.96); }
+.sell-form .btn:not(.btn-primary) {
+  background: transparent;
+  color: var(--text);
+  border: none;
+  padding: 10px 14px;
+}
+.sell-form .btn:hover { transform: translateY(-2px); }
+.sell-form .sell-form-actions .btn { padding: 12px 18px; }
+
+/* Remove default focus outline and add subtle focus style */
+.sell-form .btn:focus { outline: none; box-shadow: 0 6px 20px rgba(11,115,255,0.10); }
+
+/* Ensure hero and form buttons respect dark theme */
+.app-main.dark-theme .hero-sell-btn { background: var(--header-cta-bg-dark, rgba(255,255,255,0.06)); color: var(--header-cta-text-dark, #fff); box-shadow: none; }
+
+/* Dark theme: usar un color alternativo más armónico (no el tono anterior que no te gustó) */
+.app-main.dark-theme .sell-hero {
+  .btn.btn-primary {
+    background: var(--cta-dark, #1ea1ff); /* color alternativo para dark theme */
+    color: #fff;
+    box-shadow: 0 8px 22px rgba(0,0,0,0.5);
+    border: none;
+    font-weight: 800;
+    padding: 14px 26px; /* asegurar que no se vea recortado */
+    font-size: 0.98rem; /* mantener tamaño similar al modo claro */
+  }
+}
+
+.app-main.dark-theme .sell-form .btn.btn-primary {
+  /* publicar debe usar color sólido y legible en dark theme (usar el color de la 1ra imagen) */
+  background: var(--cta-light, #0b73ff);
+  color: #fff;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.45);
+  border: none;
+}
+
+/* Asegurar con mayor especificidad que el botón Publicar dentro del panel use el color correcto en dark */
+.app-main.dark-theme .sell-form-panel .sell-form .btn.btn-primary {
+  background: var(--cta-light, #0b73ff) !important;
+  color: #fff !important;
+  box-shadow: 0 12px 30px rgba(11,115,255,0.18);
+  transform: translateZ(0);
+}
+ 
+
+/* Forzar eliminación de outlines/bordes negros heredados y definir foco accesible */
+.sell-hero .btn, .sell-form .btn {
+  outline: none;
+  border: none;
+}
+.sell-hero .btn:focus, .sell-form .btn:focus {
+  outline: none;
+  box-shadow: 0 6px 20px rgba(22,99,200,0.22);
+}
+
+/* Ajustes para modo oscuro aplicando tokens de `themes.scss` */
+.app-main.dark-theme {
+  .motos-main {
+    /* el fondo de las tarjetas ya usa --card-bg; solo reforzamos las sombras y textos */
+    .item-card {
+      box-shadow: var(--shadow-sm, 0 6px 18px rgba(0,0,0,0.45));
+    }
+
+    .sell-hero {
+      /* en modo oscuro el hero será más sutil y armonizará con --card-bg */
+      background: linear-gradient(90deg, rgba(138,180,248,0.08), rgba(11,115,255,0.06));
+      border: 1px solid var(--muted-border, rgba(255,255,255,0.06));
+      box-shadow: none;
+
+      .btn-primary {
+        background: var(--card-bg);
+        color: var(--primary);
+        box-shadow: 0 6px 18px rgba(0,0,0,0.36);
+      }
+    }
+
+    .card-price {
+      background: var(--price-badge-bg);
+      color: var(--badge-text);
+      box-shadow: none;
+    }
+  }
+}
