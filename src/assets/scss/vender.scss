@@ -1,0 +1,194 @@
+/* Vender page styles: reuse motos.scss patterns so hero, buttons and dark-mode match */
+@import 'motos';
+
+.vender-main {
+  padding: 18px 24px 48px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.placeholder-cards {
+  margin-top: 18px;
+  padding: 14px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  border-radius: 12px;
+  border: 1px solid rgba(0,0,0,0.04);
+}
+
+/* Activity cards: lively micro-interactions to match motos' feel */
+.cards-row {
+  margin-top: 8px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+.activity-card {
+  background: var(--card-bg, #fff);
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 8px 26px rgba(2,6,23,0.06);
+  transition: transform 220ms cubic-bezier(.2,.9,.2,1), box-shadow 220ms, opacity 260ms ease;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.activity-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(12,35,63,0.12);
+}
+
+.activity-card.large { grid-column: 1 / -1; }
+
+/* small entrance animation for cards and modal */
+.animate-in { animation: fadeSlide 360ms ease both; }
+@keyframes fadeSlide { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+/* CTA tweaks inside hero to match motos spacing */
+.sell-hero .sell-hero-cta { display: flex; gap: 12px; align-items: center; }
+.sell-hero .hero-sell-btn { padding: 10px 18px; border-radius: 12px; font-weight: 700; }
+
+/* Constrain the hero inner content to the same max-width as motos for visual parity */
+.vender-page .sell-hero {
+  /* make the hero visually match Comunidad/Motos: centered inner content, same max width and spacing */
+  border-radius: 14px;
+  padding: 18px 0; /* outer padding kept to preserve gradient edges */
+  margin-bottom: 28px;
+  box-shadow: 0 8px 30px rgba(11,115,255,0.12);
+}
+
+.vender-page .sell-hero .sell-hero-inner {
+  max-width: 1200px;
+  margin: 0 auto 0;
+  padding: 12px 22px; /* inner content padding matching Comunidad */
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+/* Make activity cards more lively following the motos pattern */
+.activity-card {
+  background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(250,250,251,0.98));
+  border: 1px solid rgba(2,6,23,0.06);
+}
+
+.activity-card h3 { display:flex; align-items:center; gap:10px; margin:0; font-size:1.02rem; }
+.activity-card h3 svg { width:18px; height:18px; }
+.activity-card h3 svg {
+  /* place the svg inside a circular token visually without changing markup */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 6px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, rgba(11,115,255,0.12), rgba(0,180,255,0.06));
+  color: var(--primary, #0b73ff);
+  box-shadow: 0 6px 18px rgba(11,115,255,0.06);
+  transition: transform 260ms ease, box-shadow 260ms ease, background 260ms;
+}
+.activity-card p { color: var(--muted); margin: 6px 0 0 0; line-height:1.35; }
+
+/* subtle badge on the top-right of each card */
+.activity-card::before {
+  /* decorative left accent stripe */
+  content: '';
+  position: absolute;
+  left: 12px;
+  top: 12px;
+  bottom: 12px;
+  width: 6px;
+  border-radius: 6px;
+  background: linear-gradient(180deg, rgba(11,115,255,0.9), rgba(0,180,255,0.6));
+  opacity: 0.12;
+  transition: opacity 260ms ease, transform 260ms ease;
+}
+
+.activity-card::after {
+  /* small chevron indicator on the right (using CSS triangles) */
+  content: '';
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  border-left: 7px solid rgba(2,6,23,0.06);
+  border-top: 6px solid transparent;
+  border-bottom: 6px solid transparent;
+  opacity: 0.9;
+  transition: transform 180ms ease, opacity 180ms;
+}
+
+/* ensure the cards have relative positioning for pseudo elements */
+.activity-card { position: relative; overflow: hidden; }
+
+/* stronger hover feedback */
+.activity-card:hover { transform: translateY(-10px) scale(1.01) rotate(-0.2deg); box-shadow: 0 30px 60px rgba(12,35,63,0.14); }
+.activity-card:active { transform: translateY(-6px) scale(0.995); }
+.activity-card:hover h3 svg { transform: scale(1.08) translateY(-2px); box-shadow: 0 10px 28px rgba(11,115,255,0.08); }
+.activity-card:hover::before { opacity: 0.2; transform: translateX(-2px); }
+.activity-card:hover::after { transform: translateY(-50%) translateX(6px); opacity: 1; }
+
+/* pulsing attention dot for the large inbox card */
+.activity-card.large::before { opacity: 0.06; }
+.activity-card.large .inbox-dot {
+  position: absolute;
+  left: 18px;
+  top: 12px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: linear-gradient(180deg,#00c3ff,#0b73ff);
+  box-shadow: 0 6px 18px rgba(11,115,255,0.12);
+  animation: pulse 1600ms infinite;
+}
+
+@keyframes pulse { 0% { transform: scale(0.86); opacity: 0.9 } 50% { transform: scale(1.14); opacity: 0.6 } 100% { transform: scale(0.86); opacity: 0.9 } }
+
+
+/* Make modal preview look a touch elevated in light theme */
+.sell-modal .preview-card { transition: transform 220ms, box-shadow 220ms; }
+.sell-modal .preview-card:hover { transform: translateY(-4px); box-shadow: 0 26px 56px rgba(2,6,23,0.12); }
+
+/* entrance stagger for cards to feel alive */
+.cards-row .activity-card { animation: fadeSlideUp 420ms cubic-bezier(.2,.9,.2,1) both; }
+.cards-row .activity-card:nth-child(1) { animation-delay: 60ms; }
+.cards-row .activity-card:nth-child(2) { animation-delay: 140ms; }
+.cards-row .activity-card:nth-child(3) { animation-delay: 220ms; }
+@keyframes fadeSlideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Dark theme adjustments for Vender page (follow Comunidad patterns) */
+.app-main.dark-theme .vender-page .sell-hero {
+  background: linear-gradient(90deg, rgba(138,180,248,0.08), rgba(11,115,255,0.06));
+  border: 1px solid var(--muted-border, rgba(255,255,255,0.06));
+  box-shadow: none;
+  color: #fff;
+}
+.app-main.dark-theme .vender-page .sell-hero .hero-sell-btn {
+  background: var(--card-bg);
+  color: var(--primary);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.36);
+}
+
+.app-main.dark-theme .activity-card {
+  background: linear-gradient(180deg, #17191a, #111314);
+  border: 1px solid rgba(255,255,255,0.035);
+  color: #d7e3ee;
+  box-shadow: 0 12px 36px rgba(2,6,23,0.45);
+}
+.app-main.dark-theme .activity-card p { color: #c0ccd8; }
+
+
+/* Ensure responsive fallback */
+@media (max-width: 780px) {
+  .cards-row { grid-template-columns: 1fr; }
+  .activity-card.large { grid-column: auto; }
+}
+
+/* Ensure section header uses the same visual token as other pages */
+.vender-page .section-header h2 { margin: 0 0 12px; }

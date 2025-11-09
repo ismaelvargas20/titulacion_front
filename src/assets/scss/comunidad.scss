@@ -1,0 +1,473 @@
+/* Styles for the Comunidad (foro) page - hero + posts cards */
+
+$primary: #0b73ff;
+$accent: #00b4ff;
+
+.comunidad-page {
+  padding: 18px 24px 48px;
+  /* Match motos/repuestos container width for visual parity */
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Hero / call-to-action: reuse visual style from .sell-hero (motos/repuestos)
+   so comunidad matches width, colors and dark-mode behavior. */
+.community-hero {
+  background: linear-gradient(90deg, $primary, $accent);
+  color: #fff;
+  border-radius: 14px;
+  padding: 22px;
+  margin-bottom: 28px;
+  box-shadow: 0 8px 30px rgba(11,115,255,0.12);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1200px;
+  margin: 0 auto 28px; /* centrar y usar mismo ancho que motos/repuestos */
+
+  /* inner helpers kept implicit; specific elements styled below */
+
+  .hero-text {
+    max-width: 76%;
+  }
+
+  h1 {
+    margin: 0 0 6px 0;
+    font-size: 1.5rem; /* igual que sell-hero */
+    font-weight: 700;
+    letter-spacing: -0.2px;
+  }
+
+  p { margin: 0; color: rgba(255,255,255,0.92); }
+
+  .hero-sell-btn {
+    padding: 12px 20px;
+    border-radius: 12px;
+    font-weight: 800;
+    box-shadow: 0 8px 22px rgba(11,115,255,0.12);
+    background: #fff;
+    color: $primary;
+    border: none;
+  }
+
+  .hero-sell-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(11,115,255,0.14); }
+  .hero-sell-btn:focus { outline: none; box-shadow: 0 12px 28px rgba(11,115,255,0.14); }
+}
+
+/* Question form container */
+.question-form {
+  margin-bottom: 18px;
+}
+
+/* Post card container style overrides to match screenshot */
+.post-card-wrapper {
+  margin-top: 12px;
+}
+
+.post-card-inner {
+  background: #fff;
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow: 0 10px 30px rgba(2,6,23,0.06);
+  border: 1px solid rgba(11,115,255,0.04);
+}
+
+.post-card-inner .lead-box {
+  background: #f4f9ff;
+  border: 1px solid rgba(11,115,255,0.06);
+  padding: 12px;
+  border-radius: 10px;
+}
+
+.post-card-inner .author { color: #6b7280; font-size: 0.9rem; }
+.post-card-inner h3 { margin: 6px 0 8px; }
+
+/* Inputs and buttons for comunidad page */
+.question-form textarea,
+.question-textarea {
+  width: 100%;
+  padding: 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(0,0,0,0.08);
+  background: #f4f9ff;
+  color: #0b1730;
+  resize: vertical;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 16px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.btn-primary, .hero-sell-btn {
+  background: $primary;
+  color: #fff;
+  border: none;
+  font-weight: 800;
+}
+
+/* New question card (replaces tailwind-like utilities) */
+.new-question-card {
+  background: linear-gradient(90deg, $primary, $accent);
+  color: #fff;
+  border-radius: 18px;
+  padding: 20px;
+  margin-bottom: 18px;
+  box-shadow: 0 18px 50px rgba(11,115,255,0.08);
+}
+.new-question-header { display:flex; gap:12px; align-items:center; margin-bottom:12px; }
+.hero-icon { width:36px; height:36px; color:#f5c518; flex:0 0 36px; }
+.new-question-title { margin:0; font-size:1.35rem; font-weight:800; }
+.new-question-sub { margin:4px 0 0; opacity:0.95; }
+
+/* full width helper for buttons */
+.full-width { width:100%; }
+.submit-question { margin-top:12px; padding:12px 18px; border-radius:12px; font-size:1rem; }
+
+/* small send button used next to response input */
+.small-send { padding:8px; border-radius:10px; display:inline-flex; align-items:center; justify-content:center; background: $primary; color:#fff; border:none; }
+.icon-send { width:18px; height:18px; }
+
+/* ensure the add-response input and button sit nicely */
+.add-response-form { display:flex; gap:8px; margin-top:12px; align-items:center; }
+.input-response { flex:1; padding:8px 10px; border-radius:8px; border:1px solid rgba(0,0,0,0.06); }
+
+.add-response-form { display:flex; gap:8px; margin-top:12px; }
+.input-response { flex:1; padding:8px 10px; border-radius:8px; border:1px solid rgba(0,0,0,0.06); }
+.icon-btn { background: $primary; color:#fff; border:none; padding:8px 10px; border-radius:8px; }
+
+.post-header { display:flex; gap:12px; align-items:center; margin-bottom:12px; }
+.icon-user {
+  /* Avatar container: add inner padding so the 'head' graphic doesn't touch the circle edge */
+  width: 44px;
+  height: 44px;
+  padding: 8px; /* increased padding so the inner SVG has more breathing room */
+  box-sizing: border-box; /* include padding inside width/height so SVG centers correctly */
+  color: #0b73ff; /* svg uses currentColor */
+  flex: 0 0 44px;
+  margin-top: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff; /* white circle behind icon for contrast */
+  border-radius: 50%;
+  box-shadow: 0 8px 24px rgba(11,115,255,0.08);
+  border: 1px solid rgba(11,115,255,0.06);
+  transition: transform 220ms ease, box-shadow 220ms ease;
+  animation: popIn 420ms cubic-bezier(.2,.9,.2,1) both;
+}
+.icon-user svg { width: 60%; height: 60%; display: block; transform: none; }
+.icon-user:hover { transform: translateY(-3px) scale(1.03); box-shadow: 0 14px 36px rgba(11,115,255,0.12); }
+.post-question { margin:0; font-size:1.05rem; font-weight:700; }
+.lead-inner { display:flex; gap:12px; align-items:flex-start; }
+.icon-bulb { width:18px; height:18px; color:#f5c518; }
+.lead-text { margin:0; }
+
+.lead-text-wrap { flex:1; display:flex; gap:8px; align-items:flex-start; }
+
+/* image inside post */
+.post-image-wrap { flex: 0 0 120px; display:flex; align-items:flex-start; }
+.post-image { width:120px; height:88px; object-fit:cover; border-radius:10px; margin-left:12px; }
+
+/* file input and preview in new question form */
+.question-file-row { display:flex; gap:12px; align-items:center; margin-top:10px; }
+.question-file-input { flex:0 0 auto; color: #0b1730; }
+/* style the native file button to look like motos' CTA */
+.question-file-input::-webkit-file-upload-button {
+  background: #0b73ff;
+  color: #fff;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 8px 22px rgba(11,115,255,0.08);
+}
+/* modern browsers */
+.question-file-input::file-selector-button {
+  background: #0b73ff;
+  color: #fff;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 8px 22px rgba(11,115,255,0.08);
+}
+.question-preview { width:120px; height:80px; object-fit:cover; border-radius:8px; border:1px solid rgba(0,0,0,0.06); }
+
+/* Small control wrapper so the label sits above the custom file button */
+.question-file-control { display:flex; flex-direction:column; align-items:flex-start; }
+.question-file-label { font-weight:700; color: #9aa6b2; margin-bottom:6px; font-size:0.9rem; }
+
+/* small vertical tweak so the user icon doesn't touch the top border */
+.post-header { align-items:center; }
+
+.toggle-responses { margin-top:12px; background:transparent; border:none; color:$primary; cursor:pointer; display:inline-flex; align-items:center; gap:8px; }
+.toggle-responses .icon-chat { width:18px; height:18px; }
+
+.responses-section { margin-top:12px; padding-top:12px; border-top:1px solid rgba(0,0,0,0.04); }
+.response-item { display:flex; gap:10px; align-items:flex-start; padding:10px; background:#fff; border-radius:8px; border:1px solid rgba(11,115,255,0.03); }
+.response-item .icon {
+  width: 36px;
+  height: 36px;
+  padding: 6px;
+  box-sizing: border-box;
+  color: #6b7280;
+  flex: 0 0 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  border-radius: 50%;
+  border: 1px solid rgba(11,115,255,0.04);
+  box-shadow: 0 6px 16px rgba(2,6,23,0.04);
+}
+.response-item .icon svg { width: 60%; height: 60%; display: block; transform: none; }
+
+/* small gentle pop animation when icons appear and subtle hover */
+@keyframes popIn {
+  from { transform: scale(.88) translateY(4px); opacity: 0; }
+  to { transform: scale(1) translateY(0); opacity: 1; }
+}
+.response-user { display:block; font-weight:700; color:#1f2937; }
+.response-text { margin:4px 0 0; color:#374151; }
+
+.section-title { font-size:1.6rem; font-weight:800; margin: 18px 0; border-bottom:4px solid #0b73ff; padding-bottom:10px; }
+.posts-list { display:flex; flex-direction:column; gap:18px; }
+.community-footer { margin-top:28px; text-align:center; color:#6b7280; }
+
+/* Dark theme adjustments: keep same structure but with darker surfaces */
+.app-main.dark-theme .community-hero {
+  /* seguir el comportamiento visual del sell-hero en modo oscuro */
+  background: linear-gradient(90deg, rgba(138,180,248,0.08), rgba(11,115,255,0.06));
+  border: 1px solid var(--muted-border, rgba(255,255,255,0.06));
+  color: #fff;
+  box-shadow: none;
+
+  .hero-sell-btn {
+    background: var(--card-bg);
+    color: var(--primary);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.36);
+  }
+}
+.app-main.dark-theme .post-card-inner {
+  /* un poco más claro: gris neutro suave para diferenciar del fondo */
+  background: linear-gradient(180deg, #1b1d1e, #141516);
+  border: 1px solid rgba(255,255,255,0.045);
+  box-shadow: 0 12px 36px rgba(2,6,23,0.45);
+  color: #e6eef8;
+}
+.app-main.dark-theme .post-card-inner .lead-box {
+  /* caja de respuesta interna ligeramente más clara para legibilidad */
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.035);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.01);
+}
+
+/* Dark mode tweaks for modal and textarea */
+.app-main.dark-theme .comunidad-modal {
+  /* modal con fondo gris neutro, evitando tonos azules */
+  background: linear-gradient(180deg, #161718, #0f1112);
+  color: #e6eef8;
+  border: 1px solid rgba(255,255,255,0.035);
+  box-shadow: 0 30px 80px rgba(2,6,23,0.55);
+}
+.app-main.dark-theme .comunidad-modal .question-textarea {
+  background: #121415; /* neutral dark gray */
+  color: #dfeaf7;
+  border: 1px solid rgba(255,255,255,0.04);
+}
+.app-main.dark-theme .new-question-card {
+  /* neutral hero card in dark mode */
+  background: linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  color: #fff;
+}
+.app-main.dark-theme .post-image { border: 1px solid rgba(255,255,255,0.04); }
+.app-main.dark-theme .author { color: #9aa6b2; }
+.app-main.dark-theme .post-question { color: #fff; }
+.app-main.dark-theme .lead-text { color: #cbd6e3; }
+/* Dark mode: make the file input filename readable and the button vivid */
+.app-main.dark-theme .question-file-input { color: #cfe6ff; }
+.app-main.dark-theme .question-file-input::file-selector-button,
+.app-main.dark-theme .question-file-input::-webkit-file-upload-button {
+  background: #0b73ff;
+  box-shadow: 0 10px 26px rgba(11,115,255,0.12);
+  color: #fff;
+}
+/* small send button in dark theme: keep gradient and slightly darker shadow */
+.app-main.dark-theme .small-send { box-shadow: 0 8px 22px rgba(2,6,23,0.6); }
+
+/* Make the small-send button adapt in dark mode: use neutral/dark theme colors (not vivid blue) */
+.app-main.dark-theme .small-send {
+  background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+  color: #dfeaf7;
+  border: 1px solid rgba(255,255,255,0.03);
+  box-shadow: none;
+}
+
+/* Response input styling in dark mode: neutral, matching other dark surfaces */
+.app-main.dark-theme .responses-section .add-response-form .input-response,
+.app-main.dark-theme .input-response {
+  /* neutral light-gray input in dark theme so it doesn't look like a blue panel */
+  background: #2b3135; /* gris claro relativo dentro del tema oscuro */
+  border: 1px solid rgba(255,255,255,0.04);
+  color: #dfeaf7;
+  transition: background 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+}
+
+.app-main.dark-theme .responses-section .add-response-form .input-response:focus,
+.app-main.dark-theme .input-response:focus {
+  outline: none;
+  /* no usar azul; usar un halo sutil acorde al tema */
+  box-shadow: 0 0 0 4px rgba(255,255,255,0.02);
+  background: #32373b; /* un poco más claro al enfocar */
+  border-color: rgba(255,255,255,0.06);
+}
+
+.app-main.dark-theme .input-response::placeholder {
+  color: rgba(255,255,255,0.45);
+}
+
+/* Custom file button and filename display */
+.question-file-button {
+  /* Softer blue gradient for Comunidad (less saturated than Repuestos) */
+  background: linear-gradient(90deg,#1670d6,#29a6e6);
+  color: #fff;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(22,112,214,0.10);
+  transition: transform 160ms ease, box-shadow 160ms ease, filter 160ms ease;
+}
+.question-file-name { margin-left:12px; color:#9aa6b2; }
+
+/* Submit button in the new-question form: soften the blue and use gradient like other CTAs but less saturated */
+.submit-question {
+  /* Softer CTA for Comunidad to reduce visual harshness */
+  background: linear-gradient(90deg,#1670d6,#29a6e6);
+  color: #fff;
+  border: none;
+  padding: 12px 18px;
+  border-radius: 12px;
+  font-weight: 800;
+  box-shadow: 0 10px 24px rgba(22,112,214,0.10);
+}
+.submit-question:hover { transform: translateY(-2px); filter: brightness(0.98); box-shadow: 0 14px 30px rgba(22,112,214,0.12); }
+
+/* Dark theme overrides for custom file button */
+.app-main.dark-theme .question-file-button {
+  /* lighter, neutral look in dark theme (soft gray) */
+  background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+  color: #dfeaf7;
+  border: 1px solid rgba(255,255,255,0.06);
+  box-shadow: none;
+}
+.app-main.dark-theme .question-file-name { color:#9aa6b2; }
+
+.app-main.dark-theme .submit-question {
+  /* neutral light-gray CTA in dark theme to match the file button */
+  background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+  color: #e6eef8;
+  box-shadow: none;
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+/* Hide native file button when present (fallback) */
+.question-file-input { display: inline-block; }
+
+/* Make the "Preguntas Recientes" heading white and remove the strong blue accent in dark mode */
+.app-main.dark-theme .section-title {
+  color: #ffffff;
+  /* softer separator instead of vivid blue */
+  border-bottom: 4px solid rgba(255,255,255,0.04);
+}
+
+/* Ensure icons and user markers are neutral gray in dark theme (no bright blue) */
+.app-main.dark-theme .icon-user,
+.app-main.dark-theme .icon-bulb,
+.app-main.dark-theme .hero-icon {
+  color: #9aa6b2;
+}
+
+/* Dark-mode avatar tweaks */
+.app-main.dark-theme .icon-user {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.04);
+  box-shadow: none;
+  color: #9aa6b2;
+}
+.app-main.dark-theme .response-item .icon {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.03);
+  box-shadow: none;
+  color: #9aa6b2;
+}
+
+/* Toggle responses ("Respuestas / comentar") should be subtle gray in dark mode */
+.app-main.dark-theme .toggle-responses {
+  color: #9aa6b2;
+}
+
+/* Response items and the responses list should use muted gray surfaces (not white or blue) */
+.app-main.dark-theme .responses-section {
+  border-top: 1px solid rgba(255,255,255,0.03);
+}
+.app-main.dark-theme .response-item {
+  /* respuestas con fondo más claro y neutral (no azul) */
+  background: linear-gradient(180deg, #17191a, #111314);
+  border: 1px solid rgba(255,255,255,0.035);
+  color: #d7e3ee;
+}
+.app-main.dark-theme .response-user { color: #e6eef8; }
+.app-main.dark-theme .response-text { color: #c0ccd8; }
+
+/* Make the input for adding responses match the dark surfaces */
+.app-main.dark-theme .input-response {
+  background: #071018;
+  border: 1px solid rgba(255,255,255,0.03);
+  color: #dfeaf7;
+}
+
+/* Make the toggle link a bit more visible but still neutral */
+.app-main.dark-theme .toggle-responses { color: #cbd6e3; }
+.app-main.dark-theme .toggle-responses .icon-chat { color: #cbd6e3; }
+
+/* Responsive */
+@media (max-width: 820px) {
+  .community-hero { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .community-hero .hero-text { max-width: 100%; }
+}
+
+/* Modal styles for new question */
+.comunidad-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(2,6,23,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1200;
+  padding: 24px;
+}
+.comunidad-modal {
+  background: #fff;
+  border-radius: 14px;
+  width: 100%;
+  max-width: 920px;
+  box-shadow: 0 20px 60px rgba(2,6,23,0.2);
+  padding: 20px;
+  position: relative;
+}
+.comunidad-modal .new-question-card { background: transparent; color: inherit; box-shadow: none; padding:0; }
+.comunidad-modal .question-textarea { background:#f8fafc; color:#0b1730; }
+.modal-close { position:absolute; right:12px; top:12px; background:transparent; border:none; font-size:22px; cursor:pointer; }
+
+/* Small helper */
+.muted { color: #6b7280; }

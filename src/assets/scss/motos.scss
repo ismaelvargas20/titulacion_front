@@ -297,6 +297,115 @@ $shadow: 0 6px 18px rgba(12, 35, 63, 0.12);
 .fade-slide { animation: fadeSlide 320ms ease both; }
 @keyframes fadeSlide { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
 
+/* Modal / popup para el formulario de venta */
+.sell-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(8, 14, 30, 0.48);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 1200;
+}
+
+.sell-modal {
+  width: 100%;
+  max-width: 980px;
+  background: var(--card-bg, #fff);
+  border-radius: 14px;
+  box-shadow: 0 30px 60px rgba(2,6,23,0.36);
+  /* dejar espacio extra a la derecha para que la scrollbar no toque el contenido
+     y mejorar la zona del botón cerrar */
+  padding: 18px 22px 18px 18px;
+  position: relative;
+  overflow: auto;
+  max-height: calc(100vh - 80px);
+}
+
+.sell-modal .modal-close {
+  position: absolute;
+  /* mover ligeramente a la izquierda para no quedar pegado al thumb */
+  right: 18px;
+  top: 8px;
+  background: transparent;
+  border: none;
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--muted, #707582);
+}
+
+/* Scrollbar styling for the modal: subtle, rounded and with reserved gutter */
+.sell-modal {
+  /* reservar espacio estable para la scrollbar cuando aparezca (soporte moderno) */
+  scrollbar-gutter: stable;
+  /* Firefox */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(2,6,23,0.12) transparent;
+}
+
+.sell-modal::-webkit-scrollbar { width: 12px; }
+.sell-modal::-webkit-scrollbar-track { background: transparent; }
+.sell-modal::-webkit-scrollbar-thumb {
+  background: rgba(2,6,23,0.10);
+  border-radius: 999px;
+  border: 3px solid transparent; /* crea un padding visual entre thumb y track */
+  background-clip: padding-box;
+}
+.app-main.dark-theme .sell-modal::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.10);
+}
+
+/* Ajustes para que el layout del modal use las mismas clases .sell-form-grid etc */
+.sell-modal .sell-form-grid { gap: 20px; }
+.sell-modal .sell-form-main { grid-template-columns: repeat(2, 1fr); }
+.sell-modal .sell-form-main label { margin-bottom: 8px; }
+.sell-modal .sell-form-actions { justify-content: flex-start; }
+
+/* Mejoras visuales SOLO para tema claro: más vida en el modal */
+.app-main:not(.dark-theme) .sell-modal {
+  background: linear-gradient(180deg, #ffffff, #fbfdff);
+  border: 1px solid rgba(11,115,255,0.08);
+  box-shadow: 0 40px 80px rgba(11,115,255,0.10);
+}
+
+.app-main:not(.dark-theme) .sell-modal .sell-form-main input,
+.app-main:not(.dark-theme) .sell-modal .sell-form-main select,
+.app-main:not(.dark-theme) .sell-modal textarea {
+  background: #ffffff;
+  border: 1px solid rgba(11,115,255,0.06);
+  box-shadow: inset 0 1px 0 rgba(11,115,255,0.02);
+}
+
+.app-main:not(.dark-theme) .sell-modal .sell-form-main input:focus,
+.app-main:not(.dark-theme) .sell-modal .sell-form-main select:focus,
+.app-main:not(.dark-theme) .sell-modal textarea:focus {
+  outline: none;
+  border-color: #0b73ff;
+  box-shadow: 0 8px 30px rgba(11,115,255,0.10);
+}
+
+.app-main:not(.dark-theme) .sell-modal .preview-card {
+  box-shadow: 0 18px 40px rgba(11,115,255,0.06);
+  border-radius: 12px;
+}
+
+.app-main:not(.dark-theme) .sell-modal .preview-price {
+  background: linear-gradient(90deg,#0b73ff,#00b4ff);
+  box-shadow: 0 10px 26px rgba(11,115,255,0.10);
+}
+
+.app-main:not(.dark-theme) .sell-modal .sell-form .btn.btn-primary {
+  background: linear-gradient(90deg,#0b73ff,#00b4ff);
+  color: #fff;
+  box-shadow: 0 12px 30px rgba(11,115,255,0.12);
+}
+
+.app-main:not(.dark-theme) .sell-modal label { color: #153a66; }
+
+
+
 /* Hero button refinement */
 .hero-sell-btn { padding: 12px 20px; border-radius: 12px; font-weight: 800; box-shadow: 0 8px 22px rgba(11,115,255,0.12); background: #fff; color: $primary; border: none; }
 .hero-sell-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(11,115,255,0.14); }
@@ -396,5 +505,17 @@ $shadow: 0 6px 18px rgba(12, 35, 63, 0.12);
       color: var(--badge-text);
       box-shadow: none;
     }
+    /* Ajustes de color en la previsualización dentro del modal en modo oscuro
+       - título en blanco para contraste
+       - texto secundario en gris claro (no todo blanco) para mantener jerarquía */
+    .preview-card, .preview-body { background: transparent; }
+    .preview-body h4 { color: #ffffff; }
+    .preview-body .preview-meta,
+    .preview-body .preview-desc,
+    .preview-contact { color: rgba(255,255,255,0.72); }
+    .preview-body .preview-meta small { color: rgba(255,255,255,0.65); }
+
+    /* Añadir un borde izquierdo entre el formulario y la previsualización dentro del modal */
+    .sell-modal .sell-form-preview { border-left: 1px solid rgba(255,255,255,0.06); padding-left: 18px; }
   }
 }

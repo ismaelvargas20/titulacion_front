@@ -18,7 +18,6 @@ const Motos = () => {
   const listRef = useRef(null);
   const [showSellForm, setShowSellForm] = useState(false);
   const [form, setForm] = useState({ title: '', model: '', revision: 'Al día', condition: 'Excelente', price: '', location: '', stars: 5, img: '', description: '', contactPhone: '', kilometraje: '', year: '', transmission: 'manual' });
-  const formRef = useRef(null);
   const [publishLoading, setPublishLoading] = useState(false);
   const [publishSuccess, setPublishSuccess] = useState(false);
   const [selectedMoto, setSelectedMoto] = useState(null);
@@ -78,10 +77,15 @@ const Motos = () => {
     }, 1100);
   };
 
+  // cuando el modal de publicar está abierto: foco y escape + bloquear scroll
   useEffect(() => {
-    if (showSellForm && formRef.current) {
-      setTimeout(() => formRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
-    }
+    if (!showSellForm) return;
+    const first = document.querySelector('.sell-form input[name="title"]');
+    if (first) setTimeout(() => first.focus(), 40);
+    const onKey = (e) => { if (e.key === 'Escape') setShowSellForm(false); };
+    document.addEventListener('keydown', onKey);
+    document.body.style.overflow = 'hidden';
+    return () => { document.removeEventListener('keydown', onKey); document.body.style.overflow = ''; };
   }, [showSellForm]);
 
   // cerrar modal con Escape y bloquear scroll cuando esté abierto
@@ -140,8 +144,8 @@ const Motos = () => {
             </div>
             <div className="sell-hero-cta">
               {/* mantenemos la misma apariencia; convertimos a botón para abrir el formulario */}
-              <button type="button" className="btn btn-primary" onClick={() => setShowSellForm((s) => !s)}>
-                {showSellForm ? 'Cerrar' : 'Vender ahora'}
+              <button type="button" className="btn btn-primary" onClick={() => setShowSellForm(true)}>
+                Vender ahora
               </button>
             </div>
           </div>
@@ -157,121 +161,126 @@ const Motos = () => {
           handleContactSubmit={handleContactSubmit}
           contactSent={contactSent}
         />
-        {/* Formulario embebido: aparece al hacer click en el botón de arriba */}
-        <div ref={formRef} className={`sell-form-panel ${showSellForm ? 'open' : ''}`} aria-hidden={!showSellForm}>
-          <form className={`sell-form ${showSellForm ? 'fade-slide' : ''}`} onSubmit={handleAddMoto}>
-            <div className="sell-form-grid">
-              <div className="sell-form-main">
-                <label>
-                  Título
-                  <input name="title" value={form.title} onChange={handleFormChange} placeholder="Ej: Yamaha MT-09 2022" required />
-                </label>
+        {/* Formulario ahora en modal/popup (mismo contenido que antes) */}
+        {showSellForm && (
+          <div className="sell-modal-overlay" onClick={(e) => { if (e.target.classList && e.target.classList.contains('sell-modal-overlay')) setShowSellForm(false); }}>
+            <div className="sell-modal" role="dialog" aria-modal="true">
+              <button className="modal-close" aria-label="Cerrar" onClick={() => setShowSellForm(false)}>×</button>
+              <form className={`sell-form`} onSubmit={handleAddMoto}>
+                <div className="sell-form-grid">
+                  <div className="sell-form-main">
+                    <label>
+                      Título
+                      <input name="title" value={form.title} onChange={handleFormChange} placeholder="Ej: Yamaha MT-09 2022" required />
+                    </label>
 
-                <label>
-                  Modelo
-                  <input name="model" value={form.model} onChange={handleFormChange} placeholder="Ej: MT-09" />
-                </label>
+                    <label>
+                      Modelo
+                      <input name="model" value={form.model} onChange={handleFormChange} placeholder="Ej: MT-09" />
+                    </label>
 
-                <label>
-                  Revisión vehicular
-                  <select name="revision" value={form.revision} onChange={handleFormChange}>
-                    <option>Al día</option>
-                    <option>Atrasado</option>
-                  </select>
-                </label>
+                    <label>
+                      Revisión vehicular
+                      <select name="revision" value={form.revision} onChange={handleFormChange}>
+                        <option>Al día</option>
+                        <option>Atrasado</option>
+                      </select>
+                    </label>
 
-                <label>
-                  Estado
-                  <select name="condition" value={form.condition} onChange={handleFormChange}>
-                    <option>Excelente</option>
-                    <option>Muy bueno</option>
-                    <option>Bueno</option>
-                    <option>Regular</option>
-                  </select>
-                </label>
+                    <label>
+                      Estado
+                      <select name="condition" value={form.condition} onChange={handleFormChange}>
+                        <option>Excelente</option>
+                        <option>Muy bueno</option>
+                        <option>Bueno</option>
+                        <option>Regular</option>
+                      </select>
+                    </label>
 
-                <label>
-                  Precio
-                  <input name="price" value={form.price} onChange={handleFormChange} placeholder="Ej: 9500" required />
-                </label>
+                    <label>
+                      Precio
+                      <input name="price" value={form.price} onChange={handleFormChange} placeholder="Ej: 9500" required />
+                    </label>
 
-                <label>
-                  Ubicación
-                  <input name="location" value={form.location} onChange={handleFormChange} placeholder="Ciudad" />
-                </label>
+                    <label>
+                      Ubicación
+                      <input name="location" value={form.location} onChange={handleFormChange} placeholder="Ciudad" />
+                    </label>
 
-                <label>
-                  Valora tu motocicleta
-                  <select name="stars" value={form.stars} onChange={handleFormChange}>
-                    <option value={5}>5 - Excelente</option>
-                    <option value={4}>4 - Muy bueno</option>
-                    <option value={3}>3 - Bueno</option>
-                    <option value={2}>2 - Regular</option>
-                    <option value={1}>1 - Malo</option>
-                  </select>
-                </label>
+                    <label>
+                      Valora tu motocicleta
+                      <select name="stars" value={form.stars} onChange={handleFormChange}>
+                        <option value={5}>5 - Excelente</option>
+                        <option value={4}>4 - Muy bueno</option>
+                        <option value={3}>3 - Bueno</option>
+                        <option value={2}>2 - Regular</option>
+                        <option value={1}>1 - Malo</option>
+                      </select>
+                    </label>
 
-                <label className="full">
-                  Descripción
-                  <textarea name="description" value={form.description} onChange={handleFormChange} placeholder="Describe el estado, accesorios, y cualquier detalle relevante" rows={4} />
-                </label>
+                    <label className="full">
+                      Descripción
+                      <textarea name="description" value={form.description} onChange={handleFormChange} placeholder="Describe el estado, accesorios, y cualquier detalle relevante" rows={4} />
+                    </label>
 
-                <label>
-                  Imagen
-                  <input type="file" accept="image/*" name="image" onChange={handleImageChange} />
-                </label>
+                    <label>
+                      Imagen
+                      <input type="file" accept="image/*" name="image" onChange={handleImageChange} />
+                    </label>
 
-                <label>
-                  Kilometraje
-                  <input name="kilometraje" value={form.kilometraje} onChange={handleFormChange} placeholder="Ej: 12000 km" />
-                </label>
+                    <label>
+                      Kilometraje
+                      <input name="kilometraje" value={form.kilometraje} onChange={handleFormChange} placeholder="Ej: 12000 km" />
+                    </label>
 
-                <label>
-                  Año
-                  <input name="year" value={form.year} onChange={handleFormChange} placeholder="Ej: 2019" />
-                </label>
+                    <label>
+                      Año
+                      <input name="year" value={form.year} onChange={handleFormChange} placeholder="Ej: 2019" />
+                    </label>
 
-                <label>
-                  Transmisión
-                  <select name="transmission" value={form.transmission} onChange={handleFormChange}>
-                    <option value="manual">Manual</option>
-                    <option value="automatic">Automática</option>
-                  </select>
-                </label>
+                    <label>
+                      Transmisión
+                      <select name="transmission" value={form.transmission} onChange={handleFormChange}>
+                        <option value="manual">Manual</option>
+                        <option value="automatic">Automática</option>
+                      </select>
+                    </label>
 
-                <label>
-                  Teléfono de contacto
-                  <input name="contactPhone" type="tel" value={form.contactPhone} onChange={handleFormChange} placeholder="0987654321" required />
-                </label>
+                    <label>
+                      Teléfono de contacto
+                      <input name="contactPhone" type="tel" value={form.contactPhone} onChange={handleFormChange} placeholder="0987654321" required />
+                    </label>
 
-                <div className="sell-form-actions">
-                  <button type="submit" className={`btn btn-primary ${publishLoading ? 'loading' : ''}`} disabled={publishLoading}>
-                    {publishLoading ? 'Publicando...' : 'Publicar moto'}
-                  </button>
-                  <button type="button" className="btn" onClick={() => setShowSellForm(false)} disabled={publishLoading}>Cancelar</button>
-                </div>
-                {publishSuccess && <div className="sell-form-success">Anuncio publicado correctamente.</div>}
-              </div>
-
-              <aside className="sell-form-preview">
-                <div className="preview-card">
-                  <div className="preview-image">
-                    <img src={form.img || 'https://loremflickr.com/640/420/motorcycle'} alt={form.title || 'Vista previa'} />
-                    <div className="preview-price">${form.price || '0'}</div>
+                    <div className="sell-form-actions">
+                      <button type="submit" className={`btn btn-primary ${publishLoading ? 'loading' : ''}`} disabled={publishLoading}>
+                        {publishLoading ? 'Publicando...' : 'Publicar moto'}
+                      </button>
+                      <button type="button" className="btn" onClick={() => setShowSellForm(false)} disabled={publishLoading}>Cancelar</button>
+                    </div>
+                    {publishSuccess && <div className="sell-form-success">Anuncio publicado correctamente.</div>}
                   </div>
-                  <div className="preview-body">
-                    <h4>{form.title || 'Título de la moto'}</h4>
-                    <div className="preview-meta">{form.model ? <span className="chip">{form.model}</span> : null} <span className="muted">{form.location}</span></div>
-                    <p className="preview-desc">{form.description ? form.description.slice(0, 140) + (form.description.length > 140 ? '…' : '') : 'Aquí verás una vista previa de tu anuncio antes de publicar.'}</p>
-                    <div className="preview-meta small">{form.year ? <span>{form.year}</span> : null} {form.kilometraje ? <span>• {form.kilometraje}</span> : null} {form.transmission ? <span>• {form.transmission === 'manual' ? 'Manual' : 'Automática'}</span> : null}</div>
-                    <div className="preview-contact">Teléfono: {form.contactPhone || '—'}</div>
-                  </div>
-                </div>
-              </aside>
 
+                  <aside className="sell-form-preview">
+                    <div className="preview-card">
+                      <div className="preview-image">
+                        <img src={form.img || 'https://loremflickr.com/640/420/motorcycle'} alt={form.title || 'Vista previa'} />
+                        <div className="preview-price">${form.price || '0'}</div>
+                      </div>
+                      <div className="preview-body">
+                        <h4>{form.title || 'Título de la moto'}</h4>
+                        <div className="preview-meta">{form.model ? <span className="chip">{form.model}</span> : null} <span className="muted">{form.location}</span></div>
+                        <p className="preview-desc">{form.description ? form.description.slice(0, 140) + (form.description.length > 140 ? '…' : '') : 'Aquí verás una vista previa de tu anuncio antes de publicar.'}</p>
+                        <div className="preview-meta small">{form.year ? <span>{form.year}</span> : null} {form.kilometraje ? <span>• {form.kilometraje}</span> : null} {form.transmission ? <span>• {form.transmission === 'manual' ? 'Manual' : 'Automática'}</span> : null}</div>
+                        <div className="preview-contact">Teléfono: {form.contactPhone || '—'}</div>
+                      </div>
+                    </div>
+                  </aside>
+
+                </div>
+              </form>
             </div>
-          </form>
-        </div>
+          </div>
+        )}
         <section className="featured-items">
           <div className="section-header">
             <h2><FaMapMarkerAlt className="section-icon" />Motos Recién Publicadas</h2>

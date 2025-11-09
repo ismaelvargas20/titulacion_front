@@ -7,7 +7,10 @@ import Login from './pages/login/login';
 import Registro from './pages/registro.jsx/registro';
 import Inicio from './pages/inicio/inicio';
 import Perfil from './pages/perfil/perfil';
+import Comunidad from './pages/comunidad/comunidad';
 import Motos from './pages/motos/motos';
+import Repuestos from './pages/repuestos/repuestos';
+import Vender from './pages/vender/vender';
 
 const AppContent = () => {
   const location = useLocation();
@@ -23,6 +26,9 @@ const AppContent = () => {
           <Route path="/login" element={<Login />} />
           <Route path="/registro" element={<Registro />} />
           <Route path="/motos" element={<Motos />} />
+          <Route path="/repuestos" element={<Repuestos />} />
+          <Route path="/comunidad" element={<Comunidad />} />
+          <Route path="/vender" element={<Vender />} />
           <Route path="/perfil" element={<Perfil />} />
         </Routes>
       </main>

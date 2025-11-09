@@ -23,15 +23,14 @@ const MotosModal = ({ selectedMoto, onClose, showContactForm, setShowContactForm
             )}
           </div>
           <div className="modal-desc">
-            <p className="desc-lead">{`${selectedMoto.title} disponible en ${selectedMoto.location}. Precio: $${selectedMoto.price}. Valorada en ${selectedMoto.stars} estrellas por nuestros usuarios.`}</p>
+            <p className="desc-lead">{`${selectedMoto.title} disponible en ${selectedMoto.location}. Precio: $${selectedMoto.price}. Valorada en ${selectedMoto.stars} estrellas por nuestro usuario.`}</p>
 
             <div className="modal-features">
               <span className="chip">Modelo: {selectedMoto.model || selectedMoto.title}</span>
               <span className="chip">Revisión: {selectedMoto.revision || '—'}</span>
               <span className="chip">Estado: {selectedMoto.condition || 'Desconocido'}</span>
-              {selectedMoto.contact && selectedMoto.contact.phone && (
-                <span className="chip">Teléfono: {selectedMoto.contact.phone}</span>
-              )}
+              {/* Mostrar siempre la chip de teléfono; usar un fallback si no hay número */}
+              <span className="chip">Teléfono: {(selectedMoto.contact && selectedMoto.contact.phone) ? selectedMoto.contact.phone : 'consultar'}</span>
             </div>
 
             <ul className="modal-specs">
