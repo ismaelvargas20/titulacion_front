@@ -19,7 +19,8 @@ $disabled-bg: #f5f5f5;
 }
 
 .perfil-card {
-    max-width: 700px;
+    /* Aumentado para que el formulario pueda mostrar dos columnas completas */
+    max-width: 1100px;
     width: 100%;
     background-color: var(--card-bg, #{$background-card});
     border-radius: 12px;
@@ -101,14 +102,22 @@ $disabled-bg: #f5f5f5;
 /* --- Estilos para tu Formulario (reg-form) --- */
 .reg-form {
     padding: 2.25rem 2rem 2.5rem 2rem;
+    width: 100%;
+    /* Incrementado para permitir que el fieldset muestre dos columnas anchas */
+    max-width: 1040px; /* limitar el ancho del formulario global para crear espacio lateral */
+    box-sizing: border-box;
 
     fieldset {
         border: none;
         padding: 0;
-        margin: 0;
+        margin: 0 auto; /* centrar el contenido del formulario */
         display: grid;
-        grid-template-columns: 1fr; /* una sola columna */
-        gap: 1.6rem 1rem; /* más separación vertical entre filas */
+    /* Limitar el ancho del formulario y usar columnas fijas para centrar las celdas */
+    max-width: 1000px; /* aumentar para dar visibilidad a la columna derecha */
+    /* Dos columnas más anchas para que el contenido derecho no quede cortado */
+    grid-template-columns: repeat(2, 480px);
+    justify-content: center; /* centrar las columnas dentro del grid */
+    gap: 1.8rem 2.4rem; /* separación: row gap / column gap (más espacio entre columnas) */
 
         &:disabled {
             .reg-input input {
@@ -127,12 +136,26 @@ $disabled-bg: #f5f5f5;
     }
 
     h3 {
-        font-size: 1.25rem;
+        position: relative;
+        font-size: 1.45rem; /* Agrandar el título 'Contraseña' y secciones */
         color: var(--text, #{$text-dark});
+        text-align: center;
         /* línea horizontal más marcada y separación mayor */
         border-bottom: 2px solid var(--muted-border, #{$border-color});
         padding-bottom: 0.8rem;
         margin-bottom: 1rem;
+
+        &::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px; /* ancho visible y centrado */
+            height: 4px;
+            background: $primary-blue; /* usar el color principal para más contraste */
+            border-radius: 3px;
+        }
     }
 
     .password-title {
@@ -141,7 +164,10 @@ $disabled-bg: #f5f5f5;
 
     label {
         width: 100%;
-        display: block;
+        display: flex;
+        flex-direction: column;
+        align-items: center; /* centrar contenido dentro de la celda */
+        text-align: center;
         margin-bottom: 1rem;
 
         span {
@@ -149,11 +175,10 @@ $disabled-bg: #f5f5f5;
             font-size: 0.9rem;
             font-weight: 600;
             color: var(--text, #{$text-dark});
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.6rem;
         }
     }
 
-    /* Elementos que deben ocupar ambas columnas */
     .password-title,
     h3,
     .change-pass-cta,
@@ -162,54 +187,60 @@ $disabled-bg: #f5f5f5;
         grid-column: 1 / -1;
     }
 
+    /* Usar posición relativa para poder colocar el icono dentro del input (overlay) */
     .reg-input {
         position: relative;
-        display: flex;
+        display: block;
         align-items: center;
-        background: transparent;
-        padding: 0.5rem;
+        /* usar fondo de tarjeta para que el input destaque y no se vea transparente */
+        background: var(--card-bg, #{$background-card});
+        border: 1px solid var(--muted-border, #{$border-color});
+        padding: 0.6rem 0.75rem 0.6rem 56px; /* dejar espacio a la izquierda para el icono dentro */
         border-radius: 12px;
         margin-bottom: 0.75rem;
+        transition: box-shadow 180ms ease, border-color 180ms ease;
+        box-shadow: 0 6px 18px rgba(2,6,23,0.04);
 
         .reg-icon {
-            position: absolute;
+            position: absolute; /* colocamos el icono dentro del wrapper */
             left: 12px;
             top: 50%;
             transform: translateY(-50%);
-            width: 36px;
-            height: 36px;
+            width: 40px;
+            height: 40px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            font-size: 1rem;
+            font-size: 1.05rem;
             color: var(--muted, #{$text-light});
-            background: var(--card-bg, #{$background-card});
-            border: 1px solid var(--muted-border, #{$border-color});
-            border-radius: 8px;
+            background: transparent; /* icono "dentro" no necesita fondo separado */
+            border: none;
+            border-radius: 6px;
             transition: color 0.18s ease, background 0.18s ease;
+            box-shadow: none;
         }
 
         &:focus-within {
-            .reg-icon {
-                color: var(--primary, #{$primary-blue});
-            }
+            /* solo cambiar color/sombra/borde del wrapper */
+            .reg-icon { color: var(--primary, #{$primary-blue}); }
+            box-shadow: 0 10px 26px rgba(2,6,23,0.05);
+            border-color: var(--primary, #{$primary-blue});
         }
 
         input {
             width: 100%;
-            padding: 1rem 1.1rem 1rem 3.4rem; /* deja espacio para el icono con su caja */
+            padding: 0.9rem 1rem; /* el espacio izquierdo ya lo deja el wrapper */
             font-size: 1rem;
-            border: 1px solid var(--muted-border, #{$border-color});
-            background: var(--card-bg, #{$background-card});
+            border: none; /* border moved to .reg-input wrapper */
+            background: transparent;
             color: var(--text, #{$text-dark});
-            border-radius: 12px;
-            transition: border-color 0.18s ease, box-shadow 0.18s ease;
+            border-radius: 8px;
+            transition: box-shadow 0.18s ease; /* sin transform */
             box-sizing: border-box;
 
             &:focus {
                 outline: none;
-                border-color: var(--primary, #{$primary-blue});
-                box-shadow: 0 6px 18px rgba(13,110,253,0.08);
+                box-shadow: 0 8px 26px rgba(13,110,253,0.06);
             }
         }
     }
@@ -218,13 +249,15 @@ $disabled-bg: #f5f5f5;
         margin-top: 1.25rem; /* reducir espacio antes de botones para que no quede tan separado */
         display: flex;
         gap: 0.75rem;
-        justify-content: flex-start;
+        justify-content: flex-end; /* alinear acciones a la derecha */
         align-items: center;
         width: 100%;
+        flex-wrap: wrap; /* permitir que los botones bajen a la siguiente línea si hace falta */
     }
 
     .form-actions-inline button {
-        min-width: 160px;
+        /* botones un poco más anchos para evitar que se corten en pantallas medias */
+        min-width: 220px;
         padding: 0.6rem 1rem;
         height: 44px;
         display: inline-flex;
@@ -236,8 +269,9 @@ $disabled-bg: #f5f5f5;
 
     .form-actions-inline .perfil-save-btn,
     .form-actions-inline .perfil-cancel-btn {
-        flex: 0 0 160px;
-        width: 160px;
+        /* aumentar ancho fijo para evitar recorte visual */
+        flex: 0 0 220px;
+        width: 220px;
         height: 44px;
         padding: 0 0.85rem;
         box-sizing: border-box;
@@ -246,12 +280,36 @@ $disabled-bg: #f5f5f5;
         justify-content: center;
         font-size: 0.95rem; /* Igualamos el tamaño de letra entre Guardar y Cancelar */
     }
+
+    /* En pantallas medias: reducir ligeramente para que no se salgan */
+    @media (max-width: 1300px) {
+        .form-actions-inline button { min-width: 220px; }
+        .form-actions-inline .perfil-save-btn,
+        .form-actions-inline .perfil-cancel-btn { flex: 0 0 220px; width: 220px; }
+    }
+
+    @media (max-width: 1150px) {
+        .form-actions-inline button { min-width: 200px; }
+        .form-actions-inline .perfil-save-btn,
+        .form-actions-inline .perfil-cancel-btn { flex: 0 0 200px; width: 200px; }
+    }
+
+    /* En móviles: dejar que ocupen 100% y apilen */
+    @media (max-width: 900px) {
+        .form-actions-inline { justify-content: center; }
+        .form-actions-inline button { min-width: 100%; flex: 1 1 100%; }
+        .form-actions-inline .perfil-save-btn,
+        .form-actions-inline .perfil-cancel-btn { width: 100%; flex: 1 1 100%; }
+    }
 }
 
 /* --- Layout de cuerpo: formulario + columna de acciones --- */
 .perfil-body {
-    display: block;
-    padding: 0 1.5rem 2rem 1.5rem;
+    /* Centrar el formulario dentro de la tarjeta y dejar espacio lateral */
+    display: flex;
+    justify-content: center;
+    /* Aumentamos el padding lateral para que los botones no se recorten */
+    padding: 0 3rem 2rem 3rem; /* más espacio a los lados dentro de la tarjeta */
 }
 
 .perfil-actions .action-card {
@@ -365,8 +423,8 @@ $disabled-bg: #f5f5f5;
 
 /* --- Cambiar Contraseña: CTA y estilos --- */
 .change-pass-cta {
-    margin-top: 0.6rem;
-    padding: 0.9rem 1rem;
+    margin-top: 0.35rem; /* más cercano al título */
+    padding: 0.75rem 1.25rem; /* ajustar altura para que quede centrado verticalmente */
     background: rgba(13,110,253,0.03);
     border: 1px solid rgba(13,110,253,0.06);
     border-radius: 10px;
@@ -374,9 +432,38 @@ $disabled-bg: #f5f5f5;
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
+    /* Asegurar que la caja de cambio de contraseña siga el ancho del formulario y esté centrada */
+    width: 100%;
+    max-width: 940px; /* igual que el fieldset */
+    box-sizing: border-box;
+    margin-left: auto;
+    margin-right: auto;
 }
-.change-pass-cta .muted { color: var(--text, #{$text-dark}); opacity: 0.9; margin: 0; font-size: 0.95rem; }
-.perfil-edit-small { background: var(--primary, #{$primary-blue}); color: white; border: none; padding: 0.45rem 0.9rem; border-radius: 8px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem; }
+
+/* Evitar que el botón interno o el CTA se corten; forzar que el botón sea auto y no crezca */
+.change-pass-cta button,
+.change-pass-cta .btn {
+    flex: 0 0 auto;
+}
+
+@media (max-width: 940px) {
+    .change-pass-cta { padding: 0.8rem 1rem; }
+}
+.change-pass-cta.readonly {
+    /* versión en lectura: fondo más tenue y borde más suave para integrarse con el header */
+    background: rgba(0,0,0,0.02);
+    border-color: rgba(0,0,0,0.04);
+}
+.change-pass-cta.readonly .muted { color: var(--muted); }
+.change-pass-cta.readonly .perfil-edit-small {
+    background: var(--primary);
+    color: #fff;
+}
+/* Asegurar que el texto del CTA se alinee verticalmente con el botón */
+.change-pass-cta .muted { margin: 0; line-height: 1.6; }
+.change-pass-cta .perfil-edit-small { align-self: center; }
+.change-pass-cta .muted { color: var(--text, #{$text-dark}); opacity: 0.95; margin: 0; font-size: 1.05rem; font-weight: 600; }
+.perfil-edit-small { background: var(--primary, #{$primary-blue}); color: white; border: none; padding: 0.5rem 0.95rem; border-radius: 8px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 0.6rem; font-size: 0.95rem; }
 .perfil-edit-small:hover { background: darken($primary-blue, 6%); }
 
 .change-pass-actions { margin-top: 0.8rem; display: flex; gap: 0.6rem; align-items: center; }
@@ -396,5 +483,7 @@ $disabled-bg: #f5f5f5;
     /* En pantallas pequeñas apilamos los campos en una sola columna */
     .reg-form fieldset {
         grid-template-columns: 1fr;
+        max-width: 100%;
+        padding: 0 12px; /* dejar pequeño padding lateral en móviles */
     }
 }

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaTag, FaMotorcycle, FaTools, FaEnvelope, FaTimes } from 'react-icons/fa';
-import Chat from './chat';
 import '../../assets/scss/vender.scss';
 
 export default function Vender() {
@@ -10,7 +9,7 @@ export default function Vender() {
   // Modal states
   const [showMotoForm, setShowMotoForm] = useState(false);
   const [showPartForm, setShowPartForm] = useState(false);
-  const [showMessages, setShowMessages] = useState(false);
+  // messages are now a dedicated page (/chat)
   // Form states (complete version mirroring Motos/Repuestos)
   const [motoForm, setMotoForm] = useState({ title: '', model: '', revision: 'Al día', condition: 'Excelente', price: '', location: '', stars: 5, img: '', description: '', contactPhone: '', kilometraje: '', year: '', transmission: 'manual' });
   const [partForm, setPartForm] = useState({ title: '', category: '', condition: 'Nuevo', price: '', location: '', img: '', description: '', contactPhone: '' });
@@ -101,7 +100,7 @@ export default function Vender() {
             </div>
 
             <div className="sell-hero-cta">
-              <button type="button" className="hero-sell-btn" onClick={() => setShowMessages(true)}>Ver Mensajes</button>
+              <button type="button" className="hero-sell-btn" onClick={() => navigate('/chat')}>Ir a bandeja</button>
             </div>
           </div>
         </section>
@@ -122,7 +121,7 @@ export default function Vender() {
         </div>
 
         <div style={{ marginTop: 18 }}>
-          <div className="activity-card large" role="button" onClick={() => setShowMessages(true)} style={{ padding: 22, borderRadius: 12, background: 'var(--card-bg, #fff)', boxShadow: '0 10px 30px rgba(2,6,23,0.06)', cursor: 'pointer' }}>
+          <div className="activity-card large" role="button" onClick={() => navigate('/chat')} style={{ padding: 22, borderRadius: 12, background: 'var(--card-bg, #fff)', boxShadow: '0 10px 30px rgba(2,6,23,0.06)', cursor: 'pointer' }}>
             <div className="inbox-dot" aria-hidden="true" />
             <h3><FaEnvelope /> Mis bandejas de entrada</h3>
             <p>Accede a tus mensajes de compra y notificaciones. Haz click para abrir la bandeja.</p>
@@ -336,8 +335,7 @@ export default function Vender() {
         </div>
       )}
 
-      {/* Messages modal / inbox -> external Chat component */}
-      {showMessages && <Chat onClose={() => setShowMessages(false)} />}
+  {/* Messages are now handled via the /chat page */}
 
     </div>
   );

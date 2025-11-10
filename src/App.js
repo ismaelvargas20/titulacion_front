@@ -11,6 +11,7 @@ import Comunidad from './pages/comunidad/comunidad';
 import Motos from './pages/motos/motos';
 import Repuestos from './pages/repuestos/repuestos';
 import Vender from './pages/vender/vender';
+import Chat from './pages/vender/chat';
 
 const AppContent = () => {
   const location = useLocation();
@@ -29,6 +30,7 @@ const AppContent = () => {
           <Route path="/repuestos" element={<Repuestos />} />
           <Route path="/comunidad" element={<Comunidad />} />
           <Route path="/vender" element={<Vender />} />
+          <Route path="/chat" element={<Chat />} />
           <Route path="/perfil" element={<Perfil />} />
         </Routes>
       </main>

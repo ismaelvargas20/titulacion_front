@@ -418,3 +418,54 @@ body.global-dark .app-header .theme-toggle {
   border-color: rgba(255,255,255,0.12);
   color: var(--header-text-dark, $white);
 }
+
+/* Dropdown del perfil: variante para modo oscuro */
+body.global-dark .app-header .profile-dropdown {
+  /* Usar el gris global de tarjetas para consistencia con el resto del tema */
+  background: var(--card-bg, #242629);
+  color: var(--text, #e8eaed);
+  box-shadow: 0 12px 34px rgba(2,6,23,0.6);
+  border: 1px solid var(--muted-border, rgba(255,255,255,0.04));
+}
+
+body.global-dark .app-header .profile-dropdown::before {
+  /* triángulo encima del dropdown: usar mismo gris de tarjeta */
+  background: var(--card-bg, #242629);
+}
+
+body.global-dark .app-header .profile-dropdown .dropdown-header {
+  border-bottom: 1px solid var(--muted-border, rgba(255,255,255,0.04));
+  strong { color: var(--header-text-dark, #e6eef7); }
+  small { color: rgba(200,210,220,0.7); }
+}
+
+body.global-dark .app-header .profile-dropdown .dropdown-item {
+  color: var(--text, #e8eaed);
+  background: transparent;
+}
+
+body.global-dark .app-header .profile-dropdown .dropdown-item .dropdown-icon {
+  color: var(--header-cta-text-dark, #e8eaed);
+}
+
+body.global-dark .app-header .profile-dropdown .dropdown-item:hover {
+  background: rgba(255,255,255,0.03);
+}
+
+body.global-dark .app-header .profile-dropdown .dropdown-item.danger {
+  color: lighten($danger-red, 6%);
+}
+
+body.global-dark .app-header .profile-dropdown .dropdown-item.danger .dropdown-icon {
+  color: lighten($danger-red, 6%);
+}
+
+/* Ajustes para variantes plain/focus en dark */
+body.global-dark .app-header .profile-dropdown .dropdown-item.plain {
+  background: transparent;
+}
+body.global-dark .app-header .profile-dropdown .dropdown-item.plain:focus,
+body.global-dark .app-header .profile-dropdown .dropdown-item.plain:active {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(120,150,255,0.06);
+}

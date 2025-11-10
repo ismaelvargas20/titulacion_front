@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import { FaTag, FaMapMarkerAlt, FaStar, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import '../../assets/scss/motos.scss';
 import MotosModal from './motos_modal';
@@ -29,6 +29,28 @@ const Motos = () => {
     const { name, value } = e.target;
     setForm((s) => ({ ...s, [name]: value }));
   };
+
+  // Si la URL contiene un hash como #moto-123 navegando desde Chat, localizar y abrir la tarjeta
+  const location = useLocation();
+  useEffect(() => {
+    if (!location || !location.hash) return;
+    const id = location.hash.replace('#', '');
+    if (!id.startsWith('moto-')) return;
+    const numeric = Number(id.replace('moto-', ''));
+    const found = recentMotos.find(m => Number(m.id) === numeric);
+    if (found) {
+      // abrir modal con la moto y scrollear hacia la tarjeta
+      setSelectedMoto(found);
+      setTimeout(() => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          el.classList.add('highlight');
+          setTimeout(() => el.classList.remove('highlight'), 2200);
+        }
+      }, 120);
+    }
+  }, [location, recentMotos]);
 
   const handleImageChange = (e) => {
     const file = e.target.files && e.target.files[0];
@@ -293,7 +315,7 @@ const Motos = () => {
 
             <div className="item-cards-carousel" ref={listRef}>
               {recentMotos.map((moto) => (
-                <article key={moto.id} className="item-card" tabIndex={0} onClick={() => setSelectedMoto(moto)} onKeyDown={(e) => { if (e.key === 'Enter') setSelectedMoto(moto); }}>
+                <article id={`moto-${moto.id}`} key={moto.id} className="item-card" tabIndex={0} onClick={() => setSelectedMoto(moto)} onKeyDown={(e) => { if (e.key === 'Enter') setSelectedMoto(moto); }}>
                   <div className="card-image">
                     <img src={`${moto.img}?${moto.id}`} alt={moto.title} />
                     <span className="card-price"><FaTag /> ${moto.price}</span>

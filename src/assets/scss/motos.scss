@@ -139,6 +139,13 @@ $shadow: 0 6px 18px rgba(12, 35, 63, 0.12);
     box-shadow: 0 20px 40px rgba(12,35,63,0.14);
   }
 
+  /* Resaltar temporalmente la tarjeta cuando se navega desde otra parte (p.ej. Chat) */
+  .item-card.highlight {
+    transform: translateY(-10px);
+    box-shadow: 0 30px 80px rgba(11,115,255,0.16), 0 0 0 8px rgba(11,115,255,0.06);
+    transition: box-shadow 320ms ease, transform 220ms cubic-bezier(.2,.9,.2,1);
+  }
+
   .card-image {
     position: relative;
     height: 150px;
@@ -508,7 +515,8 @@ $shadow: 0 6px 18px rgba(12, 35, 63, 0.12);
     /* Ajustes de color en la previsualización dentro del modal en modo oscuro
        - título en blanco para contraste
        - texto secundario en gris claro (no todo blanco) para mantener jerarquía */
-    .preview-card, .preview-body { background: transparent; }
+  /* Evitar transparencias en la vista previa dentro del modal para que predomine el gris del tema */
+  .preview-card, .preview-body { background: var(--card-bg, #fff); }
     .preview-body h4 { color: #ffffff; }
     .preview-body .preview-meta,
     .preview-body .preview-desc,

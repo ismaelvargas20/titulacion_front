@@ -7,6 +7,7 @@ import {
     FaUsers,
     FaMotorcycle,
     FaTools,
+    FaComments,
     FaUser,
     FaSun,
     FaMoon,
@@ -153,6 +154,16 @@ const Header = () => {
                             >
                                 <FaTag className="nav-icon" />
                                 Vender
+                            </NavLink>
+                        </li>
+                        <li>
+                            <NavLink
+                                to="/chat"
+                                className={({ isActive }) => (isActive ? 'nav-link cta-link secondary active' : 'nav-link cta-link secondary')}
+                                onClick={() => setMobileMenuOpen(false)}
+                            >
+                                <FaComments className="nav-icon" />
+                                Chat
                             </NavLink>
                         </li>
                     </ul>

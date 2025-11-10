@@ -17,31 +17,35 @@
 
 /* Activity cards: lively micro-interactions to match motos' feel */
 .cards-row {
-  margin-top: 8px;
+  margin-top: 12px;
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 18px;
+  /* responsive: allow cards to grow up to a comfortable width */
+  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  gap: 22px;
 }
 
 .activity-card {
   background: var(--card-bg, #fff);
-  border-radius: 12px;
-  padding: 16px;
-  box-shadow: 0 8px 26px rgba(2,6,23,0.06);
-  transition: transform 220ms cubic-bezier(.2,.9,.2,1), box-shadow 220ms, opacity 260ms ease;
+  border-radius: 16px;
+  /* left padding increased so the decorative stripe has breathing room and does not touch the icon */
+  padding: 28px 30px 28px 110px;
+  min-height: 170px;
+  box-shadow: 0 40px 100px rgba(2,6,23,0.12), inset 0 1px 0 rgba(255,255,255,0.02);
+  transition: transform 320ms cubic-bezier(.2,.9,.2,1), box-shadow 320ms, opacity 260ms ease, background 260ms;
   cursor: pointer;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 14px;
   align-items: flex-start;
+  justify-content: center;
 }
 
 .activity-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 20px 40px rgba(12,35,63,0.12);
+  transform: translateY(-10px) scale(1.01);
+  box-shadow: 0 30px 60px rgba(12,35,63,0.12);
 }
 
-.activity-card.large { grid-column: 1 / -1; }
+.activity-card.large { grid-column: 1 / -1; padding: 36px 48px; min-height: 180px; display:flex; align-items:center; position:relative; padding-left:200px; }
 
 /* small entrance animation for cards and modal */
 .animate-in { animation: fadeSlide 360ms ease both; }
@@ -49,7 +53,9 @@
 
 /* CTA tweaks inside hero to match motos spacing */
 .sell-hero .sell-hero-cta { display: flex; gap: 12px; align-items: center; }
-.sell-hero .hero-sell-btn { padding: 10px 18px; border-radius: 12px; font-weight: 700; }
+.sell-hero .hero-sell-btn { padding: 10px 18px; border-radius: 12px; font-weight: 700; transition: transform 0.28s ease, box-shadow 0.28s ease, opacity 0.2s ease; }
+.sell-hero .hero-sell-btn:hover { transform: translateY(-3px); box-shadow: 0 10px 28px rgba(11,115,255,0.12); }
+.sell-hero .hero-sell-btn:focus { outline: none; box-shadow: 0 10px 28px rgba(11,115,255,0.12); }
 
 /* Constrain the hero inner content to the same max-width as motos for visual parity */
 .vender-page .sell-hero {
@@ -73,54 +79,48 @@
 
 /* Make activity cards more lively following the motos pattern */
 .activity-card {
-  background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(250,250,251,0.98));
+  /* layered background: subtle left accent stripe + main surface gradient */
+  background-image: linear-gradient(90deg, rgba(11,115,255,0.12) 0 12px, rgba(255,255,255,0) 12px 100%), linear-gradient(180deg, rgba(255,255,255,0.98), rgba(250,250,251,0.98));
+  background-repeat: no-repeat;
   border: 1px solid rgba(2,6,23,0.06);
 }
 
-.activity-card h3 { display:flex; align-items:center; gap:10px; margin:0; font-size:1.02rem; }
-.activity-card h3 svg { width:18px; height:18px; }
+.activity-card h3 { display:flex; align-items:center; gap:18px; margin:0; font-size:1.1rem; font-weight:700; }
+.activity-card h3 svg { width:24px; height:24px; }
 .activity-card h3 svg {
-  /* place the svg inside a circular token visually without changing markup */
+  /* slightly larger circular token for stronger presence */
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
-  padding: 6px;
+  width: 64px;
+  height: 64px;
+  padding: 12px;
   border-radius: 50%;
-  background: linear-gradient(180deg, rgba(11,115,255,0.12), rgba(0,180,255,0.06));
+  background: linear-gradient(180deg, rgba(11,115,255,0.18), rgba(0,180,255,0.10));
   color: var(--primary, #0b73ff);
-  box-shadow: 0 6px 18px rgba(11,115,255,0.06);
-  transition: transform 260ms ease, box-shadow 260ms ease, background 260ms;
+  box-shadow: 0 20px 54px rgba(11,115,255,0.10);
+  transition: transform 320ms ease, box-shadow 320ms ease, background 320ms;
 }
-.activity-card p { color: var(--muted); margin: 6px 0 0 0; line-height:1.35; }
+.activity-card p { color: var(--muted); margin: 8px 0 0 0; line-height:1.5; font-size:1rem; }
+
+/* stronger focus style for keyboard users */
+.activity-card:focus-visible { outline: none; box-shadow: 0 34px 90px rgba(2,6,23,0.12), 0 0 0 4px rgba(11,115,255,0.06); }
 
 /* subtle badge on the top-right of each card */
-.activity-card::before {
-  /* decorative left accent stripe */
-  content: '';
-  position: absolute;
-  left: 12px;
-  top: 12px;
-  bottom: 12px;
-  width: 6px;
-  border-radius: 6px;
-  background: linear-gradient(180deg, rgba(11,115,255,0.9), rgba(0,180,255,0.6));
-  opacity: 0.12;
-  transition: opacity 260ms ease, transform 260ms ease;
-}
+.activity-card::before { display: none; }
+.activity-card.large::before { display: none; }
 
 .activity-card::after {
-  /* small chevron indicator on the right (using CSS triangles) */
+  /* subtle chevron indicator on the right (using CSS triangles) */
   content: '';
   position: absolute;
-  right: 14px;
+  right: 18px;
   top: 50%;
   transform: translateY(-50%);
-  border-left: 7px solid rgba(2,6,23,0.06);
-  border-top: 6px solid transparent;
-  border-bottom: 6px solid transparent;
-  opacity: 0.9;
+  border-left: 10px solid rgba(2,6,23,0.06);
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+  opacity: 0.95;
   transition: transform 180ms ease, opacity 180ms;
 }
 
@@ -128,25 +128,32 @@
 .activity-card { position: relative; overflow: hidden; }
 
 /* stronger hover feedback */
-.activity-card:hover { transform: translateY(-10px) scale(1.01) rotate(-0.2deg); box-shadow: 0 30px 60px rgba(12,35,63,0.14); }
+.activity-card:hover { transform: translateY(-10px) scale(1.01) rotate(-0.15deg); box-shadow: 0 34px 80px rgba(12,35,63,0.16); }
 .activity-card:active { transform: translateY(-6px) scale(0.995); }
-.activity-card:hover h3 svg { transform: scale(1.08) translateY(-2px); box-shadow: 0 10px 28px rgba(11,115,255,0.08); }
-.activity-card:hover::before { opacity: 0.2; transform: translateX(-2px); }
-.activity-card:hover::after { transform: translateY(-50%) translateX(6px); opacity: 1; }
+.activity-card:hover h3 svg { transform: scale(1.06) translateY(-3px); box-shadow: 0 14px 40px rgba(11,115,255,0.09); }
+.activity-card:hover::after { transform: translateY(-50%) translateX(8px); opacity: 1; }
 
 /* pulsing attention dot for the large inbox card */
 .activity-card.large::before { opacity: 0.06; }
 .activity-card.large .inbox-dot {
   position: absolute;
-  left: 18px;
-  top: 12px;
-  width: 10px;
-  height: 10px;
+  left: 40px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   background: linear-gradient(180deg,#00c3ff,#0b73ff);
-  box-shadow: 0 6px 18px rgba(11,115,255,0.12);
+  box-shadow: 0 18px 44px rgba(11,115,255,0.14), inset 0 1px 0 rgba(255,255,255,0.15);
   animation: pulse 1600ms infinite;
+  border: 4px solid rgba(255,255,255,0.9);
 }
+
+/* ensure content of the large card is visually centered when we add left accent */
+/* (removed empty rule) */
+
+/* make the left icon token overlap visually with the stripe area for small cards */
+.activity-card h3 svg { position: relative; z-index: 3; }
 
 @keyframes pulse { 0% { transform: scale(0.86); opacity: 0.9 } 50% { transform: scale(1.14); opacity: 0.6 } 100% { transform: scale(0.86); opacity: 0.9 } }
 
