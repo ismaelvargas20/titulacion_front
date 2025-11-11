@@ -79,6 +79,7 @@ $darker: #0056b3;
   max-height: calc(100vh - 220px);
   overflow: auto;
   padding-right: 12px; /* reservar espacio para la scrollbar interna */
+  padding-bottom: 84px; /* reservar espacio para la zona de acciones sticky */
   box-sizing: border-box;
 }
 
@@ -142,6 +143,14 @@ $darker: #0056b3;
   gap: 0.8rem;
   justify-content: flex-end;
   margin-top: 0.6rem;
+  /* Mantener la zona de acciones siempre visible en la parte inferior
+     del formulario aunque haya scroll; se superpone ligeramente encima
+     del contenido y preserva el aspecto limpio en móviles. */
+  position: sticky;
+  bottom: 12px;
+  z-index: 6;
+  background: linear-gradient(transparent, rgba(255,255,255,0.0));
+  padding-top: 6px; /* separación visual desde el contenido */
 }
 
 .reg-btn {
@@ -268,7 +277,7 @@ $darker: #0056b3;
   .reg-modal-card { padding: 1rem; max-width: 560px; width: 100%; margin: 0 auto; }
   /* En pantallas pequeñas reducimos la altura máxima del formulario
      scrollable y el padding-right para aprovechar el ancho. */
-  .reg-form { max-height: calc(100vh - 180px); padding-right: 8px; }
+  .reg-form { max-height: calc(100vh - 180px); padding-right: 8px; padding-bottom: 72px; }
   .reg-actions { justify-content: stretch; }
   .reg-btn { width: 100%; }
   .reg-title { font-size: 1.25rem; }
