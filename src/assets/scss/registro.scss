@@ -34,6 +34,8 @@ $darker: #0056b3;
   padding: 2rem 2.4rem; /* Aumentado de 1.6rem 1.8rem */
   box-shadow: var(--shadow-sm, 0 24px 60px rgba(10, 20, 30, 0.45));
   position: relative;
+  display: flex;
+  flex-direction: column;
   transform-origin: center;
   animation: cardShow 300ms cubic-bezier(.22,.9,.38,1);
   box-sizing: border-box;
@@ -73,13 +75,13 @@ $darker: #0056b3;
   grid-template-columns: 1fr 1fr;
   gap: 1rem 1rem;
 
-  /* Hacer que el formulario sea el elemento scrollable interno cuando
-     el modal sea demasiado alto. Esto preserva las esquinas redondeadas
-     de la tarjeta principal en todas las pantallas. */
-  max-height: calc(100vh - 220px);
+  /* Usar flex child para permitir que el formulario ocupe el espacio
+     disponible y sea el área scrollable. min-height:0 es necesario para
+     que overflow funcione correctamente en flexbox en algunos navegadores. */
+  flex: 1 1 auto;
+  min-height: 0;
   overflow: auto;
   padding-right: 12px; /* reservar espacio para la scrollbar interna */
-  padding-bottom: 84px; /* reservar espacio para la zona de acciones sticky */
   box-sizing: border-box;
 }
 
@@ -143,13 +145,11 @@ $darker: #0056b3;
   gap: 0.8rem;
   justify-content: flex-end;
   margin-top: 0.6rem;
-  /* Mantener la zona de acciones siempre visible en la parte inferior
-     del formulario aunque haya scroll; se superpone ligeramente encima
-     del contenido y preserva el aspecto limpio en móviles. */
-  position: sticky;
-  bottom: 12px;
+  /* Zona de acciones colocada tras el formulario; no es absoluta para
+     que no se superponga al contenido. Queda al final de la tarjeta. */
+  position: static;
   z-index: 6;
-  background: linear-gradient(transparent, rgba(255,255,255,0.0));
+  background: transparent;
   padding-top: 6px; /* separación visual desde el contenido */
 }
 
@@ -278,7 +278,9 @@ $darker: #0056b3;
   /* En pantallas pequeñas reducimos la altura máxima del formulario
      scrollable y el padding-right para aprovechar el ancho. */
   .reg-form { max-height: calc(100vh - 180px); padding-right: 8px; padding-bottom: 72px; }
-  .reg-actions { justify-content: stretch; }
+  /* devolver la zona de acciones al flujo normal para móviles (botones
+    apilados y ocupando todo el ancho) */
+  .reg-actions { justify-content: stretch; position: static; bottom: auto; right: auto; padding-top: 0; }
   .reg-btn { width: 100%; }
   .reg-title { font-size: 1.25rem; }
   .reg-sub { font-size: 0.9rem; }

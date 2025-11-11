@@ -32,7 +32,7 @@ const Registro = ({ isOpen = false, onClose = () => {} }) => {
 				<h2 className="reg-title">Crea tu cuenta</h2>
 				<p className="reg-sub">Únete a nuestra comunidad — es rápido y seguro</p>
 
-				<form className="reg-form" onSubmit={handleSubmit}>
+				<form id="regForm" className="reg-form" onSubmit={handleSubmit}>
 					<label>
 						<span>Nombre completo</span>
 						<div className="reg-input">
@@ -81,11 +81,14 @@ const Registro = ({ isOpen = false, onClose = () => {} }) => {
 						</div>
 					</label>
 
-					<div className="reg-actions">
-						<button type="button" className="reg-btn secondary" onClick={handleClose}>Regresar</button>
-						<button type="submit" className="reg-btn primary">Crear cuenta</button>
-					</div>
 				</form>
+
+				{/* Zona de acciones fuera del formulario para evitar que el scroll interno
+				   mueva los botones: así siempre quedan en la parte inferior de la tarjeta */}
+				<div className="reg-actions">
+					<button type="button" className="reg-btn secondary" onClick={handleClose}>Regresar</button>
+					<button type="submit" form="regForm" className="reg-btn primary">Crear cuenta</button>
+				</div>
 			</div>
 		</div>
 	);
