@@ -85,6 +85,49 @@ $darker: #0056b3;
   box-sizing: border-box;
 }
 
+/* Estilado del scrollbar interno para que la pista (track) y esquina sean blancas
+   y no se vea esa línea gris al final del modal. Compatible con WebKit y
+   con propiedades para Firefox. */
+.reg-form {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(2,6,23,0.18) #fff; /* thumb, track */
+}
+.reg-form::-webkit-scrollbar { width: 12px; }
+.reg-form::-webkit-scrollbar-track { background: #fff; }
+.reg-form::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(2,6,23,0.14), rgba(2,6,23,0.22));
+  border-radius: 10px;
+  border: 3px solid transparent; /* espacio visual entre thumb y track */
+  background-clip: padding-box;
+}
+.reg-form::-webkit-scrollbar-corner { background: #fff; }
+
+/* Refuerzo: forzar blanco incluso si el UA o el SO intenta pintar algo distinto.
+  Además añadimos un pseudo-elemento en la tarjeta para cubrir cualquier
+  línea/racha de 1px que aparezca en el borde inferior en algunos entornos. */
+.reg-form::-webkit-scrollbar-track { background: #fff !important; box-shadow: none !important; border: none !important; }
+.reg-form::-webkit-scrollbar-corner { background: #fff !important; }
+.reg-form { -webkit-overflow-scrolling: touch; }
+
+/* Pseudo-elemento que cubre la línea inferior/residuo que algunos SO pintan
+  entre la zona scrollable y el footer. Usa la variable --card-bg para soportar
+  temas oscuros. */
+.reg-modal-card::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 6px; /* cubrir hasta 6px; ajustar si es necesario */
+  background: var(--card-bg, #fff);
+  pointer-events: none;
+  z-index: 7;
+}
+
+/* Asegurar que la zona de acciones tenga un pequeño sombreado superior
+  con el mismo color de fondo para ocultar cualquier línea de separación. */
+.reg-actions { box-shadow: 0 -1px 0 var(--card-bg, #fff); }
+
 .reg-form label {
   display: block;
   font-size: 0.9rem;
@@ -149,8 +192,9 @@ $darker: #0056b3;
      que no se superponga al contenido. Queda al final de la tarjeta. */
   position: static;
   z-index: 6;
-  background: transparent;
-  padding-top: 6px; /* separación visual desde el contenido */
+  background: #fff; /* fondo blanco para que no se vea la línea gris detrás */
+  padding-top: 12px; /* separación visual desde el contenido */
+  border-top: 1px solid #fff; /* cubrir cualquier línea gris residual */
 }
 
 .reg-btn {
