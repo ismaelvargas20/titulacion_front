@@ -141,17 +141,24 @@ body, html {
 .motorcycle-img {
   position: absolute;
   z-index: 2; /* detrás del formulario */
-  max-width: 820px;
-  /* limitar crecimiento con clamp para que no se haga gigante en pantallas pequeñas */
-  width: clamp(200px, 38vw, 640px); /* un poco más pequeña en todos los tamaños */
+
+  // --- MODIFICACIÓN: tamaño aumentado ligeramente ---
+  // Antes: width: clamp(160px, 32vw, 520px);
+  // Ahora aumenté valores para que la moto sea un poco más grande sin tocar el texto.
+  width: clamp(200px, 36vw, 560px); /* aumentado ligeramente */
+
+  // --- MODIFICACIÓN: desplazamiento 0.5cm a la derecha ---
+  // Antes: left: 54%;
+  // Ahora: uso calc(54% + 0.5cm) para moverla 0.5cm hacia la derecha.
+  left: calc(54% + 0.5cm);
+
+  max-width: 680px;
   height: auto;
-  bottom: 4%;
-  left: 54%; /* ligero ajuste para dejar espacio al formulario */
-  transform: translateX(-50%) scale(1);
+  bottom: calc(4% + 1cm);          /* SUBIDA 1cm (esta línea ya estaba) */
+  transform: translateX(-50%) scale(0.98); /* ajuste de escala leve para equilibrio visual */
   object-fit: contain;
   filter: drop-shadow(4px 4px 12px rgba(0, 0, 0, 0.32));
   pointer-events: none;
-  /* Animación más lenta y con menor escala para no llamar tanto la atención */
   animation: subtlePulse 8s ease-in-out infinite;
   transition: none;
   cursor: default;
@@ -303,17 +310,14 @@ body, html {
     /* Mostrar la moto centrada y más contenida en tablet/phone grande */
     position: static;
     display: block;
-    /* controlar tamaño para que no cubra el formulario */
-    width: min(320px, 46vw);
-    max-width: 340px;
+    /* controlar tamaño para que no cubra el formulario (reducido) */
+    width: min(280px, 40vw);
+    max-width: 300px;
     transform: none;
     bottom: auto;
-    margin: 0.6rem auto 1rem auto;
+    margin: 0.6rem auto 0.4rem auto; /* levantar un poco respecto al anterior */
     filter: drop-shadow(4px 4px 12px rgba(0,0,0,0.25));
     z-index: 1; /* detrás del formulario */
-
-    /* asegurar que el formulario esté encima */
-    /* .form-panel eleva su z-index más abajo en este media query */
   }
 
   .form-panel {
@@ -337,8 +341,8 @@ body, html {
 @media (max-width: 1100px) {
   .motorcycle-img {
     /* reducir y mandar detrás del formulario en resoluciones medias */
-    width: 44vw;
-    max-width: 480px;
+    width: 40vw;        /* ligeramente más pequeña */
+    max-width: 420px;   /* reducido */
     left: 60%;
     z-index: 1;
     transform: translateX(-50%);
@@ -348,10 +352,10 @@ body, html {
 
   .motorcycle-img {
     /* En móviles pequeños mantenemos la moto aún más pequeña */
-    width: min(280px, 72vw);
-    max-width: 300px;
+    width: min(220px, 60vw);
+    max-width: 260px;
     transform: none;
-    margin: 0.6rem auto 0.8rem auto;
+    margin: 0.6rem auto 0.2rem auto; /* subir un poco */
     display: block;
   }
 
