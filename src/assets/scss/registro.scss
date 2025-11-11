@@ -15,9 +15,15 @@ $darker: #0056b3;
   animation: overlayShow 240ms ease-out;
   padding: 20px; /* separación desde los bordes en pantallas pequeñas */
   box-sizing: border-box;
-  overflow-y: auto; /* permitir scroll cuando el modal sea más alto que la ventana */
+  /* No permitir que el overlay muestre su propia barra de scroll: el
+     scroll debe ocurrir dentro del formulario (.reg-form) para que las
+     esquinas redondeadas de la tarjeta se mantengan visibles. */
+  overflow: hidden;
   -webkit-overflow-scrolling: touch;
 }
+
+/* Ocultar por si acaso cualquier scrollbar residual del overlay en WebKit */
+.reg-modal-overlay::-webkit-scrollbar { display: none; }
 
 .reg-modal-card {
   width: 95%;
@@ -32,7 +38,11 @@ $darker: #0056b3;
   animation: cardShow 300ms cubic-bezier(.22,.9,.38,1);
   box-sizing: border-box;
   max-height: calc(100vh - 40px); /* evitar que el modal sobrepase la ventana */
-  overflow: auto; /* scroll interno si el contenido es más alto */
+  /* Evitar que la barra de scroll del contenedor recorte las esquinas
+     redondeadas en algunos navegadores/OS. En su lugar, dejamos la
+     tarjeta como contenedor visual con border-radius y movemos el
+     scroll al formulario interno (.reg-form). */
+  overflow: hidden;
 }
 
 .reg-close {
@@ -62,6 +72,14 @@ $darker: #0056b3;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1rem 1rem;
+
+  /* Hacer que el formulario sea el elemento scrollable interno cuando
+     el modal sea demasiado alto. Esto preserva las esquinas redondeadas
+     de la tarjeta principal en todas las pantallas. */
+  max-height: calc(100vh - 220px);
+  overflow: auto;
+  padding-right: 12px; /* reservar espacio para la scrollbar interna */
+  box-sizing: border-box;
 }
 
 .reg-form label {
@@ -248,6 +266,9 @@ $darker: #0056b3;
 @media (max-width: 720px) {
   .reg-form { grid-template-columns: 1fr; gap: 0.8rem; }
   .reg-modal-card { padding: 1rem; max-width: 560px; width: 100%; margin: 0 auto; }
+  /* En pantallas pequeñas reducimos la altura máxima del formulario
+     scrollable y el padding-right para aprovechar el ancho. */
+  .reg-form { max-height: calc(100vh - 180px); padding-right: 8px; }
   .reg-actions { justify-content: stretch; }
   .reg-btn { width: 100%; }
   .reg-title { font-size: 1.25rem; }
