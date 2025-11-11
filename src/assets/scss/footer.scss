@@ -159,3 +159,22 @@ $accent-fire: #ff6b00;
   .footer-tagline { max-width: 100%; }
   .social-links { gap: 0.85rem; }
 }
+
+/* Dark mode: make footer match header background color */
+body.global-dark .app-footer {
+  /* Usar mismo fondo que header en dark en toda la franja y evitar separaciones */
+  background: var(--header-bg-dark, #172027) !important;
+  color: var(--header-text-dark, $text-light) !important;
+  box-shadow: none !important;
+  margin-top: 0 !important; /* evitar espacios que muestren el fondo de la página */
+  border-top: none !important; /* quitar línea clara que crea el rectángulo */
+}
+
+body.global-dark .app-footer a { color: var(--header-text-dark, $text-light); }
+body.global-dark .app-footer .footer-container,
+body.global-dark .app-footer .footer-main,
+body.global-dark .app-footer .footer-bottom {
+  background: transparent !important; /* asegurar continuidad de color */
+}
+body.global-dark .app-footer .footer-column h3::after { background: $accent-fire; }
+body.global-dark .footer-bottom { border-top: none !important; }

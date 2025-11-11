@@ -13,6 +13,10 @@ $darker: #0056b3;
   justify-content: center;
   z-index: 9999;
   animation: overlayShow 240ms ease-out;
+  padding: 20px; /* separación desde los bordes en pantallas pequeñas */
+  box-sizing: border-box;
+  overflow-y: auto; /* permitir scroll cuando el modal sea más alto que la ventana */
+  -webkit-overflow-scrolling: touch;
 }
 
 .reg-modal-card {
@@ -26,6 +30,9 @@ $darker: #0056b3;
   position: relative;
   transform-origin: center;
   animation: cardShow 300ms cubic-bezier(.22,.9,.38,1);
+  box-sizing: border-box;
+  max-height: calc(100vh - 40px); /* evitar que el modal sobrepase la ventana */
+  overflow: auto; /* scroll interno si el contenido es más alto */
 }
 
 .reg-close {
@@ -35,6 +42,8 @@ $darker: #0056b3;
   background: transparent;
   border: none;
   font-size: 1.05rem;
+  padding: 8px; /* aumentar área clicable */
+  border-radius: 6px;
   cursor: pointer;
   color: var(--muted, #556);
 }
@@ -52,7 +61,7 @@ $darker: #0056b3;
 .reg-form {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 0.9rem 1rem;
+  gap: 1rem 1rem;
 }
 
 .reg-form label {
@@ -75,6 +84,20 @@ $darker: #0056b3;
   color: var(--muted, #7b8a94);
   font-size: 1.05rem;
   pointer-events: none;
+  /* estilo similar al usado en perfil: círculo blanco con glyph en color primario */
+  width: 52px;
+  height: 52px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  left: 18px;
+  background: #ffffff;
+  color: var(--primary, #007bff);
+  border: 1px solid rgba(11,115,255,0.12);
+  box-shadow: 0 10px 26px rgba(11,115,255,0.06);
+  z-index: 2;
+  svg { width: 18px; height: 18px; color: currentColor; }
 }
 
 .reg-input input {
@@ -151,10 +174,86 @@ $darker: #0056b3;
   to { transform: scale(.96) translateY(8px); opacity: 0 }
 }
 
+/* Dark theme overrides (top-level) --------------------------------------- */
+.app-main.dark-theme {
+  .reg-modal-card {
+    background: var(--card-bg, #141516);
+    color: var(--text, #e6eef8);
+    box-shadow: 0 30px 80px rgba(2,6,23,0.6);
+  }
+
+  /* Labels above inputs */
+  .reg-form {
+    label { color: var(--text, #e6eef8); }
+    label span { color: var(--text, #e6eef8); opacity: 0.95; }
+  }
+
+  /* Title & subtitle */
+  .reg-title, .reg-sub { color: var(--text, #e6eef8); }
+
+  /* Inputs and placeholders */
+  .reg-input {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.04);
+
+    input,
+    textarea,
+    select {
+      color: var(--text, #e6eef8);
+      background: transparent;
+    }
+
+    /* explicit placeholder selectors for better compatibility */
+    input::placeholder,
+    textarea::placeholder,
+    select::placeholder { color: rgba(255,255,255,0.45); }
+    input::-webkit-input-placeholder,
+    textarea::-webkit-input-placeholder,
+    select::-webkit-input-placeholder { color: rgba(255,255,255,0.45); }
+    input:-ms-input-placeholder,
+    textarea:-ms-input-placeholder,
+    select:-ms-input-placeholder { color: rgba(255,255,255,0.45); }
+
+    /* keep the icon contrast (white circle) */
+    .reg-icon { background: #ffffff; }
+  }
+}
+
+/* Date input specific selectors: browsers render their own date fragments — force a readable color */
+.app-main.dark-theme {
+  .reg-input.reg-input--date {
+    input {
+      color: var(--text, #e6eef8);
+    }
+
+    /* placeholders */
+    input::placeholder { color: rgba(255,255,255,0.65); }
+    input::-webkit-input-placeholder { color: rgba(255,255,255,0.65); }
+    input:-ms-input-placeholder { color: rgba(255,255,255,0.65); }
+
+    /* WebKit date fragment selectors (month/day/year segments) */
+    input::-webkit-datetime-edit,
+    input::-webkit-datetime-edit-text,
+    input::-webkit-datetime-edit-month-field,
+    input::-webkit-datetime-edit-day-field,
+    input::-webkit-datetime-edit-year-field,
+    input::-webkit-datetime-edit-ampm-field {
+      color: var(--text, #e6eef8);
+      opacity: 0.95;
+    }
+  }
+}
+
 /* Responsive */
 @media (max-width: 720px) {
-  .reg-form { grid-template-columns: 1fr; }
-  .reg-modal-card { padding: 1.2rem; }
+  .reg-form { grid-template-columns: 1fr; gap: 0.8rem; }
+  .reg-modal-card { padding: 1rem; max-width: 560px; width: 100%; margin: 0 auto; }
   .reg-actions { justify-content: stretch; }
   .reg-btn { width: 100%; }
+  .reg-title { font-size: 1.25rem; }
+  .reg-sub { font-size: 0.9rem; }
+  .reg-input input { font-size: 1rem; padding: 0.7rem 0.9rem 0.7rem 3rem; }
+  /* adaptar icono en móviles: reducir tamaño del círculo para que no ocupe tanto */
+  .reg-input .reg-icon { width: 44px; height: 44px; left: 14px; svg { width: 16px; height: 16px; } }
+  .reg-input.reg-input--date .reg-icon { border-radius: 12px; }
 }

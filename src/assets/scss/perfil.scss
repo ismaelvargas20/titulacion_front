@@ -1,5 +1,6 @@
 /* --- Variables de Color (basadas en tu imagen) --- */
-$primary-blue: #0d6efd;
+$primary-blue: #0b73ff; // usar el mismo azul que comunidad
+$accent: #00b4ff; // acento secundario usado en comunidad (degradado)
 $primary-blue-light: #e7f0ff;
 $text-dark: #212529;
 $text-light: #6c757d;
@@ -7,6 +8,15 @@ $border-color: #dee2e6;
 $background-page: #f8f9fa;
 $background-card: #ffffff;
 $disabled-bg: #f5f5f5;
+
+/* Paleta para modo oscuro (grises suaves) */
+$dark-bg-1: #232628; // header (gris suave, un poco más claro)
+$dark-bg-2: #18191b; // card / surfaces (gris oscuro pero suave)
+$dark-surface: #141516; // inputs y superficies internas (ligeramente distinto)
+$dark-border: rgba(255,255,255,0.04);
+$dark-muted: rgba(255,255,255,0.06);
+$dark-page-bg: #1d1f20; // fondo general de la página en modo oscuro (gris suave)
+$dark-field: lighten($dark-bg-2, 6%); // campos / wrappers de formulario (gris suave, distinto al card)
 
 /* --- Contenedor General de la Página --- */
 .perfil-page-container {
@@ -27,7 +37,12 @@ $disabled-bg: #f5f5f5;
     box-shadow: var(--shadow-sm, 0 4px 20px rgba(0, 0, 0, 0.05));
     overflow: hidden;
     border: 1px solid var(--muted-border, #{$border-color});
+    position: relative; /* necesario para el filo (pseudo-elemento) */
 }
+
+/* Filo inferior decorativo: línea roja elegante con sombra sutil */
+/* (La decoración inferior se aplica ahora al formulario hijo `.reg-form` para que el filo pertenezca
+   visualmente al contenido y no al contenedor principal) */
 
 .perfil-header {
     display: flex;
@@ -35,33 +50,49 @@ $disabled-bg: #f5f5f5;
     flex-direction: column;
     align-items: center;
     padding: 2.25rem 1.5rem;
-    background-color: rgba(13,110,253,0.06);
-    border-bottom: 1px solid var(--muted-border, #{$border-color});
+     /* fondo de cabecera más visible pero suave: mayor presencia del color primario
+         manteniendo un degradado para que no sea plano. */
+            /* Suavizar el degradado sin mezclar con blanco: reducimos saturación y
+                 aclaramos ligeramente los colores para que el azul sea menos agresivo. */
+            background: linear-gradient(90deg,
+                desaturate(lighten($primary-blue, 6%), 8%) 0%,
+                desaturate(lighten($accent, 6%), 6%) 100%
+            );
+            border-bottom: 1px solid rgba(11,115,255,0.08);
 
     .perfil-avatar {
-        /* Hacemos el avatar superior similar al circulito de acciones (más compacto) */
-        font-size: 48px;
-        color: var(--primary, #{$primary-blue});
+        /* Avatar: anillo blanco y tamaño ligeramente ajustado para que no compita con los inputs */
+        font-size: 44px; /* glyph slightly smaller */
+        color: #ffffff; /* glyph en blanco para contrastar */
         margin-bottom: 0.6rem;
-        background: rgba(255, 255, 255, 0.04);
+    background: linear-gradient(180deg, lighten(desaturate($primary-blue, 6%), 4%) 0%, lighten(desaturate($primary-blue, 6%), 8%) 100%);
         width: 72px;
         height: 72px;
         border-radius: 999px;
         display: flex;
         align-items: center;
         justify-content: center;
+          /* anillo blanco alrededor para contraste sobre el header, pero con un borde y sombra sutil
+              para que se note sobre fondos claros (no quede totalmente "pegado" al blanco). */
+          border: 4px solid rgba(255,255,255,0.92);
+          box-shadow: 0 10px 28px rgba(2,6,23,0.04), 0 2px 6px rgba(0,0,0,0.04) inset;
+        transition: transform 220ms ease, box-shadow 220ms ease;
+        position: relative; z-index: 2;
+        filter: drop-shadow(0 12px 30px rgba(13,110,253,0.06));
+        -webkit-filter: drop-shadow(0 12px 30px rgba(13,110,253,0.06));
+        &:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 18px 40px rgba(13,110,253,0.12); }
     }
 
     h2 {
         font-size: 1.6rem;
         font-weight: 700;
-        color: var(--text, #{$text-dark});
+        color: #ffffff; /* nombre en blanco sobre el header */
         margin: 0;
     }
 
     p {
         font-size: 0.95rem;
-        color: var(--muted, #{$text-light});
+        color: rgba(255,255,255,0.8); /* ciudad en gris claro sobre azul suavizado */
         margin: 0.25rem 0 1.5rem 0;
     }
 }
@@ -107,7 +138,28 @@ $disabled-bg: #f5f5f5;
     max-width: 1040px; /* limitar el ancho del formulario global para crear espacio lateral */
     box-sizing: border-box;
 
+    position: relative; /* necesario para el pseudo-elemento decorativo */
+
+    /* Línea sutil para marcar el borde inferior del cuadro del formulario.
+       Gris suave, sombra tenue para dar separación sin llamar demasiado la atención. */
+    &::after {
+        content: '';
+        position: absolute;
+        left: 30px;
+        right: 30px;
+        bottom: -6px;
+        height: 3px;
+        border-radius: 3px;
+        background: linear-gradient(90deg, rgba(0,0,0,0.06) 0%, rgba(0,0,0,0.02) 100%);
+        box-shadow: 0 6px 18px rgba(0,0,0,0.04);
+        pointer-events: none;
+        z-index: 3;
+    }
+
     fieldset {
+        position: relative; /* necesario para el pseudo-elemento del fieldset */
+
+        /* removed decorative red stripe previously placed here */
         border: none;
         padding: 0;
         margin: 0 auto; /* centrar el contenido del formulario */
@@ -117,7 +169,7 @@ $disabled-bg: #f5f5f5;
     /* Dos columnas más anchas para que el contenido derecho no quede cortado */
     grid-template-columns: repeat(2, 480px);
     justify-content: center; /* centrar las columnas dentro del grid */
-    gap: 1.8rem 2.4rem; /* separación: row gap / column gap (más espacio entre columnas) */
+    gap: 2.2rem 2.4rem; /* separación: row gap / column gap (más espacio entre filas para elegancia) */
 
         &:disabled {
             .reg-input input {
@@ -131,6 +183,34 @@ $disabled-bg: #f5f5f5;
                 color: var(--muted, #{$text-light});
                 background: var(--card-bg, #{$disabled-bg});
                 border-color: var(--muted-border, #{$border-color});
+            }
+        }
+        /* Aplicar estilos únicamente al contenedor de cambio de contraseña
+           usando la clase explícita `.password-section` que añadimos en JSX.
+           Así evitamos afectar a otros divs dentro del fieldset (ej. botones). */
+        > .password-section {
+            grid-column: 1 / -1; /* ocupar ambas columnas del grid */
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* centrar contenido (labels/inputs) */
+            gap: 1rem;
+            max-width: 520px; /* ancho razonable para los inputs */
+            margin: 0 auto; /* centrar dentro del fieldset */
+            padding: 0 0.25rem;
+
+            .reg-input {
+                width: 100%;
+                max-width: 520px;
+                padding-left: 96px; /* ajustado: espacio para círculo de 52px + respiración */
+            }
+
+            .change-pass-actions {
+                /* mantener las acciones alineadas a la izquierda dentro del bloque centrado */
+                width: 100%;
+                display: flex;
+                gap: 0.6rem;
+                justify-content: flex-start; /* botones a la izquierda como antes */
+                margin-top: 0.25rem;
             }
         }
     }
@@ -151,10 +231,10 @@ $disabled-bg: #f5f5f5;
             bottom: 0;
             left: 50%;
             transform: translateX(-50%);
-            width: 120px; /* ancho visible y centrado */
-            height: 4px;
-            background: $primary-blue; /* usar el color principal para más contraste */
-            border-radius: 3px;
+            width: 140px; /* ancho visible y centrado */
+            height: 6px;
+            background: linear-gradient(90deg, rgba(13,110,253,1) 0%, rgba(13,110,253,0.85) 100%); /* barra destacada */
+            border-radius: 4px;
         }
     }
 
@@ -188,43 +268,78 @@ $disabled-bg: #f5f5f5;
     }
 
     /* Usar posición relativa para poder colocar el icono dentro del input (overlay) */
-    .reg-input {
+            .reg-input {
         position: relative;
         display: block;
         align-items: center;
+        overflow: visible; /* permitir que los halos difuminados se muestren fuera del wrapper */
         /* usar fondo de tarjeta para que el input destaque y no se vea transparente */
-        background: var(--card-bg, #{$background-card});
-        border: 1px solid var(--muted-border, #{$border-color});
-        padding: 0.6rem 0.75rem 0.6rem 56px; /* dejar espacio a la izquierda para el icono dentro */
-        border-radius: 12px;
-        margin-bottom: 0.75rem;
-        transition: box-shadow 180ms ease, border-color 180ms ease;
-        box-shadow: 0 6px 18px rgba(2,6,23,0.04);
+            background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(250,250,251,0.98));
+            border: 1px solid rgba(200,208,217,0.72);
+            padding: 0.9rem 1rem 0.9rem 96px; /* espacio para círculo de 52px y respiración */
+            border-radius: 16px;
+            margin-bottom: 1rem;
+            transition: box-shadow 240ms ease, border-color 240ms ease, transform 200ms ease;
+            /* sombra más marcada y profundidad extra para elegancia */
+            box-shadow: 0 14px 34px rgba(2,6,23,0.04), inset 0 1px 0 rgba(255,255,255,0.6);
 
-        .reg-icon {
-            position: absolute; /* colocamos el icono dentro del wrapper */
-            left: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 40px;
-            height: 40px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.05rem;
-            color: var(--muted, #{$text-light});
-            background: transparent; /* icono "dentro" no necesita fondo separado */
-            border: none;
-            border-radius: 6px;
-            transition: color 0.18s ease, background 0.18s ease;
-            box-shadow: none;
-        }
+            .reg-icon {
+                position: absolute; /* colocamos el icono dentro del wrapper */
+                left: 18px;
+                top: 50%;
+                transform: translateY(-50%);
+                width: 52px; /* diámetro aumentado a 52px para más presencia */
+                height: 52px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 0.85rem;
+                /* Nuevo estilo: círculo blanco con glyph en color primario para un look más limpio */
+                color: $primary-blue; /* glyph en color primario */
+                background: #ffffff; /* fondo blanco para el icono */
+                border: 1px solid rgba(11,115,255,0.12);
+                border-radius: 50%;
+                transition: transform 220ms ease, box-shadow 220ms ease;
+                box-shadow: 0 10px 26px rgba(11,115,255,0.06), inset 0 1px 0 rgba(255,255,255,0.8);
+                z-index: 2;
+
+                /* svg más grande y en color primario */
+                svg { color: currentColor; fill: currentColor; stroke: currentColor; width: 18px; height: 18px; }
+
+                /* Focus/active: ligera elevación y halo azul tenue */
+                &:active,
+                &:focus,
+                .reg-input:focus-within & {
+                    transform: translateY(-50%); /* mantener la posición base */
+                    box-shadow: 0 12px 34px rgba(11,115,255,0.09);
+                }
+            }
+
+            /* Estilos especiales para el campo de Fecha: caja clara con borde y sombra marcada
+               para que el icono/calendario destaque como en la imagen de ejemplo */
+            &.reg-input--date {
+                padding-left: 96px; /* espacio para círculo de 52px consistente con los demás */
+
+                .reg-icon {
+                    width: 52px;
+                    height: 52px;
+                    left: 18px;
+                    border-radius: 12px; /* caja en lugar de círculo (ligeramente redondeada) */
+                    /* Fecha: fondo blanco con icono azul para mantener consistencia */
+                    background: #ffffff;
+                    border: 1px solid rgba(11,115,255,0.12);
+                    box-shadow: 0 10px 22px rgba(11,115,255,0.06);
+                    filter: drop-shadow(0 10px 20px rgba(11,115,255,0.06)); -webkit-filter: drop-shadow(0 10px 20px rgba(11,115,255,0.06));
+                    svg { width: 18px; height: 18px; color: $primary-blue; }
+                }
+            }
 
         &:focus-within {
-            /* solo cambiar color/sombra/borde del wrapper */
-            .reg-icon { color: var(--primary, #{$primary-blue}); }
-            box-shadow: 0 10px 26px rgba(2,6,23,0.05);
-            border-color: var(--primary, #{$primary-blue});
+            /* elevar ligeramente el campo activo sin cambiar el icono */
+            .reg-icon { transform: translateY(-50%); border-color: rgba(13,110,253,0.12); }
+            box-shadow: 0 18px 46px rgba(13,110,253,0.06);
+            border-color: rgba(13,110,253,0.22);
+            transform: translateY(-2px);
         }
 
         input {
@@ -240,10 +355,29 @@ $disabled-bg: #f5f5f5;
 
             &:focus {
                 outline: none;
-                box-shadow: 0 8px 26px rgba(13,110,253,0.06);
+                box-shadow: 0 12px 34px rgba(13,110,253,0.08);
+                transform: translateY(-1px);
             }
+            &::placeholder { color: rgba(33,37,41,0.45); transition: color 180ms ease; }
         }
     }
+
+    /* Efecto al enfocar el wrapper: destacar icono y levantar input */
+        .reg-input:focus-within { box-shadow: 0 18px 46px rgba(13,110,253,0.06); border-color: var(--primary, #{$primary-blue}); transform: translateY(-1px); }
+        /* No cambiar color/fondo del icono al enfocar: solo una sombra sutil. */
+        .reg-input:focus-within .reg-icon { transform: translateY(-50%); filter: drop-shadow(0 16px 28px rgba(13,110,253,0.10)); }
+
+        /* Forzar iconos siempre azules (incluso si el fieldset está deshabilitado). Usamos
+           mayor especificidad y !important para asegurarnos de que no los sobreescriban reglas
+           de estado como :disabled. */
+        /* Forzar apariencia coherente: icono blanco con glyph en color primario */
+        .reg-icon {
+            background: #ffffff !important;
+            color: $primary-blue !important;
+            border-color: rgba(11,115,255,0.12) !important;
+            box-shadow: 0 10px 26px rgba(11,115,255,0.06) !important;
+        }
+        .reg-icon svg { color: currentColor; fill: currentColor; stroke: currentColor; width: 18px; height: 18px; }
 
     .form-actions-inline {
         margin-top: 1.25rem; /* reducir espacio antes de botones para que no quede tan separado */
@@ -280,6 +414,12 @@ $disabled-bg: #f5f5f5;
         justify-content: center;
         font-size: 0.95rem; /* Igualamos el tamaño de letra entre Guardar y Cancelar */
     }
+
+    /* Mejora visual de botones: micro-interacciones y sombras suaves */
+    .perfil-save-btn { background: linear-gradient(135deg, var(--primary, #{$primary-blue}), lighten($primary-blue, 6%)); box-shadow: 0 10px 30px rgba(13,110,253,0.14); transition: transform 180ms ease, box-shadow 180ms ease; }
+    .perfil-save-btn:hover { transform: translateY(-3px); box-shadow: 0 18px 44px rgba(13,110,253,0.16); }
+    .perfil-cancel-btn { transition: transform 160ms ease, background 160ms ease; }
+    .perfil-cancel-btn:hover { transform: translateY(-2px); background: #fbfbfb; }
 
     /* En pantallas medias: reducir ligeramente para que no se salgan */
     @media (max-width: 1300px) {
@@ -324,10 +464,10 @@ $disabled-bg: #f5f5f5;
 }
 
 .perfil-actions .action-avatar {
-    font-size: 48px;
+    font-size: 36px; /* más contenido */
     color: var(--primary, #{$primary-blue});
-    width: 72px;
-    height: 72px;
+    width: 56px;
+    height: 56px;
     border-radius: 999px;
     display: flex;
     align-items: center;
@@ -363,6 +503,32 @@ $disabled-bg: #f5f5f5;
 
 .perfil-edit-btn { box-shadow: 0 10px 26px rgba(13,110,253,0.16); }
 
+/* Animación suave de 'sube' en hover/focus para botones de edición
+     similar al efecto de la página Motos: ligero translateY hacia arriba y
+     aumento de sombra para dar sensación de elevación. */
+.perfil-edit-btn,
+.perfil-edit-small {
+    will-change: transform, box-shadow;
+    /* Duración aumentada para un movimiento más lento y suave */
+    transition: transform 420ms cubic-bezier(.2,.85,.2,1), box-shadow 420ms cubic-bezier(.2,.85,.2,1);
+}
+
+.perfil-edit-btn:hover,
+.perfil-edit-btn:focus,
+.perfil-edit-small:hover,
+.perfil-edit-small:focus {
+    /* Subida más sutil y más lenta */
+    transform: translateY(-2px);
+    box-shadow: 0 18px 44px rgba(11,115,255,0.14);
+}
+
+/* Estado activo/pressed más sutil para no sobresaturar el movimiento */
+.perfil-edit-btn:active,
+.perfil-edit-small:active {
+    transform: translateY(-1px);
+    box-shadow: 0 12px 30px rgba(11,115,255,0.12);
+}
+
 .perfil-save-btn {
     background-color: var(--primary, #{$primary-blue});
     color: var(--badge-text, #fff);
@@ -380,6 +546,9 @@ $disabled-bg: #f5f5f5;
 /* Reglas en modo oscuro: los botones usan fondo de tarjeta y borde sutil, sin degradado
      para que coincidan con los botones del sidebar y con el CTA 'Haz click aquí'. */
 .app-main.dark-theme {
+     /* Fondo general de la página en modo oscuro: usar el gris de la imagen (fondo lateral)
+         para que los laterales de la pantalla coincidan con la referencia enviada. */
+     .perfil-page-container { background-color: $dark-page-bg; }
     .perfil-edit-btn,
     .perfil-edit-small,
     .form-actions-inline .perfil-save-btn,
@@ -400,6 +569,103 @@ $disabled-bg: #f5f5f5;
     .perfil-pass-update-btn:hover,
     .perfil-pass-cancel-small:hover {
         background: rgba(255,255,255,0.03);
+    }
+
+    /* Ajustes adicionales para que todo el formulario encaje visualmente en el modo oscuro */
+    .perfil-card {
+        /* Usar mismo gris que usa la tarjeta del chat (sell-modal) para coherencia */
+        background: var(--card-bg, #141516);
+        border: 1px solid var(--muted-border, rgba(255,255,255,0.06));
+        /* sombra similar a la del chat para mantener la misma sensación */
+        box-shadow: 0 20px 60px rgba(2,6,23,0.45);
+    }
+
+    /* Header oscuro adaptado: menos azul, más sobrio (como Inicio) */
+    .perfil-header {
+        /* Fondo del header: gris suave y distinto al card para separación visual */
+        background: $dark-bg-1;
+        border-bottom: 1px solid $dark-border;
+
+        .perfil-avatar {
+            border: 4px solid rgba(255,255,255,0.88);
+            /* avatar con relleno sutil y sin degradado */
+            background: rgba(255,255,255,0.03);
+            box-shadow: 0 10px 22px rgba(0,0,0,0.55) inset, 0 8px 18px rgba(0,0,0,0.38);
+        }
+    }
+
+    .reg-form {
+        &::after {
+            /* línea sutil sólida en dark, sin gradiente */
+            background: rgba(255,255,255,0.015);
+            box-shadow: none;
+        }
+    }
+
+    .reg-input {
+        /* fondo sólido suave para wrappers de formulario en dark (más claro que la card) */
+        background: $dark-field;
+        border: 1px solid $dark-border;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.012);
+
+        /* Hacer que el input interior no sea negro: usar una superficie gris ligeramente más clara
+           que el fondo del card para que se lea como un campo separado pero suave. */
+        input {
+            color: var(--text);
+            /* el campo rellenable sigue siendo ligeramente más claro que el wrapper */
+            background: lighten($dark-field, 6%);
+            border-radius: 8px;
+        }
+
+        /* Icono en modo oscuro: fondo translúcido y halo muy sutil (no negro ni blanco puro)
+           Se usa !important para sobreescribir reglas globales que aplican en modo claro. */
+            .reg-icon {
+            background: rgba(255,255,255,0.04) !important;
+                color: #ffffff !important; /* glyph en blanco según pedido */
+            border: 1px solid rgba(255,255,255,0.06) !important;
+            /* halo neutro muy sutil en gris oscuro para no introducir azul fuerte */
+            box-shadow: 0 6px 12px rgba(0,0,0,0.32) !important;
+            filter: none; -webkit-filter: none;
+        }
+    }
+
+        /* Ajuste de los avatares/acciones (tarjetas laterales) en modo oscuro: icono con glyph blanco */
+        .perfil-actions .action-avatar {
+            background: rgba(255,255,255,0.04);
+            color: #ffffff; /* glyph blanco */
+            border: 1px solid rgba(255,255,255,0.04);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.28);
+        }
+
+    .perfil-avatar {
+        /* Anillo blanco potente para destacar sobre el header oscuro */
+        border: 4px solid rgba(255,255,255,0.92);
+        box-shadow: 0 10px 22px rgba(0,0,0,0.5);
+    }
+
+    /* Hacer que el botón Editar sea un CTA visible en dark (estilo 'Haz click aquí') */
+    .perfil-header .perfil-edit-btn {
+        /* CTA sólido en dark (sin gradiente) - acento azul sobre gris suave */
+        background: var(--primary, #{$primary-blue});
+        color: #fff;
+        box-shadow: 0 8px 20px rgba(11,115,255,0.12);
+        border: none;
+    }
+
+    /* Adaptar la 'barrita' del título (h3::after) para que utilice un degradado visible en dark */
+    .reg-form h3::after {
+        /* barra sólida en dark: acento azul tenue */
+        background: $primary-blue;
+        box-shadow: 0 6px 14px rgba(11,115,255,0.06);
+    }
+
+    /* Asegurar que el botón pequeño 'Haz click aquí' en la CTA de cambio de contraseña
+       mantenga el color primario en modo oscuro (sea visible como CTA). */
+    .change-pass-cta.readonly .perfil-edit-small {
+        background: var(--primary, #{$primary-blue});
+        color: #fff;
+        border: none;
+        box-shadow: 0 8px 24px rgba(11,115,255,0.12);
     }
 }
 
@@ -486,4 +752,23 @@ $disabled-bg: #f5f5f5;
         max-width: 100%;
         padding: 0 12px; /* dejar pequeño padding lateral en móviles */
     }
+}
+
+/* Ajustes responsive finos para los iconos circulares y padding del input */
+@media (max-width: 780px) {
+    .reg-input { padding-left: 80px !important; }
+    .reg-input .reg-icon { width: 44px !important; height: 44px !important; }
+    .reg-input .reg-icon svg { width: 14px !important; height: 14px !important; }
+    .reg-input--date { padding-left: 80px !important; }
+    .reg-input--date .reg-icon { width: 44px !important; height: 44px !important; border-radius: 10px; }
+    .password-section .reg-input { max-width: 520px; padding-left: 80px !important; }
+}
+
+@media (max-width: 420px) {
+    .reg-input { padding-left: 72px !important; }
+    .reg-input .reg-icon { width: 40px !important; height: 40px !important; }
+    .reg-input .reg-icon svg { width: 12px !important; height: 12px !important; }
+    .reg-input--date { padding-left: 72px !important; }
+    .reg-input--date .reg-icon { width: 40px !important; height: 40px !important; border-radius: 10px; }
+    .perfil-avatar { width: 64px !important; height: 64px !important; }
 }

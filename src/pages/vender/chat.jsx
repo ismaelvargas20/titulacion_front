@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
-import { FaArrowLeft } from 'react-icons/fa';
+import { FaArrowLeft, FaEnvelope, FaTimes, FaRegCalendarAlt, FaMapMarkerAlt } from 'react-icons/fa';
+import { MdPhone } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
 import '../../assets/scss/chat.scss';
 
@@ -18,6 +19,15 @@ export default function Chat() {
         { id: 'm1', sender: 'buyer', text: 'Hola, ¿sigue disponible?', time: '09:12' },
         { id: 'm2', sender: 'you', text: 'Sí, sigue disponible.', time: '09:14' }
       ]
+      ,
+      // Datos de perfil de ejemplo (demo). En producción estos vendrían del backend.
+      buyerProfile: {
+        fullname: 'Juan Pérez',
+        birthdate: '1990-05-15',
+        email: 'juan.perez@email.com',
+        phone: '0987654321',
+        city: 'Quito'
+      }
     },
     {
       id: 'c2',
@@ -31,6 +41,14 @@ export default function Chat() {
       messages: [
         { id: 'm1', sender: 'buyer', text: '¿Aceptas cambio por otro modelo?', time: '08:20' }
       ]
+      ,
+      buyerProfile: {
+        fullname: 'María López',
+        birthdate: '1992-11-02',
+        email: 'maria.lopez@example.com',
+        phone: '0991234567',
+        city: 'Guayaquil'
+      }
     }
   ]));
 
@@ -45,12 +63,21 @@ export default function Chat() {
   const [activeId, setActiveId] = useState(null);
   const [input, setInput] = useState('');
   const listRef = useRef(null);
+  // Estado para vista previa de perfil (peek)
+  const [profilePeek, setProfilePeek] = useState(null);
 
   const openConversation = (id) => {
     setConversations((prev) => prev.map(c => c.id === id ? { ...c, unread: 0 } : c));
     setActiveId(id);
     setTimeout(() => { if (listRef.current) listRef.current.scrollTop = listRef.current.scrollHeight; }, 50);
   };
+
+  const openProfilePeek = (profile) => {
+    if (!profile) return;
+    setProfilePeek(profile);
+  };
+
+  const closeProfilePeek = () => setProfilePeek(null);
 
   const goBack = () => setActiveId(null);
 
@@ -74,11 +101,19 @@ export default function Chat() {
     <div className="chat-page">
       <div className="sell-modal" role="main">
         {/* Header */}
-        <div className="chat-header">
+          <div className="chat-header">
           {active ? (
             <button className="chat-back" onClick={goBack} aria-label="Volver"><FaArrowLeft /></button>
           ) : null}
-          <h3>{active ? `Conversación — ${active.title}` : 'Bandeja de entrada'}</h3>
+          {active ? (
+            <h3 className="chat-header-title">
+              <span className="chat-header-main">Conversación</span>
+              <span className="chat-header-sep" aria-hidden="true" />
+              <span className="chat-header-name" onClick={() => openProfilePeek(active.buyerProfile || active.profile || { fullname: active.title, city: '—' })}>{active.title}</span>
+            </h3>
+          ) : (
+            <h3>Bandeja de entrada</h3>
+          )}
         </div>
 
         <div className="chat-body">
@@ -101,6 +136,68 @@ export default function Chat() {
                   ) : null}
                 </button>
               ))}
+            </div>
+          )}
+
+          {/* Perfil peek modal/slide-over */}
+          {profilePeek && (
+            <div className="chat-profile-modal" role="dialog" aria-modal="true" aria-label={`Perfil de ${profilePeek.fullname}`}>
+              <div className="chat-profile-card" role="document">
+                <button className="chat-profile-close" onClick={closeProfilePeek} aria-label="Cerrar perfil"><FaTimes /></button>
+                <div className="chat-profile-grid">
+                  <div className="chat-profile-left">
+                    <div className="chat-profile-avatar">{(profilePeek.fullname || 'U').split(' ')[0][0]}</div>
+                  </div>
+                  <div className="chat-profile-right">
+                    <h4 className="chat-profile-name">{profilePeek.fullname}</h4>
+                    {profilePeek.city && <div className="chat-profile-city muted">{profilePeek.city}</div>}
+
+                    <div className="chat-profile-fields">
+                      {profilePeek.birthdate && (
+                        <div className="profile-field">
+                          <div className="pf-icon"><FaRegCalendarAlt /></div>
+                          <div className="pf-value">
+                            <div className="pf-label">Fecha de nacimiento</div>
+                            <div className="pf-text">{profilePeek.birthdate}</div>
+                          </div>
+                        </div>
+                      )}
+
+                      {profilePeek.email && (
+                        <div className="profile-field">
+                          <div className="pf-icon"><FaEnvelope /></div>
+                          <div className="pf-value">
+                            <div className="pf-label">Correo electrónico</div>
+                            <div className="pf-text">{profilePeek.email}</div>
+                          </div>
+                        </div>
+                      )}
+
+                      {profilePeek.phone && (
+                        <div className="profile-field">
+                          <div className="pf-icon"><MdPhone /></div>
+                          <div className="pf-value">
+                            <div className="pf-label">Número de teléfono</div>
+                            <div className="pf-text">{profilePeek.phone}</div>
+                          </div>
+                        </div>
+                      )}
+
+                      {profilePeek.city && (
+                        <div className="profile-field">
+                          <div className="pf-icon"><FaMapMarkerAlt /></div>
+                          <div className="pf-value">
+                            <div className="pf-label">Ciudad / Provincia</div>
+                            <div className="pf-text">{profilePeek.city}</div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Solo usamos la X de cierre en la esquina superior; se eliminan los botones para mejor UX */}
+                  </div>
+                </div>
+              </div>
             </div>
           )}
 

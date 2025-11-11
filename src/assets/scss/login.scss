@@ -39,6 +39,7 @@ body, html {
   background: var(--page-bg, $light-gray-bg);
   margin: 0;
   padding: 0;
+  overflow-x: hidden; /* evitar que la moto provoque scroll horizontal en pantallas pequeñas */
 }
 
 /* --- Panel Izquierdo (Azul) --- */
@@ -76,10 +77,12 @@ body, html {
     position: absolute;
     top: 10%;
     left: 5%;
-    font-size: clamp(2.5rem, 6vw, 5rem); // Reducido el tamaño
+    /* ajustar para que no sea tan dominante en pantallas medianas/pequeñas */
+    /* un poco más grande: incrementar mín/max levemente */
+    font-size: clamp(1.9rem, 5.5vw, 3.6rem);
     font-weight: 800;
     color: $text-light;
-    opacity: 0.08;
+    opacity: 0.06;
     line-height: 1;
     z-index: 0;
     user-select: none;
@@ -129,7 +132,7 @@ body, html {
   align-items: center;
   padding: 2rem 3rem;
   position: relative;
-  z-index: 1;
+  z-index: 6; /* elevar encima de la moto para evitar solapes con inputs */
   height: 100vh;
   min-height: 100vh;
 }
@@ -137,22 +140,28 @@ body, html {
 /* --- IMAGEN DE LA MOTO (AJUSTADA) --- */
 .motorcycle-img {
   position: absolute;
-  z-index: 3;
-  max-width: 800px;
-  width: 50vw;
+  z-index: 2; /* detrás del formulario */
+  max-width: 820px;
+  /* limitar crecimiento con clamp para que no se haga gigante en pantallas pequeñas */
+  width: clamp(200px, 38vw, 640px); /* un poco más pequeña en todos los tamaños */
   height: auto;
-  bottom: 5%; // Subida un poco más arriba del fondo
-  left: 55%; // Movida más a la derecha
-  transform: translateX(-50%);
+  bottom: 4%;
+  left: 54%; /* ligero ajuste para dejar espacio al formulario */
+  transform: translateX(-50%) scale(1);
   object-fit: contain;
-  filter: drop-shadow(5px 5px 15px rgba(0, 0, 0, 0.4));
-  transition: all 0.3s ease-in-out; // Transición suave para la animación
-  cursor: pointer; // Indica que es interactiva
+  filter: drop-shadow(4px 4px 12px rgba(0, 0, 0, 0.32));
+  pointer-events: none;
+  /* Animación más lenta y con menor escala para no llamar tanto la atención */
+  animation: subtlePulse 8s ease-in-out infinite;
+  transition: none;
+  cursor: default;
+}
 
-  &:hover {
-    transform: translateX(-50%) scale(1.05); // Aumenta tamaño al 105%
-    filter: drop-shadow(8px 8px 20px rgba(0, 0, 0, 0.5)); // Sombra más pronunciada en hover
-  }
+/* Keyframes: pulso sutil (no interactivo) */
+@keyframes subtlePulse {
+  0%, 100% { transform: translateX(-50%) scale(1); }
+  /* escala reducida para un pulso sutil */
+  50% { transform: translateX(-50%) scale(1.02); }
 }
 
 /* --- Estilos del Formulario (sin cambios) --- */
@@ -292,17 +301,23 @@ body, html {
 
   .motorcycle-img {
     /* Mostrar la moto centrada y más contenida en tablet/phone grande */
-    position: static; /* quitar posicionamiento absoluto/relativo para centrar con margin */
+    position: static;
     display: block;
-    width: 60vw;
-    max-width: 520px;
+    /* controlar tamaño para que no cubra el formulario */
+    width: min(320px, 46vw);
+    max-width: 340px;
     transform: none;
     bottom: auto;
     margin: 0.6rem auto 1rem auto;
     filter: drop-shadow(4px 4px 12px rgba(0,0,0,0.25));
+    z-index: 1; /* detrás del formulario */
+
+    /* asegurar que el formulario esté encima */
+    /* .form-panel eleva su z-index más abajo en este media query */
   }
 
   .form-panel {
+    z-index: 5;
     padding: 2rem 1.25rem;
     height: auto;
     min-height: auto;
@@ -318,9 +333,23 @@ body, html {
   .info-panel .info-content h1 { font-size: clamp(1.6rem, 6vw, 2.2rem); }
   .info-panel .info-content h1 { font-size: clamp(1.6rem, 6vw, 2.2rem); }
 
+/* Ajustes adicionales intermedios para evitar solapes en pantallas medias (<=1100px) */
+@media (max-width: 1100px) {
   .motorcycle-img {
-    width: 86vw;
-    max-width: 420px;
+    /* reducir y mandar detrás del formulario en resoluciones medias */
+    width: 44vw;
+    max-width: 480px;
+    left: 60%;
+    z-index: 1;
+    transform: translateX(-50%);
+  }
+  .form-panel { z-index: 6; }
+}
+
+  .motorcycle-img {
+    /* En móviles pequeños mantenemos la moto aún más pequeña */
+    width: min(280px, 72vw);
+    max-width: 300px;
     transform: none;
     margin: 0.6rem auto 0.8rem auto;
     display: block;
@@ -357,9 +386,11 @@ body, html {
     &::after { right: -120px; width: 260px; }
   }
 
+  /* Hacer el texto de fondo más pequeño en anchos medios para evitar solapes */
   .info-panel .background-text {
-    font-size: clamp(2rem, 4vw, 3rem);
-    opacity: 0.06;
+    /* subir un poco respecto a la versión previa para que se note más */
+    font-size: clamp(1.6rem, 4.6vw, 2.8rem);
+    opacity: 0.05;
   }
 
   .info-panel .info-content h1 {
@@ -380,7 +411,7 @@ body, html {
     font-size: 2.2rem; /* menos grande para que no se salga */
   }
 
-  .info-panel .background-text { opacity: 0.05; font-size: 2.6rem; }
+  .info-panel .background-text { opacity: 0.05; font-size: 2.0rem; }
 
   .info-panel .info-content { padding-right: 2.8rem; }
 }

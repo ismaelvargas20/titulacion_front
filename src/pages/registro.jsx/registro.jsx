@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import '../../assets/scss/registro.scss';
-import { FaUser, FaMapMarkerAlt } from 'react-icons/fa';
-import { MdEmail, MdCalendarToday, MdPhone } from 'react-icons/md';
+import { FaUser, FaMapMarkerAlt, FaRegCalendarAlt } from 'react-icons/fa';
+import { MdEmail, MdPhone } from 'react-icons/md';
 import { RiLockPasswordFill } from 'react-icons/ri';
 
 const Registro = ({ isOpen = false, onClose = () => {} }) => {
@@ -43,8 +43,8 @@ const Registro = ({ isOpen = false, onClose = () => {} }) => {
 
 					<label>
 						<span>Fecha de nacimiento</span>
-						<div className="reg-input">
-							<MdCalendarToday className="reg-icon" />
+						<div className="reg-input reg-input--date">
+							<FaRegCalendarAlt className="reg-icon" />
 							<input name="birthdate" type="date" required />
 						</div>
 					</label>

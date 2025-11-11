@@ -3,8 +3,8 @@ import { useLocation } from 'react-router-dom';
 import '../../assets/scss/perfil.scss'; // Importamos el SCSS desde assets
 
 // Iconos
-import { FaUser, FaMapMarkerAlt, FaUserCircle, FaSave, FaEdit, FaTimes, FaEye, FaEyeSlash } from 'react-icons/fa';
-import { MdCalendarToday, MdEmail, MdPhone } from 'react-icons/md';
+import { FaUser, FaMapMarkerAlt, FaUserCircle, FaSave, FaEdit, FaTimes, FaEye, FaEyeSlash, FaRegCalendarAlt } from 'react-icons/fa';
+import { MdEmail, MdPhone } from 'react-icons/md';
 import { RiLockPasswordFill } from 'react-icons/ri';
 
 const Perfil = () => {
@@ -184,8 +184,8 @@ const Perfil = () => {
 
                                 <label>
                                     <span>Fecha de nacimiento</span>
-                                    <div className="reg-input">
-                                        <MdCalendarToday className="reg-icon" />
+                                    <div className="reg-input reg-input--date">
+                                        <FaRegCalendarAlt className="reg-icon" />
                                         <input 
                                             name="birthdate" 
                                             type="date" 
@@ -256,7 +256,7 @@ const Perfil = () => {
                         {/* Si la sección de contraseña está abierta, renderizamos los inputs dentro del fieldset
                             (esto permite que los inputs formen parte del form y respeten el atributo disabled) */}
                         {showPasswordFields && (
-                            <div ref={passwordSectionRef}>
+                            <div ref={passwordSectionRef} className="password-section">
                                 <label>
                                     <span>Nueva Contraseña</span>
                                     <div className="reg-input">
