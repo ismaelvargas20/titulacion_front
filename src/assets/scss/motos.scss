@@ -269,9 +269,9 @@ $shadow: 0 6px 18px rgba(12, 35, 63, 0.12);
 .sell-form-actions { display: flex; align-items: center; gap: 12px; grid-column: 1 / -1; justify-content: flex-end; }
 
 .sell-form-preview { grid-column: 2 / 3; }
-.preview-card { background: var(--card-bg, #fff); border-radius: 12px; padding: 12px; box-shadow: 0 8px 30px rgba(2,6,23,0.06); }
+.preview-card { background: var(--card-bg, #fff); border-radius: 12px; padding: 12px; box-shadow: 0 8px 30px rgba(2,6,23,0.06); box-sizing: border-box; overflow: hidden; }
 .preview-image { position: relative; border-radius: 10px; overflow: hidden; height: 160px; background: linear-gradient(180deg, rgba(0,0,0,0.02), rgba(0,0,0,0.04)); }
-.preview-image img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.preview-image img { width: 100%; max-width: 100%; height: 100%; object-fit: cover; display: block; }
 .preview-price { position: absolute; left: 12px; top: 12px; background: var(--price-badge-bg, #0b73ff); color: #fff; padding: 6px 10px; border-radius: 8px; font-weight:800; font-size:0.85rem; box-shadow: 0 8px 20px rgba(11,115,255,0.12); }
 .preview-body { padding: 10px 6px; }
 .preview-body h4 { margin: 0 0 6px 0; font-size: 1rem; }
@@ -312,21 +312,48 @@ $shadow: 0 6px 18px rgba(12, 35, 63, 0.12);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 24px;
+  /* Reservar más espacio a la derecha para que la scrollbar del overlay
+    aparezca cerca del borde de la ventana y no junto al modal. */
+  /* reducir padding derecho para que la scrollbar del overlay quede más
+    cercana al modal y no muy separada (antes 120px). */
+  padding: 24px 24px 24px 24px;
   z-index: 1200;
+  /* No dejar que el overlay muestre la barra — la gestionará el modal.
+    Quitamos aquí el scroll para que la barra pueda posicionarse en el
+    borde del modal (lado derecho de la preview). */
+  overflow-y: hidden;
 }
 
 .sell-modal {
   width: 100%;
-  max-width: 980px;
+  /* garantizar que el modal se ajuste con zoom y no cause overflow horizontal
+     usamos min() para respetar el max-width y al mismo tiempo mantener
+     un margen respecto a los bordes de la ventana cuando el zoom reduce
+     el viewport efectivo */
+  /* ampliar ligeramente el modal para dar más espacio al formulario */
+  max-width: 1100px;
+  width: min(1100px, calc(100% - 48px));
+  box-sizing: border-box; /* asegurar que padding no aumente el ancho calculado */
   background: var(--card-bg, #fff);
   border-radius: 14px;
   box-shadow: 0 30px 60px rgba(2,6,23,0.36);
-  /* dejar espacio extra a la derecha para que la scrollbar no toque el contenido
-     y mejorar la zona del botón cerrar */
-  padding: 18px 22px 18px 18px;
+  /* dejar más espacio a la derecha para que la scrollbar no toque el contenido
+     y evitar que los menús desplegables queden pegados al borde. Reservamos
+     espacio extra para que la scrollbar quede en el extremo derecho. */
+  /* Reservar más espacio a la derecha del modal para que la scrollbar quede
+    claramente fuera de la preview (a la derecha del card). */
+  /* ajustar padding derecho para que la scrollbar del modal quede pegada
+    al borde derecho del modal (junto a la preview). */
+  padding: 18px 18px 18px 18px;
   position: relative;
-  overflow: auto;
+  /* Hacer que el modal sea el contenedor scrollable: la barra aparecerá
+    en el borde derecho del modal (junto a la preview). */
+  overflow-y: auto;
+  overflow-x: hidden;
+  /* No forzamos margin-right; el padding del overlay ya reserva el
+    espacio donde aparecerá la barra. Mantener margin-right en 0 para
+    centro correcto del modal. */
+  margin-right: 0;
   max-height: calc(100vh - 80px);
 }
 
@@ -343,29 +370,80 @@ $shadow: 0 6px 18px rgba(12, 35, 63, 0.12);
   color: var(--muted, #707582);
 }
 
-/* Scrollbar styling for the modal: subtle, rounded and with reserved gutter */
-.sell-modal {
-  /* reservar espacio estable para la scrollbar cuando aparezca (soporte moderno) */
-  scrollbar-gutter: stable;
-  /* Firefox */
-  scrollbar-width: thin;
-  scrollbar-color: rgba(2,6,23,0.12) transparent;
+/* Añadir padding interno a la estructura del formulario para reservar espacio
+   entre el contenido y la scrollbar que ahora está en el borde derecho del modal */
+.sell-modal .sell-form {
+  box-sizing: border-box;
+  /* dejar padding adicional a la derecha para que la scrollbar no quede
+     pegada a los campos del formulario ni a la preview; esto separa la
+     barra visualmente sin cambiar la anchura total del modal. */
+  padding-right: 20px;
 }
 
-.sell-modal::-webkit-scrollbar { width: 12px; }
-.sell-modal::-webkit-scrollbar-track { background: transparent; }
-.sell-modal::-webkit-scrollbar-thumb {
-  background: rgba(2,6,23,0.10);
-  border-radius: 999px;
-  border: 3px solid transparent; /* crea un padding visual entre thumb y track */
+
+/* Scrollbar mejorado — aplicable a modal/overlay. Diseño moderno y adaptado a modo oscuro */
+/* Reglas para Firefox/IE */
+.sell-modal, .sell-modal-overlay {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(2,6,23,0.18) transparent; /* thumb track */
+  -ms-overflow-style: auto;
+}
+
+/* WebKit: ancho y track */
+.sell-modal::-webkit-scrollbar, .sell-modal-overlay::-webkit-scrollbar { width: 12px; }
+.sell-modal::-webkit-scrollbar-track, .sell-modal-overlay::-webkit-scrollbar-track { background: transparent; }
+
+/* Thumb: suave, con gradiente, borde para crear separación y sombra sutil */
+.sell-modal::-webkit-scrollbar-thumb, .sell-modal-overlay::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(2,6,23,0.12), rgba(2,6,23,0.20));
+  border-radius: 10px;
+  border: 3px solid transparent; /* padding visual entre thumb y track */
   background-clip: padding-box;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.02);
+  min-height: 36px;
 }
-.app-main.dark-theme .sell-modal::-webkit-scrollbar-thumb {
-  background: rgba(255,255,255,0.10);
+.sell-modal::-webkit-scrollbar-thumb:hover, .sell-modal-overlay::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, rgba(2,6,23,0.22), rgba(2,6,23,0.30));
 }
+.sell-modal::-webkit-scrollbar-thumb:active, .sell-modal-overlay::-webkit-scrollbar-thumb:active { transform: scaleX(0.98); }
+
+/* Dark theme overrides: aumentar contraste del thumb */
+.app-main.dark-theme .sell-modal, .app-main.dark-theme .sell-modal-overlay { scrollbar-color: rgba(255,255,255,0.12) transparent; }
+.app-main.dark-theme .sell-modal::-webkit-scrollbar-thumb, .app-main.dark-theme .sell-modal-overlay::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.12));
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,0.08);
+}
+.app-main.dark-theme .sell-modal::-webkit-scrollbar-thumb:hover, .app-main.dark-theme .sell-modal-overlay::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.18));
+}
+
+/* Ocultar scrollbar del overlay para evitar barras en ambos contenedores */
+.sell-modal-overlay { scrollbar-width: none; -ms-overflow-style: none; }
+.sell-modal-overlay::-webkit-scrollbar { display: none; }
 
 /* Ajustes para que el layout del modal use las mismas clases .sell-form-grid etc */
-.sell-modal .sell-form-grid { gap: 20px; }
+.sell-modal .sell-form-grid { 
+  gap: 20px;
+  /* Aumentar la proporción de la columna del formulario (lado izquierdo)
+     para dar más espacio a los inputs y dropdowns y evitar solapamientos
+     por la previsualización. Se reduce ligeramente el ancho mínimo de la
+     preview para dejar más espacio al formulario. */
+  grid-template-columns: 3fr minmax(180px, 360px);
+}
+.sell-modal .sell-form-grid input,
+.sell-modal .sell-form-grid select,
+.sell-modal .sell-form-grid textarea {
+  /* evitar que controles forcen el ancho del grid y asegurar que ocupen
+     el 100% del contenedor principal (prevenir overflow horizontal) */
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.sell-modal .sell-form-preview {
+  /* limitar ancho de la vista previa para dar prioridad visual al formulario */
+  max-width: 360px;
+}
 .sell-modal .sell-form-main { grid-template-columns: repeat(2, 1fr); }
 .sell-modal .sell-form-main label { margin-bottom: 8px; }
 .sell-modal .sell-form-actions { justify-content: flex-start; }
@@ -525,5 +603,224 @@ $shadow: 0 6px 18px rgba(12, 35, 63, 0.12);
 
     /* Añadir un borde izquierdo entre el formulario y la previsualización dentro del modal */
     .sell-modal .sell-form-preview { border-left: 1px solid rgba(255,255,255,0.06); padding-left: 18px; }
+
+    /* Evitar que inputs/textarea/select forcen el ancho mínimo del grid (causa
+       común de overflow horizontal al hacer zoom). */
+    .sell-modal .sell-form-grid input,
+    .sell-modal .sell-form-grid select,
+    .sell-modal .sell-form-grid textarea {
+      min-width: 0;
+    }
+
+    /* Asegurar que los controles internos ocupen el 100% del contenedor y no
+       fuerzen un ancho mínimo (causa común de overflow en grids) */
+    .sell-modal .sell-form-grid input,
+    .sell-modal .sell-form-grid select,
+    .sell-modal .sell-form-grid textarea {
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    /* Breakpoint: cuando el modal queda estrecho, apilar la vista previa debajo
+       del formulario principal. Esto es aceptable (mencionaste "baja para abajo")
+       y evita que el layout se rompa con zoom o en pantallas pequeñas. */
+    @media (max-width: 920px) {
+      .sell-modal {
+        padding: 14px;
+        width: min(920px, calc(100% - 32px));
+      }
+      .sell-modal .sell-form-grid {
+        grid-template-columns: 1fr; /* apilar */
+      }
+      .sell-modal .sell-form-preview {
+        grid-column: 1 / -1;
+        border-left: none; /* quitar separación vertical */
+        padding-left: 0;
+        margin-top: 6px;
+      }
+      /* reducir ligeramente altura de la preview-image para que quepa mejor */
+      .sell-modal .preview-image { height: 140px; }
+    }
   }
+}
+
+/* Hacer que la columna principal del formulario sea scrollable y dejar la
+   previsualización sticky para que siempre sea accesible. Esto crea una
+   "barrita" de scroll dentro del modal (la que pediste) y evita que los
+   controles inferiores queden fuera de vista o provoquen overflow. */
+.sell-modal .sell-form-grid {
+  align-items: start;
+}
+
+.sell-modal .sell-form-main {
+  /* Dejar que sea el modal el que haga scroll; así los menus desplegables
+     (select) no quedan recortados y no aparece la barra en el medio.
+     Mantener un max-height para evitar que el formulario estire demasiado. */
+  max-height: calc(100vh - 260px);
+  overflow-y: visible;
+  overflow-x: hidden; /* prevenir cajas horizontales inesperadas */
+  padding-right: 0; /* no necesitamos espacio para scrollbar aquí */
+}
+
+/* Asegurar que no aparezca scrollbar horizontal en el grid que contiene
+   el formulario y la vista previa */
+.sell-modal .sell-form-grid { overflow-x: hidden; }
+
+/* Para navegadores WebKit: ocultar la scrollbar horizontal si existe */
+.sell-modal .sell-form-main::-webkit-scrollbar:horizontal { display: none; height: 0; }
+
+.sell-modal .sell-form-preview {
+  position: sticky;
+  top: 22px; /* coincidir con padding del modal */
+  align-self: start;
+  /* Añadir separador y evitar que la vista previa sobresalga sobre el
+     formulario: padding y recorte de overflow. */
+  padding-left: 18px;
+  border-left: 1px solid rgba(0,0,0,0.06);
+  overflow: hidden;
+  /* La preview ocupará hasta cerca del borde derecho del modal; no dejamos
+     margen para evitar huecos: la scrollbar del modal aparecerá inmediatamente
+     a la derecha de la preview. */
+  margin-right: 0;
+}
+
+/* Responsive: apilar formulario y preview en pantallas pequeñas y ajustar modal */
+@media (max-width: 920px) {
+  .sell-modal {
+    width: min(920px, calc(100% - 32px));
+    padding: 14px;
+    max-height: calc(100vh - 48px);
+    overflow-y: auto; /* dejar que el modal sea scrollable en pantallas pequeñas */
+    box-sizing: border-box;
+  }
+
+  .sell-modal .sell-form-grid {
+    grid-template-columns: 1fr; /* apilar */
+    gap: 12px;
+  }
+
+  .sell-modal .sell-form-main { grid-template-columns: 1fr; }
+
+  .sell-modal .sell-form-preview {
+    position: static; /* quitar sticky para que fluya en el apilado */
+    grid-column: 1 / -1;
+    border-left: none;
+    padding-left: 0;
+    margin-right: 0;
+  }
+
+  .sell-modal .sell-form {
+    padding-right: 12px; /* evitar que inputs queden bajo scrollbar */
+  }
+
+  /* asegurar que inputs y selects respeten el ancho del contenedor */
+  .sell-modal .sell-form-grid input,
+  .sell-modal .sell-form-grid select,
+  .sell-modal .sell-form-grid textarea {
+    width: 100%;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .sell-modal {
+    width: calc(100% - 20px);
+    padding: 12px;
+    border-radius: 10px;
+    max-height: calc(100vh - 28px);
+  }
+
+
+  /* reducir el padding-right interno en pantallas medianas para evitar
+     recortes o demasiado espacio en el apilado */
+  .sell-modal .sell-form { padding-right: 12px; }
+  .sell-modal .preview-image { height: 120px; }
+  .sell-modal .preview-card { padding: 10px; }
+
+  /* en pantallas pequeñas dejamos el padding pequeño para aprovechar el ancho */
+  .sell-modal .sell-form { padding-right: 8px; }
+}
+
+/* Extra responsive refinements para móviles pequeños */
+@media (max-width: 420px) {
+  /* Forzar que la preview ocupe todo el ancho cuando el modal es estrecho */
+  .sell-modal .sell-form-preview {
+    max-width: none;
+    width: 100%;
+    padding-left: 0;
+    padding-right: 0;
+    border-left: none;
+    position: static; /* permitir flujo natural en apilado */
+    margin-top: 6px;
+  }
+
+  /* Hacer la tarjeta de preview más compacta y en fila para aprovechar el ancho */
+  .sell-modal .preview-card {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    padding: 8px;
+  }
+
+  /* Imagen más pequeña y con proporción fija */
+  .sell-modal .preview-image {
+    height: 100px;
+    flex: 0 0 40%;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .sell-modal .preview-image img { width: 100%; height: 100%; object-fit: cover; }
+
+  /* Cuerpo de la preview ocupa el resto y reduce tamaños de fuente */
+  .sell-modal .preview-body {
+    padding: 6px 4px;
+    flex: 1 1 60%;
+  }
+  .sell-modal .preview-body h4 {
+    font-size: 0.95rem;
+    margin: 0 0 4px 0;
+    line-height: 1.12;
+    word-break: break-word;
+  }
+  .sell-modal .preview-desc {
+    font-size: 0.82rem;
+    margin: 4px 0;
+    color: var(--muted);
+    max-height: 3.6rem; /* limitar alto para que no ocupe demasiado */
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Badge de precio más pequeño y menos intrusivo */
+  .sell-modal .preview-price {
+    left: 8px;
+    top: 8px;
+    padding: 4px 8px;
+    font-size: 0.75rem;
+    border-radius: 6px;
+  }
+
+  /* Meta y contacto: forzar wrapping y tamaño reducido */
+  .sell-modal .preview-meta, .sell-modal .preview-meta.small {
+    font-size: 0.78rem;
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    align-items: center;
+    color: var(--muted);
+  }
+  .sell-modal .preview-contact {
+    font-size: 0.82rem;
+    margin-top: 6px;
+    white-space: normal;
+    word-break: break-word;
+    color: var(--muted);
+  }
+}
+
+@media (max-width: 360px) {
+  .sell-modal .preview-image { height: 88px; }
+  .sell-modal .preview-body h4 { font-size: 0.9rem; }
+  .sell-modal .preview-desc { font-size: 0.78rem; }
+  .sell-modal .preview-price { font-size: 0.7rem; padding: 3px 6px; }
 }
