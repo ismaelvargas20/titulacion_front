@@ -105,8 +105,8 @@ $darker: #0056b3;
 /* Refuerzo: forzar blanco incluso si el UA o el SO intenta pintar algo distinto.
   Además añadimos un pseudo-elemento en la tarjeta para cubrir cualquier
   línea/racha de 1px que aparezca en el borde inferior en algunos entornos. */
-.reg-form::-webkit-scrollbar-track { background: #fff !important; box-shadow: none !important; border: none !important; }
-.reg-form::-webkit-scrollbar-corner { background: #fff !important; }
+.reg-form::-webkit-scrollbar-track { background: var(--card-bg, #fff) !important; box-shadow: none !important; border: none !important; }
+.reg-form::-webkit-scrollbar-corner { background: var(--card-bg, #fff) !important; }
 .reg-form { -webkit-overflow-scrolling: touch; }
 
 /* Pseudo-elemento que cubre la línea inferior/residuo que algunos SO pintan
@@ -192,9 +192,9 @@ $darker: #0056b3;
      que no se superponga al contenido. Queda al final de la tarjeta. */
   position: static;
   z-index: 6;
-  background: #fff; /* fondo blanco para que no se vea la línea gris detrás */
+  background: var(--card-bg, #fff); /* usar color del card para respetar temas */
   padding-top: 12px; /* separación visual desde el contenido */
-  border-top: 1px solid #fff; /* cubrir cualquier línea gris residual */
+  border-top: 1px solid var(--card-bg, #fff); /* cubrir cualquier línea gris residual */
 }
 
 .reg-btn {
@@ -313,6 +313,21 @@ $darker: #0056b3;
       opacity: 0.95;
     }
   }
+}
+
+/* Scrollbar & footer tweaks specifically para modo oscuro */
+.app-main.dark-theme {
+  .reg-form {
+    /* thumb claro sobre fondo oscuro */
+    scrollbar-color: rgba(255,255,255,0.12) var(--card-bg, #141516);
+  }
+
+  .reg-form::-webkit-scrollbar-track { background: var(--card-bg, #141516) !important; }
+  .reg-form::-webkit-scrollbar-thumb { background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.12)); border-radius: 10px; border: 3px solid transparent; background-clip: padding-box; }
+  .reg-form::-webkit-scrollbar-corner { background: var(--card-bg, #141516) !important; }
+
+  /* Asegurar que el footer concuerde con el fondo de la card en modo oscuro */
+  .reg-actions { background: var(--card-bg, #141516); box-shadow: 0 -1px 0 var(--card-bg, #141516); }
 }
 
 /* Responsive */
