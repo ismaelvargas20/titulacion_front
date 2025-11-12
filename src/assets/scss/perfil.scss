@@ -744,7 +744,31 @@ $dark-field: lighten($dark-bg-2, 6%); // campos / wrappers de formulario (gris s
         padding: 0 1rem 1.25rem 1rem;
     }
     .perfil-header { position: relative; }
-    .perfil-edit-btn { position: static; margin-top: 0.75rem; }
+
+    /* En mobile: poner el botón "Editar perfil" debajo de la ciudad (Quito)
+       El botón sale del posicionamiento absoluto y pasa al flujo normal.
+       Lo centramos y ajustamos padding/tamaño para que quede estético. */
+    .perfil-header .perfil-edit-btn {
+        position: static;
+        top: auto;
+        right: auto;
+        z-index: 1; /* debajo del avatar (avatar usa z-index:2) */
+        margin-top: 0.6rem;
+        align-self: center; /* centrar dentro del header (flex-column) */
+        display: inline-flex;
+        padding: 0.45rem 0.9rem;
+        font-size: 0.95rem;
+        border-radius: 10px;
+        box-shadow: 0 8px 20px rgba(11,115,255,0.08);
+    }
+
+    /* Si la pantalla es muy estrecha, que el botón ocupe casi todo el ancho (con margen) */
+    @media (max-width: 420px) {
+        .perfil-edit-btn {
+            width: calc(100% - 32px);
+            justify-content: center;
+        }
+    }
 
     /* En pantallas pequeñas apilamos los campos en una sola columna */
     .reg-form fieldset {

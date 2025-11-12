@@ -17,11 +17,20 @@ import { MdEmail } from 'react-icons/md';
 import { RiLockPasswordFill } from 'react-icons/ri';
 import '../../assets/scss/inicio.scss';
 import Registro from '../registro.jsx/registro.jsx';
+import MotosModal from '../motos/motos_modal.jsx';
+import RepuestosModal from '../repuestos/repuestos_modal.jsx';
 
 const Inicio = () => {
   const navigate = useNavigate();
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showRegisterModal, setShowRegisterModal] = useState(false);
+  const [selectedMoto, setSelectedMoto] = useState(null);
+  const [showMotoModal, setShowMotoModal] = useState(false);
+  const [selectedPart, setSelectedPart] = useState(null);
+  const [showPartModal, setShowPartModal] = useState(false);
+  const [showContactForm, setShowContactForm] = useState(false);
+  const [contactForm, setContactForm] = useState({ message: '' });
+  const [contactSent, setContactSent] = useState(false);
 
   // estado local del formulario del modal
   const [loginEmail, setLoginEmail] = useState('');
@@ -47,11 +56,18 @@ const Inicio = () => {
     { id: 6, title: 'Guantes de Cuero', price: '80', category: 'Protección', img: 'https://loremflickr.com/320/240/motorcycle,gloves' },
   ];
 
-  const forumActivity = [
-    { id: 1, topic: '¿Vale la pena la nueva Himalayan 450?', lastReplyBy: 'Carlos', time: 'hace 5m' },
-    { id: 2, topic: 'Mejor aceite para una moto 2T', lastReplyBy: 'Ana', time: 'hace 22m' },
-    { id: 3, topic: 'Consejos para primer viaje largo', lastReplyBy: 'David', time: 'hace 1h' },
+  const initialForum = [
+    { id: 1, topic: '¿Vale la pena la nueva Himalayan 450?', lastReplyBy: 'Carlos', time: 'hace 5m', responses: [
+      { id: 101, user: 'EnduroPro', text: '¡Excelente recomendación! Añadiría la Honda CRF250F también, es muy dócil para aprender.' }
+    ] },
+    { id: 2, topic: 'Mejor aceite para una moto 2T', lastReplyBy: 'Ana', time: 'hace 22m', responses: [
+      { id: 201, user: 'AventureroMX', text: '¡No olvides revisar los rodamientos de rueda y dirección! Un fallo ahí te puede arruinar el viaje.' }
+    ] },
+    { id: 3, topic: 'Consejos para primer viaje largo', lastReplyBy: 'David', time: 'hace 1h', responses: [] },
   ];
+
+  const [forumPosts, setForumPosts] = useState(initialForum);
+  const [openReplyFor, setOpenReplyFor] = useState(null); // id of post with reply form open
 
   const trending = [
     '¿Cuáles son las mejores rutas de fin de semana?',
@@ -63,6 +79,45 @@ const Inicio = () => {
   const motosRef = React.useRef(null);
   const partsRef = React.useRef(null);
 
+  // --- Componentes locales para Respuestas (adaptado de comunidad.jsx) ---
+  function Response({ response }) {
+    return (
+      <div className="response-item">
+        <FaUserCircle className="icon" />
+        <div>
+          <span className="response-user">@{response.user}</span>
+          <p className="response-text">{response.text}</p>
+        </div>
+      </div>
+    );
+  }
+
+  function AddResponseForm({ postId, onAddResponse, onClose }) {
+    const [responseText, setResponseText] = useState('');
+    const handleSubmit = (e) => {
+      e.preventDefault();
+      if (responseText.trim() === '') return;
+      onAddResponse(postId, { id: Date.now(), user: 'Usuario', text: responseText });
+      setResponseText('');
+      if (onClose) onClose();
+    };
+    return (
+      <form onSubmit={handleSubmit} className="add-response-form">
+        <input
+          type="text"
+          className="input-response"
+          placeholder="Tu respuesta..."
+          value={responseText}
+          onChange={(e) => setResponseText(e.target.value)}
+        />
+        <button type="submit" className="btn small-send" title="Enviar respuesta" aria-label="Enviar respuesta">
+          {/* reuse small paper plane icon */}
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="icon-send" width="16" height="16"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+        </button>
+      </form>
+    );
+  }
+
   const scrollCarousel = (ref, dir = 1) => {
     if (!ref || !ref.current) return;
     const container = ref.current;
@@ -72,6 +127,58 @@ const Inicio = () => {
     const cardWidth = card ? card.clientWidth : 300;
     const scrollAmount = Math.round((cardWidth + gap) * 1.5);
     container.scrollBy({ left: dir * scrollAmount, behavior: 'smooth' });
+  };
+
+  const openPartModal = (part) => {
+    // reuse same contact form state/handlers
+    setSelectedPart(part);
+    setShowPartModal(true);
+    setShowContactForm(false);
+    setContactForm({ message: '' });
+    setContactSent(false);
+  };
+
+  const closePartModal = () => {
+    setShowPartModal(false);
+    setSelectedPart(null);
+    setShowContactForm(false);
+    setContactForm({ message: '' });
+    setContactSent(false);
+  };
+
+  const openMotoModal = (moto) => {
+    setSelectedMoto(moto);
+    setShowMotoModal(true);
+    setShowContactForm(false);
+    setContactForm({ message: '' });
+    setContactSent(false);
+  };
+
+  const closeMotoModal = () => {
+    setShowMotoModal(false);
+    setSelectedMoto(null);
+    setShowContactForm(false);
+    setContactForm({ message: '' });
+    setContactSent(false);
+  };
+
+  const handleContactChange = (e) => {
+    setContactForm({ ...contactForm, [e.target.name]: e.target.value });
+  };
+
+  const handleContactSubmit = (e) => {
+    e.preventDefault();
+    // Aquí podrías integrar envío real. Por ahora simulamos envío.
+    setContactSent(true);
+    // opcional: cerrar formulario después de un tiempo
+    setTimeout(() => {
+      setShowContactForm(false);
+    }, 1400);
+  };
+
+  // Añadir respuesta a un post del bloque 'Actividad Reciente' en Inicio
+  const addResponse = (postId, newResponse) => {
+    setForumPosts(prev => prev.map(p => p.id === postId ? { ...p, responses: [...(p.responses || []), newResponse] } : p));
   };
 
   return (
@@ -106,7 +213,7 @@ const Inicio = () => {
             </button>
             <div className="item-cards-carousel" ref={motosRef}> {/* CAMBIO: Ahora es carrusel */}
               {recentMotos.map((moto) => (
-              <article key={moto.id} className="item-card">
+              <article key={moto.id} className="item-card" onClick={() => openMotoModal(moto)} style={{ cursor: 'pointer' }}>
                 <div className="card-image">
                   <img src={`${moto.img}?${moto.id}`} alt={moto.title} />
                   <span className="card-price"><FaTag /> ${moto.price}</span>
@@ -151,7 +258,7 @@ const Inicio = () => {
             </button>
             <div className="item-cards-carousel" ref={partsRef}> {/* CAMBIO: Ahora es carrusel */}
               {featuredParts.map((part) => (
-              <article key={part.id} className="item-card">
+              <article key={part.id} className="item-card" onClick={() => openPartModal(part)} style={{ cursor: 'pointer' }}>
                 <div className="card-image">
                   <img src={`${part.img}?${part.id}`} alt={part.title} />
                   <span className="card-price"><FaTag /> ${part.price}</span>
@@ -185,30 +292,41 @@ const Inicio = () => {
               </NavLink>
             </div>
             <div className="post-list">
-              {forumActivity.map((post) => (
-                <div key={post.id} className="post-item">
+              {forumPosts.map((post) => (
+                <React.Fragment key={post.id}>
+                <div className="post-item">
                   <FaUserCircle className="post-avatar" />
                   <div className="post-content">
-                    <NavLink to={`/foro/tema/${post.id}`} className="post-topic">{post.topic}</NavLink>
+                    {/* Navegar a la página Comunidad y pasar el id del post en state para que Comunidad pueda hacer scroll al post */}
+                    <NavLink to="/comunidad" state={{ postId: post.id }} className="post-topic">{post.topic}</NavLink>
                     <span className="post-meta">Último comentario por <strong>{post.lastReplyBy}</strong></span>
-                    {/* --- NUEVO: Botón de Responder --- */}
-                    <NavLink to={`/foro/tema/${post.id}#responder`} className="post-reply-link">
+                    {/* Botón de Responder: abre formulario inline igual que en Comunidad */}
+                    <button type="button" className="post-reply-link" onClick={() => setOpenReplyFor(openReplyFor === post.id ? null : post.id)}>
                       <FaReply /> Responder
-                    </NavLink>
+                    </button>
                   </div>
                   <span className="post-time">{post.time}</span>
                 </div>
+
+                {/* Reply row: mostramos el input DEBAJO de la publicación cuando se pulsa Responder */}
+                {openReplyFor === post.id && (
+                  <div className="post-reply-row">
+                    <AddResponseForm postId={post.id} onAddResponse={addResponse} onClose={() => setOpenReplyFor(null)} />
+                  </div>
+                )}
+
+                </React.Fragment>
               ))}
             </div>
           </section>
 
           {/* --- 4. Temas Trending --- */}
       <section className="trending-topics">
-        <h2><FaFire className="section-icon icon-fire" /> Temas Trending</h2>
+        <h2><FaFire className="section-icon icon-fire" /> Tendencias</h2>
             <ul className="topic-list">
               {trending.map((t, i) => (
                 <li key={i}>
-                  <NavLink to="/foro/trending">
+                  <NavLink to="/comunidad" state={{ fromTrending: true, index: i }}>
                     <FaRegCommentAlt className="topic-icon" /> {t}
                   </NavLink>
                 </li>
@@ -255,6 +373,34 @@ const Inicio = () => {
 
         {/* Registro modal reutilizando componente existente */}
         <Registro isOpen={showRegisterModal} onClose={() => setShowRegisterModal(false)} />
+
+        {/* Modal de detalle de moto: se muestra al hacer click en una tarjeta */}
+        {showMotoModal && (
+          <MotosModal
+            selectedMoto={selectedMoto}
+            onClose={closeMotoModal}
+            showContactForm={showContactForm}
+            setShowContactForm={setShowContactForm}
+            contactForm={contactForm}
+            handleContactChange={handleContactChange}
+            handleContactSubmit={handleContactSubmit}
+            contactSent={contactSent}
+          />
+        )}
+
+        {/* Modal de detalle de repuesto: se muestra al hacer click en una tarjeta de repuestos */}
+        {showPartModal && (
+          <RepuestosModal
+            selectedPart={selectedPart}
+            onClose={closePartModal}
+            showContactForm={showContactForm}
+            setShowContactForm={setShowContactForm}
+            contactForm={contactForm}
+            handleContactChange={handleContactChange}
+            handleContactSubmit={handleContactSubmit}
+            contactSent={contactSent}
+          />
+        )}
 
       </main>
     </div>

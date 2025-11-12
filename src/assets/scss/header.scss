@@ -376,13 +376,61 @@ $accent-fire: #ff6b00; // color acento para elementos tipo casco / fuego
 
   .main-nav {
     .nav-list { display: none; }
-    .nav-list.open { display: flex; position: absolute; top: calc(100% + 8px); left: 0; right: 0; background: $primary-blue; flex-direction: column; gap: 0.5rem; padding: 0.75rem 1rem; z-index: 95; border-bottom-left-radius: 8px; border-bottom-right-radius: 8px; }
+    // Mobile open menu: usar ancho reducido y centrado. El fondo es configurable via la variable CSS
+    // --mobile-nav-bg, por defecto mantiene el $primary-blue para compatibilidad.
+    .nav-list.open {
+      display: flex;
+      position: absolute;
+      top: calc(100% + 8px);
+      left: 50%;
+      transform: translateX(-50%); /* centrar */
+      width: 94%;
+      max-width: 360px; /* estrechar en pantallas mayores móviles */
+      background: var(--mobile-nav-bg, $primary-blue);
+      flex-direction: column;
+      gap: 0.5rem;
+      padding: 0.75rem 1rem;
+      z-index: 995; /* elevar por encima de contenido */
+      border-radius: 8px;
+      box-shadow: 0 8px 20px rgba(2,6,23,0.25);
+    }
     .nav-link.cta-link { padding: 0.5rem 1rem; font-size: 0.95rem; }
   }
 
   /* Ajustes para el avatar y toggle en pantalla pequeña */
   .user-profile { margin-left: 0.5rem; }
   .header-container { align-items: center; }
+
+  /* Reducir tamaño del logo y de la imagen en móviles para que el icono de perfil pueda mostrarse */
+  .logo {
+    font-size: 1.2rem; /* ligeramente más pequeño */
+    gap: 0.35rem;
+    max-width: calc(100% - 140px); /* reservar espacio para iconos a la derecha */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .logo-helmet,
+  .logo-wheel,
+  .logo-image {
+    width: 22px;
+    height: 22px;
+  }
+
+  .logo-image img { width: 100%; height: 100%; object-fit: contain; }
+
+  /* Ajustar tamaños de botones circulares para mantener consistencia */
+  .nav-toggle { width: 44px; height: 44px; padding: 9px; }
+  .user-profile .profile-icon { width: 44px; height: 44px; font-size: 1.9rem; padding: 9px; }
+  .user-profile .theme-toggle { width: 44px; height: 44px; padding: 9px; font-size: 1.05rem; }
+
+  /* Punto más pequeño: reducir aún más para móviles estrechos */
+  @media (max-width: 420px) {
+    .logo { font-size: 1rem; max-width: calc(100% - 120px); }
+    .logo-helmet, .logo-wheel, .logo-image { width: 20px; height: 20px; }
+    .user-profile .profile-icon, .user-profile .theme-toggle, .nav-toggle { width: 40px; height: 40px; padding: 8px; }
+  }
 }
 
 /* Dark variant for header when global dark is active (slightly different tone than content) */
@@ -468,4 +516,23 @@ body.global-dark .app-header .profile-dropdown .dropdown-item.plain:focus,
 body.global-dark .app-header .profile-dropdown .dropdown-item.plain:active {
   outline: none;
   box-shadow: 0 0 0 3px rgba(120,150,255,0.06);
+}
+
+/* Override para el menú móvil abierto en modo oscuro: usar el mismo fondo oscuro del header
+   y asegurar legibilidad de los enlaces dentro del menú. */
+body.global-dark .app-header {
+  .main-nav {
+    .nav-list.open {
+      background: var(--header-bg-dark, #242629); /* fondo oscuro consistente */
+      box-shadow: 0 10px 30px rgba(2,6,23,0.6);
+    }
+
+    .nav-link {
+      color: var(--text, #e8eaed); /* asegurar contraste en dark */
+    }
+    .nav-link.cta-link.secondary {
+      border-color: rgba(255,255,255,0.06);
+      background: transparent;
+    }
+  }
 }

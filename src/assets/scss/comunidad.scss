@@ -470,7 +470,21 @@ $accent: #00b4ff;
 }
 .comunidad-modal .new-question-card { background: transparent; color: inherit; box-shadow: none; padding:0; }
 .comunidad-modal .question-textarea { background:#f8fafc; color:#0b1730; }
-.modal-close { position:absolute; right:12px; top:12px; background:transparent; border:none; font-size:22px; cursor:pointer; }
+.comunidad-modal .modal-close {
+  position: absolute;
+  right: 12px;
+  top: 12px;
+  background: transparent;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+  color: #111; /* X negra en Comunidad (tema claro) */
+}
+
+/* En modo oscuro, mantener la X clara para contraste */
+.app-main.dark-theme .comunidad-modal .modal-close {
+  color: #e6eef8;
+}
 
 /* Small helper */
 .muted { color: #6b7280; }

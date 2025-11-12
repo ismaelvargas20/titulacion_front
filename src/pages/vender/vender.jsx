@@ -100,7 +100,7 @@ export default function Vender() {
             </div>
 
             <div className="sell-hero-cta">
-              <button type="button" className="hero-sell-btn" onClick={() => navigate('/chat')}>Ir a bandeja</button>
+              <button type="button" className="hero-sell-btn" onClick={() => navigate('/')}>Ir a inicio</button>
             </div>
           </div>
         </section>
