@@ -7,6 +7,7 @@ import Login from './pages/login/login';
 import Registro from './pages/registro.jsx/registro';
 import Inicio from './pages/inicio/inicio';
 import Perfil from './pages/perfil/perfil';
+import Publicaciones from './pages/publicaciones/publicaciones';
 import Comunidad from './pages/comunidad/comunidad';
 import Motos from './pages/motos/motos';
 import Repuestos from './pages/repuestos/repuestos';
@@ -32,6 +33,7 @@ const AppContent = () => {
           <Route path="/vender" element={<Vender />} />
           <Route path="/chat" element={<Chat />} />
           <Route path="/perfil" element={<Perfil />} />
+          <Route path="/publicaciones" element={<Publicaciones />} />
         </Routes>
       </main>
       {shouldShowHeader && <Footer />}

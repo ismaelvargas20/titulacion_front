@@ -1,22 +1,23 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { FaTag, FaMapMarkerAlt, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+import { useLocation } from 'react-router-dom';
+import { FaTag, FaMapMarkerAlt, FaChevronLeft, FaChevronRight, FaStar } from 'react-icons/fa';
 import '../../assets/scss/motos.scss';
 import RepuestosModal from './repuestos_modal';
 
 const Repuestos = () => {
   const initialParts = [
-    { id: 1, title: 'Casco Integral K3', price: '250', location: 'Quito', category: 'Cascos', img: 'https://loremflickr.com/640/420/motorcycle,helmet' },
-    { id: 2, title: 'Llantas Michelin Road 5', price: '180', location: 'Guayaquil', category: 'Llantas', img: 'https://loremflickr.com/640/420/motorcycle,tire' },
-    { id: 3, title: 'Kit de Arrastre DID', price: '120', location: 'Cuenca', category: 'Transmisión', img: 'https://loremflickr.com/640/420/motorcycle,chain' },
-    { id: 4, title: 'Chaqueta Alpinestars', price: '300', location: 'Quito', category: 'Ropa', img: 'https://loremflickr.com/640/420/motorcycle,jacket' },
-    { id: 5, title: 'Escape Akrapovič', price: '750', location: 'Manta', category: 'Escape', img: 'https://loremflickr.com/640/420/motorcycle,exhaust' },
-    { id: 6, title: 'Guantes de Cuero', price: '80', location: 'Guayaquil', category: 'Accesorios', img: 'https://loremflickr.com/640/420/motorcycle,gloves' },
+    { id: 1, title: 'Casco Integral K3', price: '250', location: 'Quito', category: 'Cascos', img: 'https://loremflickr.com/640/420/motorcycle,helmet', stars: 5 },
+    { id: 2, title: 'Llantas Michelin Road 5', price: '180', location: 'Guayaquil', category: 'Llantas', img: 'https://loremflickr.com/640/420/motorcycle,tire', stars: 4 },
+    { id: 3, title: 'Kit de Arrastre DID', price: '120', location: 'Cuenca', category: 'Transmisión', img: 'https://loremflickr.com/640/420/motorcycle,chain', stars: 5 },
+    { id: 4, title: 'Chaqueta Alpinestars', price: '300', location: 'Quito', category: 'Ropa', img: 'https://loremflickr.com/640/420/motorcycle,jacket', stars: 4 },
+    { id: 5, title: 'Escape Akrapovič', price: '750', location: 'Manta', category: 'Escape', img: 'https://loremflickr.com/640/420/motorcycle,exhaust', stars: 5 },
+    { id: 6, title: 'Guantes de Cuero', price: '80', location: 'Guayaquil', category: 'Accesorios', img: 'https://loremflickr.com/640/420/motorcycle,gloves', stars: 4 },
   ];
 
   const [recentParts, setRecentParts] = useState(initialParts);
   const listRef = useRef(null);
   const [showSellForm, setShowSellForm] = useState(false);
-  const [form, setForm] = useState({ title: '', category: '', condition: 'Nuevo', price: '', location: '', img: '', description: '', contactPhone: '' });
+  const [form, setForm] = useState({ title: '', category: '', condition: 'Nuevo', price: '', location: '', img: '', description: '', contactPhone: '', stars: 5 });
   const [publishLoading, setPublishLoading] = useState(false);
   const [publishSuccess, setPublishSuccess] = useState(false);
   const [selectedPart, setSelectedPart] = useState(null);
@@ -50,6 +51,7 @@ const Repuestos = () => {
       category: form.category || 'Hermoso',
       condition: form.condition,
       price: form.price,
+      stars: form.stars || 5,
       location: form.location || 'Sin especificar',
       img: form.img || 'https://loremflickr.com/640/420/motorcycle',
       description: form.description || '',
@@ -62,7 +64,7 @@ const Repuestos = () => {
       setPublishLoading(false);
       setPublishSuccess(true);
       setTimeout(() => setPublishSuccess(false), 2200);
-      setForm({ title: '', category: '', condition: 'Nuevo', price: '', location: '', img: '', description: '', contactPhone: '' });
+      setForm({ title: '', category: '', condition: 'Nuevo', price: '', location: '', img: '', description: '', contactPhone: '', stars: 5 });
       setShowSellForm(false);
     }, 900);
   };
@@ -76,6 +78,32 @@ const Repuestos = () => {
     document.body.style.overflow = 'hidden';
     return () => { document.removeEventListener('keydown', onKey); document.body.style.overflow = ''; };
   }, [showSellForm]);
+
+  // Si navegamos desde otra página con location.state.editPart, abrir el formulario
+  // de publicación y precargar los datos para editar ese repuesto.
+  const location = useLocation();
+  useEffect(() => {
+    try {
+      if (location && location.state && location.state.editPart) {
+        const part = location.state.editPart;
+        setForm((s) => ({
+          ...s,
+          title: part.title || '',
+          category: part.category || '',
+          condition: part.condition || 'Nuevo',
+          stars: part.stars || 5,
+          price: part.price ? String(part.price) : '',
+          location: part.location || '',
+          img: part.img || '',
+          description: part.description || '',
+          contactPhone: (part.contact && part.contact.phone) || ''
+        }));
+        setShowSellForm(true);
+      }
+    } catch (e) {
+      console.warn('no se pudo inicializar edición de repuesto desde location.state', e);
+    }
+  }, [location]);
 
   const handleContactChange = (e) => {
     const { name, value } = e.target;
@@ -155,6 +183,17 @@ const Repuestos = () => {
                     </label>
 
                     <label>
+                      Valora este repuesto
+                      <select name="stars" value={form.stars} onChange={handleFormChange}>
+                        <option value={5}>5 - Excelente</option>
+                        <option value={4}>4 - Muy bueno</option>
+                        <option value={3}>3 - Bueno</option>
+                        <option value={2}>2 - Regular</option>
+                        <option value={1}>1 - Malo</option>
+                      </select>
+                    </label>
+
+                    <label>
                       Precio
                       <input name="price" value={form.price} onChange={handleFormChange} placeholder="Ej: 120" required />
                     </label>
@@ -194,7 +233,7 @@ const Repuestos = () => {
                       </div>
                       <div className="preview-body">
                         <h4>{form.title || 'Título del repuesto'}</h4>
-                        <div className="preview-meta">{form.category ? <span className="chip">{form.category}</span> : <span className="chip">Hermoso</span>} <span className="muted">{form.location}</span></div>
+                        <div className="preview-meta">{form.category ? <span className="chip">{form.category}</span> : <span className="chip">Hermoso</span>} <span className="muted">{form.location}</span> <span className="stars">{form.stars} <FaStar className="star-icon" /></span></div>
                         <p className="preview-desc">{form.description ? form.description.slice(0, 140) + (form.description.length > 140 ? '…' : '') : 'Aquí verás una vista previa antes de publicar.'}</p>
                         <div className="preview-contact">Teléfono: {form.contactPhone || '—'}</div>
                       </div>
@@ -229,6 +268,7 @@ const Repuestos = () => {
                     <div className="card-meta">
                       <span><FaMapMarkerAlt /> {part.location}</span>
                       <span className="muted">{part.category}</span>
+                      <span className="stars">{part.stars || 0} <FaStar className="star-icon" /></span>
                     </div>
                   </div>
                 </article>

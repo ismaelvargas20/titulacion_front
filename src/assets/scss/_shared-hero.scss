@@ -1,0 +1,154 @@
+/* Shared dark-mode and hero/inbox rules for Vender and Publicaciones
+   This partial centralizes the dark-theme variants so both pages render
+   identically without copy/paste drift. Imported by vender.scss and publicaciones.scss
+*/
+
+/* Sell hero dark-mode: support both .app-main.dark-theme and body.global-dark fallbacks */
+.app-main.dark-theme .vender-page .sell-hero,
+.app-main.dark-theme .vender-page .publicaciones-hero,
+.app-main.dark-theme .publicaciones-page .sell-hero,
+.app-main.dark-theme .publicaciones-page .publicaciones-hero,
+body.global-dark .vender-page .sell-hero,
+body.global-dark .vender-page .publicaciones-hero,
+body.global-dark .publicaciones-page .sell-hero,
+body.global-dark .publicaciones-page .publicaciones-hero {
+  background: linear-gradient(90deg, rgba(138,180,248,0.08), rgba(11,115,255,0.06));
+  border: 1px solid var(--muted-border, rgba(255,255,255,0.06));
+  box-shadow: none;
+  color: #fff;
+}
+.app-main.dark-theme .vender-page .sell-hero .hero-sell-btn,
+.app-main.dark-theme .vender-page .publicaciones-hero .hero-sell-btn,
+.app-main.dark-theme .publicaciones-page .sell-hero .hero-sell-btn,
+.app-main.dark-theme .publicaciones-page .publicaciones-hero .hero-sell-btn,
+body.global-dark .vender-page .sell-hero .hero-sell-btn,
+body.global-dark .vender-page .publicaciones-hero .hero-sell-btn,
+body.global-dark .publicaciones-page .sell-hero .hero-sell-btn,
+body.global-dark .publicaciones-page .publicaciones-hero .hero-sell-btn {
+  background: var(--card-bg);
+  color: var(--primary);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.36);
+}
+
+/* Activity / cards in dark */
+.app-main.dark-theme .vender-page .activity-card,
+.app-main.dark-theme .publicaciones-page .activity-card,
+body.global-dark .vender-page .activity-card,
+body.global-dark .publicaciones-page .activity-card {
+  background: linear-gradient(180deg, #17191a, #111314);
+  border: 1px solid rgba(255,255,255,0.035);
+  color: #d7e3ee;
+  box-shadow: 0 12px 36px rgba(2,6,23,0.45);
+}
+.app-main.dark-theme .vender-page .activity-card p,
+.app-main.dark-theme .publicaciones-page .activity-card p,
+body.global-dark .vender-page .activity-card p,
+body.global-dark .publicaciones-page .activity-card p {
+  color: #c0ccd8;
+}
+
+/* Inbox tray dark-mode */
+.app-main.dark-theme .vender-page .inbox-card,
+.app-main.dark-theme .publicaciones-page .inbox-card,
+body.global-dark .vender-page .inbox-card,
+body.global-dark .publicaciones-page .inbox-card {
+  background: linear-gradient(180deg, #17191a, #111314);
+  border: 1px solid rgba(255,255,255,0.035);
+  color: #d7e3ee;
+  box-shadow: 0 12px 36px rgba(2,6,23,0.45);
+}
+.app-main.dark-theme .vender-page .inbox-card .inbox-header h3,
+.app-main.dark-theme .publicaciones-page .inbox-card .inbox-header h3,
+body.global-dark .vender-page .inbox-card .inbox-header h3,
+body.global-dark .publicaciones-page .inbox-card .inbox-header h3 { color: #e9f7ff; }
+.app-main.dark-theme .vender-page .inbox-card .inbox-sub,
+.app-main.dark-theme .publicaciones-page .inbox-card .inbox-sub,
+body.global-dark .vender-page .inbox-card .inbox-sub,
+body.global-dark .publicaciones-page .inbox-card .inbox-sub { color: rgba(231,244,255,0.85); }
+.app-main.dark-theme .vender-page .inbox-list,
+.app-main.dark-theme .publicaciones-page .inbox-list,
+body.global-dark .vender-page .inbox-list,
+body.global-dark .publicaciones-page .inbox-list { border-top-color: rgba(255,255,255,0.03); }
+.app-main.dark-theme .vender-page .inbox-item,
+.app-main.dark-theme .publicaciones-page .inbox-item,
+body.global-dark .vender-page .inbox-item,
+body.global-dark .publicaciones-page .inbox-item { background: transparent; border-bottom-color: rgba(255,255,255,0.03); }
+.app-main.dark-theme .vender-page .inbox-item:hover,
+.app-main.dark-theme .publicaciones-page .inbox-item:hover,
+body.global-dark .vender-page .inbox-item:hover,
+body.global-dark .publicaciones-page .inbox-item:hover { background: rgba(255,255,255,0.02); }
+.app-main.dark-theme .vender-page .inbox-token,
+.app-main.dark-theme .publicaciones-page .inbox-token,
+body.global-dark .vender-page .inbox-token,
+body.global-dark .publicaciones-page .inbox-token { background: rgba(255,255,255,0.04); color: #9fd6ff; box-shadow: none; }
+.app-main.dark-theme .vender-page .inbox-title,
+.app-main.dark-theme .publicaciones-page .inbox-title,
+body.global-dark .vender-page .inbox-title,
+body.global-dark .publicaciones-page .inbox-title { color: #e9f7ff; }
+.app-main.dark-theme .vender-page .inbox-excerpt,
+.app-main.dark-theme .publicaciones-page .inbox-excerpt,
+body.global-dark .vender-page .inbox-excerpt,
+body.global-dark .publicaciones-page .inbox-excerpt { color: rgba(231,244,255,0.72); }
+.app-main.dark-theme .vender-page .inbox-meta,
+.app-main.dark-theme .publicaciones-page .inbox-meta,
+body.global-dark .vender-page .inbox-meta,
+body.global-dark .publicaciones-page .inbox-meta { color: rgba(231,244,255,0.55); }
+.app-main.dark-theme .vender-page .inbox-footer .btn-link,
+.app-main.dark-theme .publicaciones-page .inbox-footer .btn-link,
+body.global-dark .vender-page .inbox-footer .btn-link,
+body.global-dark .publicaciones-page .inbox-footer .btn-link { color: #9fd6ff; }
+.app-main.dark-theme .vender-page .inbox-delete,
+.app-main.dark-theme .publicaciones-page .inbox-delete,
+body.global-dark .vender-page .inbox-delete,
+body.global-dark .publicaciones-page .inbox-delete { color: rgba(231,244,255,0.55); }
+.app-main.dark-theme .vender-page .inbox-delete:hover,
+.app-main.dark-theme .publicaciones-page .inbox-delete:hover,
+body.global-dark .vender-page .inbox-delete:hover,
+body.global-dark .publicaciones-page .inbox-delete:hover { background: rgba(255,255,255,0.02); color: #fff; }
+
+/* Modal preview & overlay in dark */
+.app-main.dark-theme .sell-modal .preview-card,
+body.global-dark .sell-modal .preview-card { background: var(--card-bg, #242629); border: 1px solid var(--muted-border, rgba(255,255,255,0.035)); color: var(--text, #d7e3ee); box-shadow: 0 12px 36px rgba(2,6,23,0.45); border-radius: 16px; }
+.app-main.dark-theme .vender-page .sell-modal,
+.app-main.dark-theme .publicaciones-page .sell-modal,
+body.global-dark .vender-page .sell-modal,
+body.global-dark .publicaciones-page .sell-modal { background: var(--card-bg, #242629); border: 1px solid var(--muted-border, rgba(255,255,255,0.035)); color: var(--text, #d7e3ee); box-shadow: 0 12px 36px rgba(2,6,23,0.45); border-radius: 16px; }
+.app-main.dark-theme .vender-page .sell-modal-overlay,
+.app-main.dark-theme .publicaciones-page .sell-modal-overlay,
+body.global-dark .vender-page .sell-modal-overlay,
+body.global-dark .publicaciones-page .sell-modal-overlay { background: rgba(8,14,30,0.26); }
+
+/* small misc dark tweaks (badges, token contrast) */
+.app-main.dark-theme .vender-page .inbox-badge,
+.app-main.dark-theme .publicaciones-page .inbox-badge,
+body.global-dark .vender-page .inbox-badge,
+body.global-dark .publicaciones-page .inbox-badge { background: rgba(255,255,255,0.06); color: var(--primary, #0b73ff); border: 1px solid rgba(255,255,255,0.04); }
+
+/* Post cards on Publicaciones: dark theme parity with Vender's card surfaces */
+.app-main.dark-theme .publicaciones-page .post-card,
+body.global-dark .publicaciones-page .post-card,
+.app-main.dark-theme .vender-page .post-card,
+body.global-dark .vender-page .post-card {
+  background: var(--card-bg, #242629);
+  border: 1px solid var(--muted-border, rgba(255,255,255,0.035));
+  color: var(--text, #e6eef8);
+  box-shadow: 0 12px 36px rgba(2,6,23,0.45);
+}
+.app-main.dark-theme .publicaciones-page .post-title,
+body.global-dark .publicaciones-page .post-title,
+.app-main.dark-theme .vender-page .post-title,
+body.global-dark .vender-page .post-title { color: var(--text, #ffffff); }
+.app-main.dark-theme .publicaciones-page .post-meta,
+body.global-dark .publicaciones-page .post-meta,
+.app-main.dark-theme .vender-page .post-meta,
+body.global-dark .vender-page .post-meta { color: rgba(230,238,248,0.7); }
+
+/* Make thumbnail images blend better in dark theme (remove bright blue artifacts) */
+.app-main.dark-theme .publicaciones-page .post-image,
+body.global-dark .publicaciones-page .post-image,
+.app-main.dark-theme .vender-page .post-image,
+body.global-dark .vender-page .post-image {
+  /* ensure images don't have forced bright backgrounds; keep object-fit but add slight desaturation */
+  filter: saturate(0.95) brightness(0.95);
+  background-color: transparent;
+}

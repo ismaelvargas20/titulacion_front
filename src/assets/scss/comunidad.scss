@@ -232,6 +232,20 @@ $accent: #00b4ff;
 }
 .response-item .icon svg { width: 60%; height: 60%; display: block; transform: none; }
 
+/* Actions inside a response (edit/delete) */
+.response-actions { display:flex; gap:8px; align-items:center; }
+.response-actions .icon-btn { width:36px; height:36px; display:inline-flex; align-items:center; justify-content:center; border-radius:8px; background: transparent; border: 1px solid rgba(0,0,0,0.04); color: #6b7280; cursor: pointer; }
+.response-actions .icon-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(2,6,23,0.06); }
+.response-actions .icon-btn.danger { color: #c94b4b; border-color: rgba(201,75,75,0.08); }
+
+.response-edit-form .input-response { width:100%; padding:10px; border-radius:8px; border:1px solid rgba(0,0,0,0.06); background:#fff; }
+.response-edit-form .btn { padding:8px 12px; border-radius:8px; }
+
+/* Dark mode tweaks for response controls */
+.app-main.dark-theme .response-actions .icon-btn { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.04); color: #cbd6e3; }
+.app-main.dark-theme .response-actions .icon-btn.danger { color: #f19b9b; border-color: rgba(241,155,155,0.06); }
+
+
 /* small gentle pop animation when icons appear and subtle hover */
 @keyframes popIn {
   from { transform: scale(.88) translateY(4px); opacity: 0; }
@@ -334,6 +348,37 @@ $accent: #00b4ff;
 
 .app-main.dark-theme .input-response::placeholder {
   color: rgba(255,255,255,0.45);
+}
+
+/* Ensure the inline response edit textarea matches the neutral dark input
+   (the add-response input below) and remove the vivid blue/look when
+   editing in dark mode. Also make the Guardar button adopt a neutral
+   dark appearance instead of the bright primary blue. */
+.app-main.dark-theme .response-edit-form .input-response {
+  background: #2b3135; /* neutral dark gray like other inputs */
+  border: 1px solid rgba(255,255,255,0.04);
+  color: #dfeaf7;
+}
+.app-main.dark-theme .response-edit-form .input-response:focus {
+  outline: none;
+  box-shadow: none; /* avoid bright blue halo */
+  background: #32373b;
+  border-color: rgba(255,255,255,0.06);
+}
+.app-main.dark-theme .response-edit-form .btn.btn-primary {
+  /* make the save button neutral in dark mode to match the nearby controls */
+  background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+  color: #e6eef8;
+  border: 1px solid rgba(255,255,255,0.06);
+  box-shadow: none;
+}
+.app-main.dark-theme .response-edit-form .btn { color: #dfeaf7; }
+.app-main.dark-theme .response-edit-form .btn:not(.btn-primary) {
+  /* Cancel / secondary button: neutral soft background to match surrounding controls */
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  color: #dfeaf7;
+  border: 1px solid rgba(255,255,255,0.04);
+  box-shadow: none;
 }
 
 /* Custom file button and filename display */

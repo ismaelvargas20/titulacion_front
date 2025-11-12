@@ -1,5 +1,6 @@
 /* Vender page styles: reuse motos.scss patterns so hero, buttons and dark-mode match */
 @import 'motos';
+@import 'shared-hero';
 
 .vender-main {
   padding: 18px 24px 48px;
@@ -41,8 +42,9 @@
 }
 
 .activity-card:hover {
-  transform: translateY(-10px) scale(1.01);
-  box-shadow: 0 30px 60px rgba(12,35,63,0.12);
+  /* Elevate the whole card with a subtle zoom so the effect is on the card, not the icon */
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 34px 80px rgba(12,35,63,0.16);
 }
 
 .activity-card.large { grid-column: 1 / -1; padding: 36px 48px; min-height: 180px; display:flex; align-items:center; position:relative; padding-left:200px; }
@@ -128,9 +130,9 @@
 .activity-card { position: relative; overflow: hidden; }
 
 /* stronger hover feedback */
-.activity-card:hover { transform: translateY(-10px) scale(1.01) rotate(-0.15deg); box-shadow: 0 34px 80px rgba(12,35,63,0.16); }
+.activity-card:hover { transform: translateY(-8px) scale(1.02); box-shadow: 0 34px 80px rgba(12,35,63,0.16); }
 .activity-card:active { transform: translateY(-6px) scale(0.995); }
-.activity-card:hover h3 svg { transform: scale(1.06) translateY(-3px); box-shadow: 0 14px 40px rgba(11,115,255,0.09); }
+.activity-card:hover h3 svg { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(11,115,255,0.06); }
 .activity-card:hover::after { transform: translateY(-50%) translateX(8px); opacity: 1; }
 
 /* pulsing attention dot for the large inbox card */
@@ -149,6 +151,83 @@
   border: 4px solid rgba(255,255,255,0.9);
 }
 
+/* Inbox tray styles (replaces large activity card) */
+.inbox-card {
+  grid-column: 1 / -1;
+  border-radius: 14px;
+  padding: 18px 0 12px 0;
+  /* default neutral fallback; theme-specific overrides are applied below */
+  background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(250,250,251,0.98));
+  box-shadow: 0 10px 30px rgba(11,115,255,0.06);
+  color: #07385a; /* use palette-derived darker text */
+  border: 1px solid rgba(2,6,23,0.04);
+}
+
+/* Light-theme: make inbox-card look like the activity cards (white surface with left accent) */
+.app-main:not(.dark-theme) .vender-page .inbox-card {
+  /* keep the card white like activity cards but WITHOUT shifting content to the right */
+  position: relative;
+  background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(250,250,251,0.98));
+  border: 1px solid rgba(2,6,23,0.06);
+  box-shadow: 0 40px 100px rgba(2,6,23,0.12), inset 0 1px 0 rgba(255,255,255,0.02);
+  color: #07263a;
+  border-radius: 16px;
+  overflow: hidden; /* avoid any stripe bleeding outside */
+}
+.app-main:not(.dark-theme) .vender-page .inbox-card::before {
+  /* subtle left accent that does not affect layout */
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 10px;
+  /* make this stripe white so it visually disappears on the white card */
+  background: #ffffff;
+}
+.inbox-card .inbox-header {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding: 18px 24px;
+}
+.inbox-card .inbox-header h3 { display:flex; align-items:center; gap:14px; color: #07263a; margin:0; }
+.inbox-card .inbox-badge { background: #fff; color: var(--primary, #0b73ff); padding:6px 10px; border-radius:999px; font-weight:700; font-size:0.9rem; }
+.inbox-card .inbox-sub { padding: 0 24px 12px 24px; margin:0; color: var(--muted); }
+.inbox-list { list-style:none; margin:0; padding:0; border-top: 1px solid rgba(255,255,255,0.06); }
+.inbox-item { display:flex; align-items:flex-start; gap:12px; padding:14px 18px; cursor:pointer; border-bottom:1px solid rgba(255,255,255,0.03); background: rgba(255,255,255,0.02); transition: background 200ms ease, transform 150ms ease; }
+
+/* Hover effect: in light theme show subtle blue gradient on notification hover */
+.app-main:not(.dark-theme) .inbox-item:hover {
+  background: linear-gradient(90deg, rgba(11,115,255,0.06), rgba(0,180,255,0.03));
+  transform: translateY(-2px);
+}
+
+/* In dark theme use a subtle lighter-blue overlay on hover */
+.app-main.dark-theme .inbox-item:hover {
+  background: linear-gradient(90deg, rgba(16,64,87,0.18), rgba(8,40,60,0.12));
+  transform: translateY(-2px);
+}
+.inbox-item.muted { opacity:0.9 }
+.inbox-token { width:44px; height:44px; border-radius:50%; background: rgba(255,255,255,0.9); display:flex; align-items:center; justify-content:center; color: var(--primary, #0b73ff); box-shadow: 0 8px 20px rgba(11,115,255,0.06); flex-shrink:0; }
+.inbox-content { flex:1; }
+.inbox-title { font-weight:700; color: #07263a; }
+.inbox-excerpt { color: rgba(7,40,66,0.7); margin-top:6px; font-size:0.95rem; }
+.inbox-meta { color: rgba(7,40,66,0.55); font-size:0.85rem; margin-left:12px; white-space:nowrap; }
+.inbox-footer { padding: 10px 18px; text-align:center; }
+.inbox-footer .btn-link { background:transparent; border:none; color: #0b73ff; cursor:pointer; font-weight:700; }
+
+/* Delete button inside each inbox item */
+.inbox-right { display:flex; flex-direction:column; align-items:flex-end; gap:8px; }
+.inbox-delete { background: transparent; border: none; color: rgba(7,40,66,0.55); padding:6px; border-radius:8px; cursor:pointer; }
+.inbox-delete:hover { background: rgba(7,40,66,0.04); color: rgba(7,40,66,0.8); }
+.inbox-item .inbox-delete svg { width:14px; height:14px; }
+
+@media (max-width: 780px) {
+  .inbox-card .inbox-header, .inbox-card .inbox-sub { padding-left:14px; padding-right:14px }
+  .inbox-item { padding-left:14px; padding-right:14px }
+}
+
 /* ensure content of the large card is visually centered when we add left accent */
 /* (removed empty rule) */
 
@@ -161,6 +240,59 @@
 /* Make modal preview look a touch elevated in light theme */
 .sell-modal .preview-card { transition: transform 220ms, box-shadow 220ms; }
 .sell-modal .preview-card:hover { transform: translateY(-4px); box-shadow: 0 26px 56px rgba(2,6,23,0.12); }
+
+/* Ensure in the Vender page the modal and preview remain white in light theme
+   even if other page components use blue gradients. This keeps the form white as requested. */
+.app-main:not(.dark-theme) .vender-page .sell-modal,
+.app-main:not(.dark-theme) .vender-page .sell-modal .preview-card {
+  background: #ffffff;
+  color: #07263a;
+}
+
+/* Small tweak: ensure preview-card inner text uses muted color like other cards */
+.app-main:not(.dark-theme) .vender-page .sell-modal .preview-card .preview-body { color: var(--muted); }
+
+/* Make preview-card in dark theme match activity cards */
+.app-main.dark-theme .sell-modal .preview-card {
+  /* Use theme token so preview matches other cards in dark theme */
+  background: var(--card-bg, #242629);
+  border: 1px solid var(--muted-border, rgba(255,255,255,0.035));
+  color: var(--text, #d7e3ee);
+  box-shadow: 0 12px 36px rgba(2,6,23,0.45);
+  border-radius: 16px;
+}
+
+/* Make the modal container in dark theme match the inbox-card gray tone
+   so the form card isn't pure black but a softer dark-gray surface. */
+.app-main.dark-theme .vender-page .sell-modal {
+  /* Use the theme token for card background so the modal matches other cards */
+  background: var(--card-bg, #242629);
+  border: 1px solid var(--muted-border, rgba(255,255,255,0.035));
+  color: var(--text, #d7e3ee);
+  box-shadow: 0 12px 36px rgba(2,6,23,0.45);
+  border-radius: 16px;
+}
+
+/* Reduce the overlay darkness on the Vender page in dark theme so the modal
+   surface appears lighter and matches the inbox/card surfaces. */
+.app-main.dark-theme .vender-page .sell-modal-overlay {
+  /* lighten overlay so modal surface reads as gray, not black */
+  background: rgba(8,14,30,0.26);
+}
+
+/* Make hover on inbox items in dark theme slightly less contrasty so the
+   overall tray/modal area doesn't look more black when hovering rows. */
+.app-main.dark-theme .inbox-item:hover {
+  background: rgba(255,255,255,0.03);
+  transform: translateY(-2px);
+}
+
+/* Dark theme: make the small badge adapt to dark so it doesn't look like a white blob */
+.app-main.dark-theme .inbox-badge {
+  background: rgba(255,255,255,0.06);
+  color: var(--primary, #0b73ff);
+  border: 1px solid rgba(255,255,255,0.04);
+}
 
 /* entrance stagger for cards to feel alive */
 .cards-row .activity-card { animation: fadeSlideUp 420ms cubic-bezier(.2,.9,.2,1) both; }
@@ -189,6 +321,27 @@
   box-shadow: 0 12px 36px rgba(2,6,23,0.45);
 }
 .app-main.dark-theme .activity-card p { color: #c0ccd8; }
+
+/* Dark theme overrides for inbox-card to ensure good contrast */
+.app-main.dark-theme .inbox-card {
+  /* match activity-card dark appearance for visual consistency */
+  background: linear-gradient(180deg, #17191a, #111314);
+  border: 1px solid rgba(255,255,255,0.035);
+  color: #d7e3ee;
+  box-shadow: 0 12px 36px rgba(2,6,23,0.45);
+}
+.app-main.dark-theme .inbox-card .inbox-header h3 { color: #e9f7ff; }
+.app-main.dark-theme .inbox-card .inbox-sub { color: rgba(231,244,255,0.85); }
+.app-main.dark-theme .inbox-list { border-top-color: rgba(255,255,255,0.03); }
+.app-main.dark-theme .inbox-item { background: transparent; border-bottom-color: rgba(255,255,255,0.03); }
+.app-main.dark-theme .inbox-item:hover { background: rgba(255,255,255,0.02); }
+.app-main.dark-theme .inbox-token { background: rgba(255,255,255,0.04); color: #9fd6ff; box-shadow: none; }
+.app-main.dark-theme .inbox-title { color: #e9f7ff; }
+.app-main.dark-theme .inbox-excerpt { color: rgba(231,244,255,0.72); }
+.app-main.dark-theme .inbox-meta { color: rgba(231,244,255,0.55); }
+.app-main.dark-theme .inbox-footer .btn-link { color: #9fd6ff; }
+.app-main.dark-theme .inbox-delete { color: rgba(231,244,255,0.55); }
+.app-main.dark-theme .inbox-delete:hover { background: rgba(255,255,255,0.02); color: #fff; }
 
 
 /* Ensure responsive fallback */

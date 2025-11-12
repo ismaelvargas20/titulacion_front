@@ -1,19 +1,19 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+// useLocation removed — Perfil no longer reads URL hash for publicaciones
 import '../../assets/scss/perfil.scss'; // Importamos el SCSS desde assets
 
 // Iconos
-import { FaUser, FaMapMarkerAlt, FaUserCircle, FaSave, FaEdit, FaTimes, FaEye, FaEyeSlash, FaRegCalendarAlt } from 'react-icons/fa';
+import { FaUser, FaMapMarkerAlt, FaUserCircle, FaSave, FaEdit, FaTimes, FaRegCalendarAlt } from 'react-icons/fa';
 import { MdEmail, MdPhone } from 'react-icons/md';
 import { RiLockPasswordFill } from 'react-icons/ri';
 
 const Perfil = () => {
     // Estado para controlar si el formulario es editable
-    const location = useLocation();
     // Por defecto mostramos el perfil en modo lectura. Solo cambiar a edición
     // cuando el usuario pulse el botón "Editar perfil".
     const initialEdit = false;
     const [isEditing, setIsEditing] = useState(initialEdit);
+    // Mantener Perfil solo con formulario; la gestión de publicaciones vive en /publicaciones
 
     // Estado para guardar los datos del usuario (puedes cargarlo desde tu backend)
     const [userData, setUserData] = useState({
@@ -34,9 +34,6 @@ const Perfil = () => {
     const formRef = useRef(null);
     const originalDataRef = useRef(null); // Para restaurar al cancelar
     const [showPasswordFields, setShowPasswordFields] = useState(false);
-    // Mostrar/ocultar contraseñas en los inputs
-    const [showNewPassword, setShowNewPassword] = useState(false);
-    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
     // Cuando entramos en modo edición, hacemos foco en el primer campo
     useEffect(() => {
@@ -152,179 +149,175 @@ const Perfil = () => {
                     )}
                 </div>
 
-                {/* --- Formulario del Perfil --- */}
-                {/* Usamos tu clase "reg-form". El <fieldset> con 'disabled'
-                  es clave para la UX de "solo lectura".
-                */}
                 <div className="perfil-body">
                     <form ref={formRef} className="reg-form" onSubmit={handleSubmit}>
-                    <fieldset disabled={!isEditing}>
-                        {/* Ocultar la sección principal de "Información Personal" cuando se muestran
-                           los campos de cambio de contraseña. Esto hace que al pulsar
-                           "Haz click aquí" desaparezca el área encerrada en rojo. */}
-                        {!showPasswordFields && (
+                        <fieldset disabled={!isEditing}>
+                            {/* Ocultar la sección principal de "Información Personal" cuando se muestran
+                               los campos de cambio de contraseña. Esto hace que al pulsar
+                               "Haz click aquí" desaparezca el área encerrada en rojo. */}
+                            {!showPasswordFields && (
+                                <>
+                                    <h3>Información Personal</h3>
+                                    
+                                    <label>
+                                        <span>Nombre completo</span>
+                                        <div className="reg-input">
+                                            <FaUser className="reg-icon" />
+                                            <input 
+                                                ref={firstInputRef}
+                                                name="fullname" 
+                                                type="text" 
+                                                placeholder="Nombre completo" 
+                                                value={userData.fullname}
+                                                onChange={handleChange}
+                                                required 
+                                            />
+                                        </div>
+                                    </label>
+
+                                    <label>
+                                        <span>Fecha de nacimiento</span>
+                                        <div className="reg-input reg-input--date">
+                                            <FaRegCalendarAlt className="reg-icon" />
+                                            <input 
+                                                name="birthdate" 
+                                                type="date" 
+                                                value={userData.birthdate}
+                                                onChange={handleChange}
+                                                required 
+                                            />
+                                        </div>
+                                    </label>
+
+                                    <label>
+                                        <span>Correo electrónico</span>
+                                        <div className="reg-input">
+                                            <MdEmail className="reg-icon" />
+                                            <input 
+                                                name="email" 
+                                                type="email" 
+                                                placeholder="Correo electrónico" 
+                                                value={userData.email}
+                                                onChange={handleChange}
+                                                required 
+                                            />
+                                        </div>
+                                    </label>
+
+                                    <label>
+                                        <span>Número de teléfono</span>
+                                        <div className="reg-input">
+                                            <MdPhone className="reg-icon" />
+                                            <input 
+                                                name="phone" 
+                                                type="tel" 
+                                                placeholder="Número de teléfono" 
+                                                value={userData.phone}
+                                                onChange={handleChange}
+                                            />
+                                        </div>
+                                    </label>
+
+                                    <label>
+                                        <span>Ciudad / Provincia</span>
+                                        <div className="reg-input">
+                                            <FaMapMarkerAlt className="reg-icon" />
+                                            <input 
+                                                name="city" 
+                                                type="text" 
+                                                placeholder="Ciudad / Provincia" 
+                                                value={userData.city}
+                                                onChange={handleChange}
+                                            />
+                                        </div>
+                                    </label>
+
+                                    {/* Acciones (Guardar + Cancelar) colocadas debajo de Ciudad / Provincia, alineadas a la izquierda */}
+                                    {isEditing && (
+                                        <div className="form-actions-inline left">
+                                            <button type="submit" className="perfil-save-btn" aria-label="Guardar cambios">
+                                                <FaSave /> Guardar
+                                            </button>
+                                            <button type="button" className="perfil-cancel-btn" onClick={handleCancel} aria-label="Cancelar edición">
+                                                <FaTimes /> Cancelar
+                                            </button>
+                                        </div>
+                                    )}
+                                </>
+                            )}
+
+                            {/* Si la sección de contraseña está abierta, renderizamos los inputs dentro del fieldset
+                                (esto permite que los inputs formen parte del form y respeten el atributo disabled) */}
+                            {showPasswordFields && (
+                                <div ref={passwordSectionRef} className="password-section">
+                                    <label>
+                                        <span>Nueva Contraseña</span>
+                                        <div className="reg-input">
+                                            <RiLockPasswordFill className="reg-icon" />
+                                            <input
+                                                ref={newPasswordRef}
+                                                name="newPassword"
+                                                type="password"
+                                                placeholder="Nueva Contraseña"
+                                                value={userData.newPassword}
+                                                onChange={handleChange}
+                                            />
+                                        </div>
+                                    </label>
+                                    <label>
+                                        <span>Confirmar Contraseña</span>
+                                        <div className="reg-input">
+                                            <RiLockPasswordFill className="reg-icon" />
+                                            <input
+                                                name="confirmPassword"
+                                                type="password"
+                                                placeholder="Confirmar Contraseña"
+                                                value={userData.confirmPassword}
+                                                onChange={handleChange}
+                                            />
+                                        </div>
+                                    </label>
+
+                                    <div className="change-pass-actions">
+                                        <button type="button" className="perfil-pass-update-btn" onClick={handlePasswordUpdate}>
+                                            Actualizar contraseña
+                                        </button>
+                                        <button type="button" className="perfil-pass-cancel-small" onClick={handleCancelPasswordChange}>
+                                            Cancelar
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+                        </fieldset>
+
+                        {/* CTA de cambio de contraseña: mostrar título + CTA sólo cuando NO estamos en modo edición y no están visibles los campos de contraseña */}
+                        {!isEditing && !showPasswordFields && (
                             <>
-                                <h3>Información Personal</h3>
-                                
-                                <label>
-                                    <span>Nombre completo</span>
-                                    <div className="reg-input">
-                                        <FaUser className="reg-icon" />
-                                        <input 
-                                            ref={firstInputRef}
-                                            name="fullname" 
-                                            type="text" 
-                                            placeholder="Nombre completo" 
-                                            value={userData.fullname}
-                                            onChange={handleChange}
-                                            required 
-                                        />
-                                    </div>
-                                </label>
-
-                                <label>
-                                    <span>Fecha de nacimiento</span>
-                                    <div className="reg-input reg-input--date">
-                                        <FaRegCalendarAlt className="reg-icon" />
-                                        <input 
-                                            name="birthdate" 
-                                            type="date" 
-                                            value={userData.birthdate}
-                                            onChange={handleChange}
-                                            required 
-                                        />
-                                    </div>
-                                </label>
-
-                                <label>
-                                    <span>Correo electrónico</span>
-                                    <div className="reg-input">
-                                        <MdEmail className="reg-icon" />
-                                        <input 
-                                            name="email" 
-                                            type="email" 
-                                            placeholder="Correo electrónico" 
-                                            value={userData.email}
-                                            onChange={handleChange}
-                                            required 
-                                        />
-                                    </div>
-                                </label>
-
-                                <label>
-                                    <span>Número de teléfono</span>
-                                    <div className="reg-input">
-                                        <MdPhone className="reg-icon" />
-                                        <input 
-                                            name="phone" 
-                                            type="tel" 
-                                            placeholder="Número de teléfono" 
-                                            value={userData.phone}
-                                            onChange={handleChange}
-                                        />
-                                    </div>
-                                </label>
-
-                                <label>
-                                    <span>Ciudad / Provincia</span>
-                                    <div className="reg-input">
-                                        <FaMapMarkerAlt className="reg-icon" />
-                                        <input 
-                                            name="city" 
-                                            type="text" 
-                                            placeholder="Ciudad / Provincia" 
-                                            value={userData.city}
-                                            onChange={handleChange}
-                                        />
-                                    </div>
-                                </label>
-
-                                {/* Acciones (Guardar + Cancelar) colocadas debajo de Ciudad / Provincia, alineadas a la izquierda */}
-                                {isEditing && (
-                                    <div className="form-actions-inline left">
-                                        <button type="submit" className="perfil-save-btn" aria-label="Guardar cambios">
-                                            <FaSave /> Guardar
-                                        </button>
-                                        <button type="button" className="perfil-cancel-btn" onClick={handleCancel} aria-label="Cancelar edición">
-                                            <FaTimes /> Cancelar
-                                        </button>
-                                    </div>
-                                )}
+                                <h3 className="password-title">Contraseña</h3>
+                                <div className="change-pass-cta readonly">
+                                    <p className="muted">¿Quieres cambiar tu contraseña?</p>
+                                    <button
+                                        type="button"
+                                        className="perfil-edit-small"
+                                        onClick={() => {
+                                            // Si no estamos en modo edición, activarlo y luego mostrar campos de contraseña
+                                            if (!isEditing) {
+                                                originalDataRef.current = { ...userData };
+                                                setIsEditing(true);
+                                                // esperar un tick para que el fieldset deje de estar disabled
+                                                setTimeout(() => setShowPasswordFields(true), 60);
+                                            } else {
+                                                setShowPasswordFields(true);
+                                            }
+                                        }}
+                                    >
+                                        Haz click aquí
+                                    </button>
+                                </div>
                             </>
                         )}
 
-                        {/* Si la sección de contraseña está abierta, renderizamos los inputs dentro del fieldset
-                            (esto permite que los inputs formen parte del form y respeten el atributo disabled) */}
-                        {showPasswordFields && (
-                            <div ref={passwordSectionRef} className="password-section">
-                                <label>
-                                    <span>Nueva Contraseña</span>
-                                    <div className="reg-input">
-                                        <RiLockPasswordFill className="reg-icon" />
-                                        <input
-                                            ref={newPasswordRef}
-                                            name="newPassword"
-                                            type="password"
-                                            placeholder="Nueva Contraseña"
-                                            value={userData.newPassword}
-                                            onChange={handleChange}
-                                        />
-                                    </div>
-                                </label>
-                                <label>
-                                    <span>Confirmar Contraseña</span>
-                                    <div className="reg-input">
-                                        <RiLockPasswordFill className="reg-icon" />
-                                        <input
-                                            name="confirmPassword"
-                                            type="password"
-                                            placeholder="Confirmar Contraseña"
-                                            value={userData.confirmPassword}
-                                            onChange={handleChange}
-                                        />
-                                    </div>
-                                </label>
-
-                                <div className="change-pass-actions">
-                                    <button type="button" className="perfil-pass-update-btn" onClick={handlePasswordUpdate}>
-                                        Actualizar contraseña
-                                    </button>
-                                    <button type="button" className="perfil-pass-cancel-small" onClick={handleCancelPasswordChange}>
-                                        Cancelar
-                                    </button>
-                                </div>
-                            </div>
-                        )}
-                    </fieldset>
-
-                    {/* CTA de cambio de contraseña: mostrar título + CTA sólo cuando NO estamos en modo edición y no están visibles los campos de contraseña */}
-                    {!isEditing && !showPasswordFields && (
-                        <>
-                            <h3 className="password-title">Contraseña</h3>
-                            <div className="change-pass-cta readonly">
-                                <p className="muted">¿Quieres cambiar tu contraseña?</p>
-                                <button
-                                    type="button"
-                                    className="perfil-edit-small"
-                                    onClick={() => {
-                                        // Si no estamos en modo edición, activarlo y luego mostrar campos de contraseña
-                                        if (!isEditing) {
-                                            originalDataRef.current = { ...userData };
-                                            setIsEditing(true);
-                                            // esperar un tick para que el fieldset deje de estar disabled
-                                            setTimeout(() => setShowPasswordFields(true), 60);
-                                        } else {
-                                            setShowPasswordFields(true);
-                                        }
-                                    }}
-                                >
-                                    Haz click aquí
-                                </button>
-                            </div>
-                        </>
-                    )}
-
-                    </form>
+                        </form>
                 </div>
 
             </div>

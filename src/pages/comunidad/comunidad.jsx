@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FaUserCircle } from 'react-icons/fa';
+import { FaUserCircle, FaEdit, FaTimes, FaCheck } from 'react-icons/fa';
 
 import '../../assets/scss/comunidad.scss';
 
@@ -67,13 +67,50 @@ const initialPosts = [
 ];
 
 // --- Componente para una Respuesta individual ---
-function Response({ response }) {
+function Response({ response, onUpdate, onDelete }) {
+  const [editing, setEditing] = useState(false);
+  const [text, setText] = useState(response.text);
+
+  useEffect(() => {
+    setText(response.text);
+  }, [response.text]);
+
+  const save = () => {
+    const newText = (text || '').trim();
+    if (newText === '') return; // no permitimos vacío
+    onUpdate(response.id, newText);
+    setEditing(false);
+  };
+
   return (
     <div className="response-item">
       <FaUserCircle className="icon" />
-      <div>
-        <span className="response-user">@{response.user}</span>
-        <p className="response-text">{response.text}</p>
+      <div style={{ flex: 1 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+          <div>
+            <span className="response-user">@{response.user}</span>
+          </div>
+          <div className="response-actions">
+            {!editing && (
+              <>
+                <button className="btn icon-btn" title="Editar" onClick={() => setEditing(true)}><FaEdit /></button>
+                <button className="btn icon-btn danger" title="Eliminar" onClick={() => onDelete(response.id)}><FaTimes /></button>
+              </>
+            )}
+          </div>
+        </div>
+
+        {!editing && <p className="response-text">{response.text}</p>}
+
+        {editing && (
+            <div className="response-edit-form">
+            <textarea className="input-response" rows={3} value={text} onChange={(e) => setText(e.target.value)} />
+            <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+              <button className="btn btn-primary" onClick={(e) => { e.preventDefault(); save(); }}>Guardar</button>
+              <button className="btn" onClick={(e) => { e.preventDefault(); setEditing(false); setText(response.text); }}>Cancelar</button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -129,7 +166,8 @@ function PostCard({ post, onAddResponse }) {
         <div className="lead-inner">
           <div className="lead-text-wrap">
             <IconLightBulb className="icon-bulb" />
-            <p className="lead-text">{post.answer}</p>
+            {/* Mostrar primero la primera respuesta si existe; si no, usar post.answer (valor histórico) */}
+            <p className="lead-text">{(post.responses && post.responses.length) ? post.responses[post.responses.length - 1].text : post.answer}</p>
           </div>
           {post.image && (
             <div className="post-image-wrap">
@@ -148,7 +186,17 @@ function PostCard({ post, onAddResponse }) {
           <h4>Comentarios:</h4>
           <div className="responses-list">
             {post.responses.map(response => (
-              <Response key={response.id} response={response} />
+              <Response
+                key={response.id}
+                response={response}
+                onUpdate={(responseId, newText) => {
+                  // propagar hacia arriba
+                  onAddResponse(post.id, { id: responseId, user: response.user, text: newText, _update: true });
+                }}
+                onDelete={(responseId) => {
+                  onAddResponse(post.id, { id: responseId, _delete: true });
+                }}
+              />
             ))}
           </div>
           <AddResponseForm postId={post.id} onAddResponse={onAddResponse} />
@@ -172,7 +220,7 @@ function NewQuestionForm({ onAddPost }) {
       id: Date.now(),
       user: 'NuevoUsuario', // Simulado
       question: newQuestion,
-      answer: 'Tu pregunta está en espera de respuestas. ¡La comunidad te ayudará pronto!',
+      answer: null, // dejar null: las respuestas reales vendrán en post.responses
       image: selectedImage || null,
       responses: []
     };
@@ -258,6 +306,24 @@ export default function App() {
 
   // Función para añadir una respuesta a un post específico
   const addResponse = (postId, newResponse) => {
+    // If newResponse contains control flags, handle update/delete
+    if (newResponse && newResponse._update) {
+      const { id, text } = newResponse;
+      setPosts(posts.map(post => post.id === postId ? {
+        ...post,
+        responses: post.responses.map(r => r.id === id ? { ...r, text } : r)
+      } : post));
+      return;
+    }
+    if (newResponse && newResponse._delete) {
+      const { id } = newResponse;
+      setPosts(posts.map(post => post.id === postId ? {
+        ...post,
+        responses: post.responses.filter(r => r.id !== id)
+      } : post));
+      return;
+    }
+
     setPosts(posts.map(post =>
       post.id === postId
         ? { ...post, responses: [...post.responses, newResponse] }

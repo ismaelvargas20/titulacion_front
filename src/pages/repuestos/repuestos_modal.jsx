@@ -1,5 +1,5 @@
 import React from 'react';
-import { FaTag, FaMapMarkerAlt, FaTimes, FaEnvelope } from 'react-icons/fa';
+import { FaTag, FaMapMarkerAlt, FaTimes, FaEnvelope, FaStar } from 'react-icons/fa';
 import '../../assets/scss/motos_modal.scss';
 
 const RepuestosModal = ({ selectedPart, onClose, showContactForm, setShowContactForm, contactForm, handleContactChange, handleContactSubmit, contactSent }) => {
@@ -19,6 +19,7 @@ const RepuestosModal = ({ selectedPart, onClose, showContactForm, setShowContact
             <span className="modal-price"><FaTag /> ${selectedPart.price}</span>
             <span className="modal-location"><FaMapMarkerAlt /> {selectedPart.location}</span>
             <span className="modal-category">{selectedPart.category || '—'}</span>
+            <span className="modal-stars">{(selectedPart.stars || 0)} <FaStar className="star-icon" /></span>
             {/* mostrar teléfono si existe, si no mostrar fallback 'consultar' dentro del bloque de chips más abajo */}
           </div>
 

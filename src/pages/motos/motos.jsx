@@ -52,6 +52,35 @@ const Motos = () => {
     }
   }, [location, recentMotos]);
 
+  // Si navegamos desde otra página con location.state.editMoto, abrir el formulario
+  // de publicación y precargar los datos para editar esa moto.
+  useEffect(() => {
+    try {
+      if (location && location.state && location.state.editMoto) {
+        const moto = location.state.editMoto;
+        setForm((s) => ({
+          ...s,
+          title: moto.title || '',
+          model: moto.model || '',
+          revision: moto.revision || 'Al día',
+          condition: moto.condition || 'Excelente',
+          price: moto.price ? String(moto.price) : '',
+          location: moto.location || '',
+          stars: moto.stars || 5,
+          img: moto.img || '',
+          description: moto.description || '',
+          contactPhone: (moto.contact && moto.contact.phone) || '',
+          kilometraje: moto.kilometraje || '',
+          year: moto.year || '',
+          transmission: moto.transmission || 'manual'
+        }));
+        setShowSellForm(true);
+      }
+    } catch (e) {
+      // no bloquear la app si algo no existe
+      console.warn('no se pudo inicializar edición desde location.state', e);
+    }
+  }, [location]);
   const handleImageChange = (e) => {
     const file = e.target.files && e.target.files[0];
     if (!file) return setForm((s) => ({ ...s, img: '' }));

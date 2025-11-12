@@ -48,12 +48,12 @@ const Inicio = () => {
   ];
 
   const featuredParts = [
-    { id: 1, title: 'Casco Integral AGV K3', price: '250', category: 'Cascos', img: 'https://loremflickr.com/320/240/motorcycle,helmet' },
-    { id: 2, title: 'Llantas Michelin Road 5', price: '180', category: 'Llantas', img: 'https://loremflickr.com/320/240/motorcycle,tire' },
-    { id: 3, title: 'Kit de Arrastre DID', price: '120', category: 'Transmisión', img: 'https://loremflickr.com/320/240/motorcycle,chain' },
-    { id: 4, title: 'Chaqueta Alpinestars', price: '300', category: 'Protección', img: 'https://loremflickr.com/320/240/motorcycle,jacket' },
-    { id: 5, title: 'Escape Akrapovič', price: '750', category: 'Escapes', img: 'https://loremflickr.com/320/240/motorcycle,exhaust' },
-    { id: 6, title: 'Guantes de Cuero', price: '80', category: 'Protección', img: 'https://loremflickr.com/320/240/motorcycle,gloves' },
+    { id: 1, title: 'Casco Integral AGV K3', price: '250', category: 'Cascos', img: 'https://loremflickr.com/320/240/motorcycle,helmet', stars: 5 },
+    { id: 2, title: 'Llantas Michelin Road 5', price: '180', category: 'Llantas', img: 'https://loremflickr.com/320/240/motorcycle,tire', stars: 4 },
+    { id: 3, title: 'Kit de Arrastre DID', price: '120', category: 'Transmisión', img: 'https://loremflickr.com/320/240/motorcycle,chain', stars: 5 },
+    { id: 4, title: 'Chaqueta Alpinestars', price: '300', category: 'Protección', img: 'https://loremflickr.com/320/240/motorcycle,jacket', stars: 4 },
+    { id: 5, title: 'Escape Akrapovič', price: '750', category: 'Escapes', img: 'https://loremflickr.com/320/240/motorcycle,exhaust', stars: 5 },
+    { id: 6, title: 'Guantes de Cuero', price: '80', category: 'Protección', img: 'https://loremflickr.com/320/240/motorcycle,gloves', stars: 4 },
   ];
 
   const initialForum = [
@@ -266,6 +266,10 @@ const Inicio = () => {
                 <div className="card-content">
                   <span className="card-category">{part.category}</span>
                   <h3 className="card-title">{part.title}</h3>
+                  <div className="card-meta">
+                    <span className="muted">{part.category}</span>
+                    <span className="stars">{part.stars || 0} <FaStar className="star-icon" /></span>
+                  </div>
                 </div>
               </article>
             ))}

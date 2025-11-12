@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaTag, FaMotorcycle, FaTools, FaEnvelope, FaTimes } from 'react-icons/fa';
+import { FaTag, FaMotorcycle, FaTools, FaEnvelope, FaTimes, FaRegCommentDots, FaCommentAlt, FaBell, FaTrash } from 'react-icons/fa';
 import '../../assets/scss/vender.scss';
 
 export default function Vender() {
@@ -19,6 +19,16 @@ export default function Vender() {
   const [publishSuccessMoto, setPublishSuccessMoto] = useState(false);
   const [publishLoadingPart, setPublishLoadingPart] = useState(false);
   const [publishSuccessPart, setPublishSuccessPart] = useState(false);
+
+  // Inbox mock state (notifications). Each item has id, title, excerpt, time, to, type
+  const [inboxItems, setInboxItems] = useState([
+    { id: 1, title: 'Carlos López te respondió', excerpt: 'Se recomienda empezar con una moto de baja cilindrada', time: 'Hace 5 min', to: '/comunidad', type: 'comment' },
+    { id: 2, title: 'Nuevo mensaje de María García', excerpt: 'Buenos días, ¿acepta permuta por otra moto?', time: 'Hace 1 hora', to: '/chat', type: 'chat' },
+  ]);
+
+  const deleteInboxItem = (id) => {
+    setInboxItems((prev) => prev.filter((it) => it.id !== id));
+  };
 
   useEffect(() => {
     return () => {
@@ -92,7 +102,7 @@ export default function Vender() {
     <div className="vender-page">
       <main className="vender-main">
         {/* Mover el hero dentro del contenedor principal para que su ancho coincida con motos */}
-        <section className="sell-hero" role="region" aria-label="Actividades de compra">
+  <section className="sell-hero" aria-label="Actividades de compra">
           <div className="sell-hero-inner">
             <div className="sell-hero-text">
               <h1>Actividades de compra</h1>
@@ -100,7 +110,7 @@ export default function Vender() {
             </div>
 
             <div className="sell-hero-cta">
-              <button type="button" className="hero-sell-btn" onClick={() => navigate('/')}>Ir a inicio</button>
+              <button type="button" className="hero-sell-btn" onClick={() => navigate('/publicaciones')}>Mis publicaciones</button>
             </div>
           </div>
         </section>
@@ -121,10 +131,38 @@ export default function Vender() {
         </div>
 
         <div style={{ marginTop: 18 }}>
-          <div className="activity-card large" role="button" onClick={() => navigate('/chat')} style={{ padding: 22, borderRadius: 12, background: 'var(--card-bg, #fff)', boxShadow: '0 10px 30px rgba(2,6,23,0.06)', cursor: 'pointer' }}>
-            <div className="inbox-dot" aria-hidden="true" />
-            <h3><FaEnvelope /> Mis bandejas de entrada</h3>
-            <p>Accede a tus mensajes de compra y notificaciones. Haz click para abrir la bandeja.</p>
+          {/* Redesigned inbox tray: list of clickable notifications that navigate to /comunidad or /chat */}
+          <div className="inbox-card large" role="region" aria-label="Mis bandejas de entrada">
+            <div className="inbox-header">
+              <h3><FaEnvelope /> Mis bandejas de entrada</h3>
+              <div className="inbox-badge">2 nuevos</div>
+            </div>
+
+            <p className="inbox-sub">Mensajes, notificaciones y respuestas a tus publicaciones</p>
+
+            <ul className="inbox-list">
+              {inboxItems.map((item) => (
+                <li key={item.id} className={`inbox-item ${item.muted ? 'muted' : ''}`} role="button" onClick={() => navigate(item.to)}>
+                  <div className="inbox-token">
+                    {item.type === 'comment' ? <FaRegCommentDots /> : item.type === 'chat' ? <FaCommentAlt /> : item.type === 'mail' ? <FaEnvelope /> : <FaBell />}
+                  </div>
+
+                  <div className="inbox-content">
+                    <div className="inbox-title">{item.title}</div>
+                    <div className="inbox-excerpt">{item.excerpt}</div>
+                  </div>
+
+                  <div className="inbox-right">
+                    <div className="inbox-meta">{item.time}</div>
+                    <button className="inbox-delete" aria-label="Eliminar notificación" onClick={(e) => { e.stopPropagation(); deleteInboxItem(item.id); }}>
+                      <FaTrash />
+                    </button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+
+            <div className="inbox-footer"><button className="btn btn-link" onClick={() => navigate('/chat')}>Ver todos los mensajes →</button></div>
           </div>
         </div>
       </main>
