@@ -350,6 +350,22 @@ body, html {
   .form-panel { z-index: 6; }
 }
 
+/* --- Ajuste específico para anchos alrededor de 1024px (hacerlo similar a vista 1440px) --- */
+@media (min-width: 980px) and (max-width: 1100px) {
+  .motorcycle-img {
+    /* En anchos tipo 1024 queremos que la moto mantenga un tamaño y posición
+       parecidos a la versión desktop mayor (1440). Aumentamos el ancho máximo
+       y aproximamos la posición original para que no parezca recortada. */
+    width: clamp(260px, 40vw, 680px); /* más grande que antes */
+    max-width: 680px; /* igual que en desktop amplio */
+    left: calc(54% + 0.5cm); /* misma referencia que en desktop */
+    transform: translateX(-50%) scale(0.98); /* centrar de forma similar */
+    bottom: calc(4% + 1cm); /* mantener la misma altura que desktop */
+    z-index: 2; /* encima de la curva y detrás del formulario */
+    filter: drop-shadow(6px 6px 18px rgba(0,0,0,0.32));
+  }
+}
+
   .motorcycle-img {
     /* En móviles pequeños mantenemos la moto aún más pequeña */
     width: min(220px, 60vw);
@@ -375,6 +391,79 @@ body, html {
   /* Solo en pantallas extremadamente pequeñas escondemos la moto */
   .motorcycle-img { display: none; }
   .info-panel .background-text { display: none; }
+}
+
+/* ---------- Ajustes específicos solicitados: centrar imagen y colocar botón Registrate ---------- */
+/* Estos breakpoints cubren 768, 425, 375 y 320px tal como pediste. */
+@media (max-width: 768px) {
+  /* Forzar centrado de la moto en móviles/tablet hasta 768px
+     Se usan reglas más específicas y !important para sobreescribir
+     reglas previas que posicionaban la imagen a la izquierda. */
+  .login-container .motorcycle-img {
+    position: static !important;
+    display: block !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    margin-top: 0.6rem !important;
+    margin-bottom: 0.4rem !important;
+    width: min(300px, 50vw) !important;
+    max-width: 320px !important;
+    transform: none !important;
+    left: auto !important;
+    bottom: auto !important;
+    z-index: 1 !important;
+  }
+
+  /* Evitar que el botón Registrate quede pegado encima de la moto o del título */
+  .login-container .register-btn {
+    position: relative !important;
+    top: 0 !important;
+    right: 0 !important;
+    margin: 0.6rem auto !important;
+    align-self: center !important;
+    display: inline-block !important;
+  }
+}
+
+@media (max-width: 425px) {
+  .motorcycle-img {
+    width: min(240px, 60vw);
+    max-width: 240px;
+    margin-top: 0.5rem;
+  }
+  .register-btn {
+    margin: 0.5rem auto;
+    padding: 0.7rem 1.2rem;
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 375px) {
+  .motorcycle-img {
+    width: min(220px, 66vw);
+    max-width: 220px;
+  }
+  .register-btn {
+    margin: 0.45rem auto;
+    padding: 0.65rem 1rem;
+    font-size: 0.92rem;
+  }
+}
+
+@media (max-width: 320px) {
+  .motorcycle-img {
+    width: min(200px, 72vw);
+    max-width: 200px;
+    display: block;
+    margin: 0.4rem auto 0.2rem auto;
+  }
+  .register-btn {
+    margin: 0.35rem auto;
+    padding: 0.6rem 0.9rem;
+    font-size: 0.9rem;
+  }
+  /* asegurar que no aparezca scroll horizontal en móviles muy estrechos */
+  .login-container { overflow-x: hidden; }
 }
 
 /* Evitar que el texto grande se solape en tablets (ej. 768px) */
@@ -429,6 +518,34 @@ body, html {
 }
 @media (max-width: 900px) {
   .info-panel .info-content { padding-right: 1rem; }
+}
+
+/* Ajuste específico y robusto para anchos alrededor de 1024px
+   Unificamos y ampliamos el rango para evitar reglas contradictorias.
+   - Permitimos overflow visible para que la moto no quede recortada.
+   - Ajustamos tamaño y posición para que la moto quede bien ubicada en 1024px.
+*/
+@media (min-width: 1000px) and (max-width: 1050px) {
+  /* permitir que la moto sobresalga visualmente sin generar scroll lateral */
+  .login-container { overflow-x: visible !important; }
+  .info-panel { overflow: visible !important; }
+
+  .motorcycle-img {
+    /* reducir ligeramente el tamaño para evitar recortes y ajustarla hacia la izquierda */
+    width: clamp(240px, 34vw, 520px) !important;
+    max-width: 520px !important;
+
+  /* mover la moto un poco más hacia la izquierda SOLO en este rango (1024px) */
+  left: 48% !important;
+  transform: translateX(-60%) scale(0.98) !important;
+
+    /* mantener una altura similar a desktop pero ajustar levemente */
+    bottom: calc(4% + 0.9cm) !important;
+
+    /* asegurar que quede detrás del formulario pero encima de la curva */
+    z-index: 2 !important;
+    filter: drop-shadow(6px 6px 18px rgba(0,0,0,0.32)) !important;
+  }
 }
 
 /* --- Dark theme overrides: asegurar textos importantes en blanco --- */

@@ -7,7 +7,15 @@
   justify-content: center;
   z-index: 1200;
   padding: 28px;
+  /* permitir scroll táctil del overlay en dispositivos pequeños pero ocultamos
+     su scrollbar para que no compita con la scrollbar interna del modal. */
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
 }
+
+/* ocultar la scrollbar del overlay (aplica a WebKit y Firefox) */
+.moto-modal-overlay::-webkit-scrollbar { display: none; }
+.moto-modal-overlay { scrollbar-width: none; }
 .moto-modal {
   background: var(--card-bg, #0f1720);
   color: var(--text, #fff);
@@ -19,6 +27,10 @@
   position: relative;
   padding: 18px;
   box-shadow: 0 30px 80px rgba(2,6,23,0.6);
+  /* Por defecto no mostramos overflow; en pantallas pequeñas el modal será
+     el área scrollable (ver media query). Mantener border-radius para que
+     la scrollbar interna se recorte correctamente en el borde. */
+  overflow: hidden; /* recortar cualquier contenido que sobresalga y asegurar esquinas redondeadas */
 }
 .moto-modal .btn { transition: transform 160ms ease, box-shadow 160ms ease, filter 120ms ease; }
 .moto-modal .btn.btn-primary {
@@ -80,11 +92,19 @@
   position: absolute;
   right: 12px;
   top: 12px;
-  background: transparent;
+  /* botón circular con contraste: X blanca sobre fondo semitransparente oscuro */
+  background: rgba(0,0,0,0.45);
   border: none;
-  color: var(--text);
+  color: #ffffff; /* X blanca para verse sobre imágenes oscuras */
   font-size: 1.05rem;
   cursor: pointer;
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  box-shadow: 0 8px 20px rgba(2,6,23,0.35);
 }
 .modal-left { flex: 0 0 46%; }
 .modal-left img { width: 100%; height: 340px; object-fit: cover; border-radius: 10px; }
@@ -146,6 +166,53 @@
 @media (max-width: 760px) {
   .modal-contact-grid { grid-template-columns: 1fr; }
   .modal-left img { height: 160px; }
+}
+
+/* Mejora para móviles: permitir que el modal y su contenido sean scrollables
+   sin romper el layout responsive; reduce la altura de la imagen y fuerza
+   que el overlay sea scrollable en pantallas pequeñas. */
+@media (max-width: 880px) {
+  .moto-modal {
+    flex-direction: column;
+    width: 100%;
+    max-width: 720px;
+    padding: 12px;
+    gap: 12px;
+    /* limitar la altura y permitir scroll interno para touch */
+    max-height: calc(100vh - 32px);
+    overflow: auto; /* la scrollbar ahora pertenece al modal */
+    -webkit-overflow-scrolling: touch;
+    /* reservar espacio visual para la scrollbar interna y evitar que ésta
+       quede pegada al borde redondeado. */
+    padding-right: 14px;
+  }
+
+  /* asegurarnos que el overlay deje espacio y permita scroll vertical */
+  .moto-modal-overlay {
+    align-items: flex-start;
+    padding-top: 18px;
+    padding-bottom: 18px;
+  }
+
+  .modal-left { flex: 0 0 auto; width: 100%; }
+  .modal-left img { width: 100%; height: 180px; object-fit: cover; border-radius: 8px; }
+  /* Forzar que la zona derecha respete los border-radius del contenedor */
+  .modal-right { flex: 1 1 auto; overflow: auto; border-top-right-radius: 14px; border-bottom-right-radius: 14px; }
+
+  /* Formularios y textarea deben poder reducir su tamaño en móviles */
+  .modal-contact .message-col textarea { min-height: 120px; }
+
+  /* Scrollbar interno del modal (móvil): pista y esquina igual al fondo
+     para que no se vea la franja sobre el borde redondeado. */
+  .moto-modal::-webkit-scrollbar { width: 12px; }
+  .moto-modal::-webkit-scrollbar-track { background: var(--card-bg, #0f1720); }
+  .moto-modal::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.12));
+    border-radius: 10px;
+    border: 3px solid transparent;
+    background-clip: padding-box;
+  }
+  .moto-modal::-webkit-scrollbar-corner { background: var(--card-bg, #0f1720); }
 }
 .contact-sent { margin-top:8px; color: #b8f0c1; background: rgba(10,80,40,0.08); padding:8px 10px; border-radius:8px; }
 
