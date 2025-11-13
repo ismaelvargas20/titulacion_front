@@ -1,0 +1,934 @@
+// Estado activo en verde
+.status-active {
+	color: #42b72a; // Verde agradable similar al de Facebook
+	background: #e7f9ef;
+	border-radius: 8px;
+	padding: 4px 12px;
+	font-weight: 700;
+	display: inline-block;
+	letter-spacing: 0.2px;
+}
+
+/* Override definitivo: forzar color exacto del botón 'Gestionar' en los botones 'Ver' */
+/* Cubre modo claro y oscuro con alta especificidad */
+body .dashboard .recent-table td .btn-view,
+body:not(.global-dark) .dashboard .recent-table td .btn-view,
+body.global-dark .dashboard .recent-table td .btn-view {
+	background: linear-gradient(90deg, #0b73ff, #4fb8ff) !important;
+	background-image: linear-gradient(90deg, #0b73ff, #4fb8ff) !important;
+	color: #ffffff !important;
+	border: none !important;
+	box-shadow: 0 12px 30px rgba(11,115,255,0.16) !important;
+	-webkit-box-shadow: 0 12px 30px rgba(11,115,255,0.16) !important;
+	border-radius: 8px !important;
+}
+body .dashboard .recent-table td .btn-view:hover {
+	transform: translateY(-2px) !important;
+	filter: brightness(0.98) !important;
+}
+
+
+/* Final override: asegurar que .btn-view tenga exactamente el mismo gradiente
+	 y sombra que los botones principales (.dashboard-actions) */
+.dashboard-actions button, .btn-manage {
+	background: linear-gradient(90deg, #0b73ff, #4fb8ff);
+	color: #fff;
+	border: none;
+	border-radius: 10px;
+	box-shadow: 0 12px 30px rgba(11,115,255,0.16);
+}
+
+.recent-table td .btn-view {
+	background: linear-gradient(90deg, #0b73ff, #4fb8ff) !important;
+	color: #ffffff !important;
+	border: none !important;
+	box-shadow: 0 12px 30px rgba(11,115,255,0.16) !important;
+}
+
+
+/* -- Restaurar apariencia original de botones (gradientes claros) -- */
+/* Forzamos gradientes claros para que los botones queden como en la versión inicial */
+.recent-table td .btn-view {
+	/* Usar exactamente el mismo gradiente que los botones principales */
+	background: linear-gradient(90deg, #0b73ff, #4fb8ff) !important;
+	color: #ffffff !important;
+	border: none !important;
+	box-shadow: 0 12px 30px rgba(11,115,255,0.16) !important;
+}
+.recent-table td .btn-reject {
+	background: linear-gradient(90deg,#ef4444,#d43b3b) !important;
+	color: #ffffff !important;
+	border: 1px solid rgba(220,38,38,0.12) !important;
+	box-shadow: 0 6px 18px rgba(236,72,72,0.06) !important;
+}
+
+/* Asegurar que en el Dashboard el botón "Eliminar" use el mismo rojo que el badge 'Suspendido' */
+.dashboard .recent-table td .btn-reject,
+.recent-table td .btn-reject {
+  background: linear-gradient(90deg,#ef4444,#c2413b) !important;
+  color: #ffffff !important;
+  border: none !important;
+  box-shadow: 0 8px 22px rgba(236,72,72,0.08) !important;
+}
+
+/* Hover: mantener un tono ligeramente más oscuro para feedback */
+.dashboard .recent-table td .btn-reject:hover,
+.recent-table td .btn-reject:hover {
+  background: linear-gradient(90deg,#e04444,#b73733) !important;
+  transform: scale(1.03);
+}
+
+
+/* Últimos overrides: forzar apariencia en modo oscuro si otras reglas la pisan */
+body.global-dark .dashboard .dashboard-recent .recent-table tbody tr td .cell-actions .btn-view,
+body.global-dark .dashboard .dashboard-recent .recent-table tbody tr td .cell-actions button.btn-view,
+body.global-dark .dashboard .recent-table td:last-child .btn-view {
+	background: linear-gradient(90deg,#0b5dd6,#0a66cc) !important;
+	color: #ffffff !important;
+	border: 1px solid rgba(255,255,255,0.06) !important;
+	box-shadow: 0 8px 24px rgba(0,0,0,0.65) !important;
+	-webkit-filter: none !important;
+	filter: none !important;
+}
+
+body.global-dark .dashboard .dashboard-recent .recent-table tbody tr td .cell-actions .btn-reject,
+body.global-dark .dashboard .dashboard-recent .recent-table tbody tr td .cell-actions button.btn-reject,
+body.global-dark .dashboard .recent-table td:last-child .btn-reject {
+	background: linear-gradient(90deg,#c24b45,#a33a34) !important;
+	color: #ffffff !important;
+	border: 1px solid rgba(255,255,255,0.06) !important;
+	box-shadow: 0 8px 22px rgba(0,0,0,0.62) !important;
+}
+
+/* Forzar color blanco en textos de botones dentro de las acciones */
+body.global-dark .dashboard .dashboard-recent .recent-table tbody tr td .cell-actions .btn-view,
+body.global-dark .dashboard .dashboard-recent .recent-table tbody tr td .cell-actions .btn-reject {
+	color: #ffffff !important;
+}
+
+/* Forzar badge 'Activo' en modo oscuro (muy específico) */
+body.global-dark .dashboard .dashboard-recent .recent-table tbody tr td.status-active .cell-content,
+body.global-dark .dashboard .recent-table td.status-active .cell-content {
+	background: linear-gradient(180deg,#2fa84a,#1b6b2d) !important;
+	color: #ffffff !important;
+	box-shadow: 0 6px 18px rgba(0,0,0,0.6) !important;
+	border-radius: 999px !important;
+}
+
+
+// Estilos generales del dashboard
+
+.dashboard {
+	background: linear-gradient(120deg, #f8fafc 70%, #e0eaff 100%);
+	min-height: 100vh;
+	font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+	color: #222;
+}
+
+.dashboard-main {
+	max-width: 1200px;
+	margin: 0 auto;
+	padding: 40px 24px 32px 24px;
+}
+
+/* Alineación: quitar margen adicional para que Dashboard coincida con Usuarios */
+.dashboard .dashboard-main {
+	margin-top: 0;
+}
+
+@media (max-width: 980px) {
+	.dashboard .dashboard-main { margin-top: 0; }
+}
+
+@media (max-width: 600px) {
+	.dashboard .dashboard-main { margin-top: 0; }
+}
+
+// Título y subtítulo (alineados con estilos de `inicio`)
+.dashboard-title {
+	font-size: 2.2rem; /* mismo tamaño que el h1 de la sección hero en inicio */
+	font-weight: 800;
+	margin-bottom: 0.5rem;
+	color: var(--text, #212529);
+	letter-spacing: normal; /* evitar el tracking negativo para que coincida con inicio */
+	font-family: inherit; /* hereda la tipografía global (como en inicio) */
+}
+.dashboard-subtitle {
+	color: var(--muted, #6c757d); /* tono gris similar a inicio */
+	font-size: 1.1rem; /* coincide con .hero-sub en inicio */
+	margin-bottom: 2.5rem;
+	font-weight: 500;
+	font-family: inherit; /* usar la misma familia que el título/entorno */
+}
+
+// Resumen de tarjetas
+.dashboard-summary {
+	display: flex;
+	gap: 32px;
+	margin-bottom: 36px;
+	flex-wrap: wrap;
+	justify-content: center;
+}
+.summary-card {
+	background: #fff;
+	border-radius: 18px;
+	border: 1px solid rgba(11,115,255,0.06);
+	box-shadow: 0 8px 30px -12px rgba(37,99,235,0.08), 0 6px 18px rgba(11,115,255,0.04);
+	padding: 22px 24px 22px 24px;
+	min-width: 220px;
+	flex: 1 1 220px;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	position: relative;
+	overflow: visible;
+	transition: box-shadow 0.25s cubic-bezier(.2,.8,.2,1), transform 0.18s;
+}
+.summary-card:hover {
+	box-shadow: 0 18px 50px -12px rgba(37,99,235,0.15), 0 10px 30px rgba(11,115,255,0.08);
+	transform: translateY(-4px) scale(1.03);
+}
+
+/* Animación de entrada y microinteracciones similares a las de Usuarios */
+@keyframes dashFadeUp {
+	from { opacity: 0; transform: translateY(8px); }
+	to { opacity: 1; transform: translateY(0); }
+}
+
+.summary-card {
+	will-change: transform, opacity, box-shadow;
+	animation: dashFadeUp 420ms ease both;
+}
+.summary-card:nth-child(1) { animation-delay: 0ms; }
+.summary-card:nth-child(2) { animation-delay: 90ms; }
+.summary-card:nth-child(3) { animation-delay: 180ms; }
+.summary-card:nth-child(4) { animation-delay: 270ms; }
+
+/* Elevación del icono al hover y transición suave (como en Usuarios) */
+.summary-card .summary-icon { transition: transform 260ms ease, box-shadow 260ms ease, opacity 200ms ease; }
+.summary-card:hover .summary-icon { transform: translateY(-6px); box-shadow: 0 18px 46px rgba(11,115,255,0.14); }
+
+/* Efecto 'aplastado' al presionar la tarjeta (feedback táctil) */
+.summary-card:active { transform: translateY(-2px) scale(0.99); }
+.summary-card h2 {
+	font-size: 1.02rem;
+	font-weight: 700;
+	color: #1d3557; // Color más oscuro
+	margin-bottom: 0.25em;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	font-family: 'Roboto', sans-serif; // Igual que el header
+	padding-right: 80px; /* espacio para el icono en la esquina */
+}
+.summary-card p {
+	font-size: 2.3rem;
+	font-weight: 800;
+	margin: 0 0 0.3em 0;
+	letter-spacing: -1px;
+	font-family: 'Roboto', sans-serif; // Igual que el header
+}
+.summary-card::before {
+	/* círculo degradado azul/blanco detrás del icono */
+	content: '';
+	position: absolute;
+	top: 12px;
+	right: 14px;
+	width: 56px;
+	height: 56px;
+	border-radius: 50%;
+	background: linear-gradient(135deg, #0b73ff 0%, #4fb8ff 100%);
+	box-shadow: 0 8px 28px rgba(11,115,255,0.12);
+	opacity: 1;
+}
+.summary-card .summary-icon {
+	position: absolute;
+	right: 18px;
+	top: 18px;
+	width: 44px;
+	height: 44px;
+	z-index: 2;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: #ffffff;
+	font-size: 20px;
+}
+.summary-card .summary-icon i {
+	font-size: 24px; /* aumentar tamaño para mejor visibilidad */
+	line-height: 1;
+}
+
+// Acciones
+.dashboard-actions {
+	display: flex;
+	gap: 18px;
+	margin-bottom: 38px;
+	justify-content: center;
+		align-items: center;
+		flex-wrap: wrap; /* permite que los botones bajen en pantallas pequeñas */
+}
+.dashboard-actions button {
+		background: linear-gradient(90deg, #0b73ff, #4fb8ff); // Gradiente azul como el mostrado
+		color: #fff;
+		border: none;
+		border-radius: 10px;
+		padding: 12px 26px;
+		font-size: 1.02rem;
+		font-weight: 700;
+		cursor: pointer;
+		box-shadow: 0 12px 30px rgba(11,115,255,0.16);
+		letter-spacing: 0.5px;
+		transition: transform 0.18s, filter 0.15s;
+		font-family: 'Roboto', sans-serif; // Igual que el header
+		min-width: 170px; /* tamaño consistente */
+		text-align: center;
+}
+.dashboard-actions button:hover {
+		transform: translateY(-3px);
+		filter: brightness(0.98);
+		box-shadow: 0 18px 40px rgba(11,115,255,0.18);
+}
+
+/* Responsive: botones apilados en pantallas pequeñas */
+@media (max-width: 720px) {
+	.dashboard-actions button {
+		min-width: 100%;
+		max-width: 420px;
+		margin: 6px 0;
+	}
+}
+
+// Tabla de publicaciones recientes
+.dashboard-recent {
+	background: #fff;
+	border-radius: 20px;
+	box-shadow: 0 4px 24px 0 rgba(37,99,235,0.08), 0 1.5px 6px 0 rgba(22,163,74,0.07);
+	padding: 36px 28px 28px 28px;
+	margin-bottom: 38px;
+}
+.dashboard-recent h2 {
+	font-family: inherit; /* usar la misma familia que el entorno (como en inicio) */
+	font-weight: 800;
+	font-size: 1.8rem; /* coincide con .section-header h2 en inicio */
+	color: var(--text, #212529);
+	margin-bottom: 20px;
+}
+.recent-table {
+	width: 100%;
+	border-collapse: separate;
+	border-spacing: 0 12px;
+}
+.recent-table th {
+	font-family: 'Roboto', sans-serif;
+	font-weight: 700;
+	font-size: 1.01rem;
+	color: #6b7280; // Cambiar a gris
+	text-align: left;
+	padding-bottom: 10px;
+	letter-spacing: 0.2px;
+}
+.recent-table td {
+	font-family: 'Roboto', sans-serif;
+	font-weight: 500;
+	font-size: 1.01rem;
+	color: #4b5563;
+	padding: 6px 8px; /* padding reducido ahora que el marco está en .cell-content */
+	background: transparent; /* dejar fondo al wrapper interno */
+	vertical-align: middle;
+}
+
+/* Wrapper dentro de cada celda que mantiene el fondo redondeado y padding estable */
+.recent-table td .cell-content {
+	background: #f3f6fa;
+	padding: 14px 18px;
+	border-radius: 10px;
+	display: flex;
+	align-items: center;
+	height: 52px;
+}
+
+/* Acciones usa su propio wrapper para controlar alineación sin afectar las otras columnas */
+.recent-table td .cell-actions {
+	display: flex;
+	gap: 12px;
+	align-items: center;
+	justify-content: flex-end;
+}
+
+/* En móviles apilar botones dentro de cell-actions */
+.recent-table td .cell-actions { gap: 10px; }
+@media (max-width: 900px) {
+	.recent-table td .cell-actions { flex-direction: column; align-items: flex-end; }
+	.recent-table td .cell-actions .btn-view, .recent-table td .cell-actions .btn-reject { width: 120px; }
+}
+.recent-table td button {
+	margin-right: 8px; /* Espacio entre botones */
+	font-family: 'Roboto', sans-serif;
+	font-weight: 600;
+	font-size: 0.95rem;
+	padding: 6px 12px; /* más compacto */
+	border-radius: 8px;
+	border: none;
+	transition: transform 0.18s ease, box-shadow 0.18s ease;
+	box-shadow: 0 3px 6px rgba(2,6,23,0.06);
+	height: 36px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+}
+.recent-table td button:last-child {
+	margin-right: 0; // El último botón no necesita margen derecho
+}
+.recent-table td button.btn-view {
+	background-color: #0b73ff; // Azul exacto del header
+	color: #ffffff;
+	border: 1px solid #0a66cc;
+	box-shadow: 0 4px 6px rgba(11, 115, 255, 0.1);
+}
+.recent-table td button.btn-view:hover {
+	background-color: #0a66cc;
+	border-color: #094bb2;
+	transform: scale(1.05);
+}
+.recent-table td button.btn-reject {
+	background-color: #ef4444; // Ajustar al rojo mostrado
+	color: #ffffff;
+	border: 1px solid #dc2626;
+}
+.recent-table td button.btn-reject:hover {
+	background-color: #dc2626;
+	border-color: #b91c1c;
+	transform: scale(1.05);
+}
+
+/* --------------------------------------------------
+	 Convertir la tabla de 'Últimos Anuncios Publicados'
+	 a un listado de tarjetas (estilo imagen 2)
+	 -------------------------------------------------- */
+.dashboard-recent .recent-table {
+	width: 100%;
+	display: block; /* permitimos que filas sean bloques independientes */
+	border-collapse: separate;
+}
+
+.dashboard-recent .recent-table thead { display: none; }
+.dashboard-recent .recent-table tbody { display: block; }
+
+.dashboard-recent .recent-table tbody tr {
+	/* Usamos grid para fijar la columna central del estado y alinear todo perfectamente */
+	display: grid;
+	grid-template-columns: 1fr 120px 180px; /* izquierda, estado (más estrecha), acciones (más espacio) */
+	align-items: center;
+	gap: 28px; /* mayor separación entre columnas para evitar que el estado quede pegado a las acciones */
+	background: #fff;
+	padding: 18px 20px;
+	border-radius: 12px;
+	box-shadow: 0 6px 18px rgba(16,24,40,0.06);
+	margin-bottom: 14px;
+}
+
+.dashboard-recent .recent-table tbody tr:last-child { margin-bottom: 0; }
+
+.dashboard-recent .recent-table td {
+	display: flex;
+	align-items: center;
+	gap: 14px;
+	vertical-align: middle;
+	padding: 0; /* ya controlamos padding en el tr */
+	border: none;
+	background: transparent;
+}
+
+/* Contenedor izquierdo con icono + título/meta */
+.dashboard-recent .recent-table td .cell-content {
+	background: transparent; /* quitar fondo gris */
+	padding: 0;
+	height: auto;
+	display: flex;
+	align-items: center;
+	gap: 14px;
+}
+
+.dashboard-recent .recent-table .cell-icon {
+	width: 56px;
+	height: 56px;
+	border-radius: 12px;
+	background: linear-gradient(180deg, #eef8ff, #f5fbff);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: #0b73ff;
+	font-size: 20px;
+	flex-shrink: 0;
+}
+
+.dashboard-recent .recent-table .cell-title {
+	display: flex;
+	flex-direction: column;
+}
+.dashboard-recent .recent-table .cell-title .title-text {
+	font-weight: 700;
+	color: var(--text, #212529);
+	font-size: 1.05rem;
+}
+.dashboard-recent .recent-table .cell-title .meta {
+	font-size: 0.9rem;
+	color: #6b7280;
+	margin-top: 6px;
+	display: flex;
+	gap: 10px;
+	align-items: center;
+}
+
+/* Small badge for tipo */
+.dashboard-recent .recent-table .badge {
+	background: #f1f5f9;
+	color: #374151;
+	padding: 6px 10px;
+	border-radius: 999px;
+	font-weight: 600;
+	font-size: 0.82rem;
+	display: inline-block;
+}
+
+/* Estado/Badge dentro de la fila (estilo dashboard) */
+.dashboard-recent .recent-table td.status-active .cell-content {
+	/* por defecto transparente aquí — estilos finales aplicados más abajo */
+	background: transparent;
+	color: #42b72a;
+	font-weight: 700;
+	padding: 6px 10px;
+	border-radius: 999px;
+}
+
+/* Acciones a la derecha: botones redondeados con iconos */
+.dashboard-recent .recent-table td .cell-actions {
+	display: flex;
+	gap: 12px;
+	align-items: center;
+	justify-self: end; /* asegurar que las acciones queden a la derecha de la tarjeta */
+}
+
+/* Alineación de la celda de estado: colocar el badge hacia la izquierda dentro de su columna
+	 (evita que quede pegado a la columna de acciones) */
+.dashboard-recent .recent-table td.status-active {
+	justify-self: start; /* empuja la celda de estado hacia la izquierda de su columna */
+	padding-left: 6px; /* pequeño espaciado desde el borde izquierdo de la columna */
+}
+
+/* Ajuste y apariencia final del badge en dashboard: verde degradado con texto blanco */
+.dashboard-recent .recent-table td.status-active .cell-content {
+	justify-content: center; /* mantiene el badge centrado dentro del pequeño contenedor */
+	min-width: 92px; /* asegurar tamaño consistente del badge */
+	background: linear-gradient(180deg, #34d058 0%, #1f9a3a 100%);
+	color: #ffffff;
+	font-weight: 700;
+	padding: 6px 12px;
+	height: 36px;
+	border-radius: 999px;
+	box-shadow: 0 6px 14px rgba(31,154,58,0.12);
+}
+
+/* Mover el badge hacia la izquierda (desplazamiento adicional ~2cm) */
+.dashboard-recent .recent-table td.status-active {
+	transform: translateX(-190px);
+}
+.dashboard-recent .recent-table td .btn-view,
+.dashboard-recent .recent-table td .btn-reject {
+	min-width: 0;
+	padding: 6px 12px;
+	border-radius: 8px;
+	height: 36px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+}
+	.dashboard-recent .recent-table td .btn-view,
+	body.global-dark .dashboard-recent .recent-table td .btn-view {
+		/* Forzar que el botón 'Ver' mantenga el gradiente del tema claro en modo oscuro */
+		background: linear-gradient(90deg,#1e6ef3,#0b73ff) !important;
+		color: #ffffff !important;
+		border: none !important;
+		/* caja de sombra simple, sin anillo exterior para que el color quede limpio */
+		box-shadow: 0 6px 18px rgba(11,115,255,0.12) !important;
+	}
+	.dashboard-recent .recent-table td .btn-reject {
+		background: linear-gradient(90deg,#ef4444,#d43b3b);
+		color: #fff;
+		border: 1px solid rgba(220,38,38,0.12);
+		box-shadow: 0 6px 20px rgba(236,72,72,0.06);
+	}
+	.dashboard-recent .recent-table td .btn-reject:hover { transform: translateY(-2px); }
+
+/* En móvil apilar contenido dentro de la tarjeta */
+@media (max-width: 900px) {
+	.dashboard-recent .recent-table tbody tr {
+		display: flex; /* en móvil volvemos a flex-column */
+		flex-direction: column;
+		align-items: stretch;
+	}
+	.dashboard-recent .recent-table td .cell-actions {
+		justify-content: flex-end;
+		margin-top: 8px;
+		justify-self: auto;
+	}
+	/* en móvil la columna de estado debe alinearse a la izquierda dentro del flujo */
+	.dashboard-recent .recent-table td.status-active { justify-content: flex-start; }
+	/* quitar la transformación en móvil para evitar solapamientos */
+	.dashboard-recent .recent-table td.status-active { transform: none; }
+}
+
+
+// Estados
+// Estado activo en verde (selector específico para celdas de la tabla)
+.recent-table td.status-active {
+	vertical-align: middle; /* preservar alineación en la celda */
+}
+
+/* Cuando el td tiene .status-active, estilizamos el wrapper interno */
+.recent-table td.status-active .cell-content {
+	background: #e7f9ef;
+	color: #42b72a;
+	font-weight: 700;
+	letter-spacing: 0.2px;
+	justify-content: center;
+	width: 84px;
+	height: 36px;
+	padding: 6px 12px;
+	border-radius: 8px;
+}
+
+/* Alinear y hacer responsive la columna de Acciones en la tabla */
+.recent-table td:last-child {
+		display: flex;
+		gap: 12px;
+		align-items: center;
+		justify-content: flex-end;
+		background: transparent; /* mantener el fondo de la celda */
+}
+.recent-table td:last-child .btn-view,
+.recent-table td:last-child .btn-reject {
+		min-width: 84px;
+		padding: 8px 14px;
+}
+
+@media (max-width: 900px) {
+	.recent-table td:last-child {
+		flex-direction: column;
+		align-items: flex-end;
+	}
+	.recent-table td:last-child .btn-view,
+	.recent-table td:last-child .btn-reject {
+		width: 120px;
+		margin: 6px 0;
+	}
+	.recent-table th, .recent-table td { padding-left: 12px; padding-right: 12px; }
+}
+
+/* Alineación general y correcciones finales */
+.recent-table th,
+.recent-table td {
+	vertical-align: middle;
+	padding: 16px 20px;
+}
+
+/* Evitar forzar display en cualquier hijo de td (provocaba cajas inesperadas). 
+   Si quieres centrar contenido interno, envuélvelo en un elemento con clase
+   `.cell-content` y usa `.recent-table td > .cell-content { display:flex; align-items:center; }` */
+
+/* Normalizar botones dentro de la tabla para que no desplacen el contenido */
+.recent-table td .btn-view,
+.recent-table td .btn-reject {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 36px;
+  padding: 6px 14px;
+  line-height: 1;
+  margin: 0;
+  box-shadow: none !important; /* evitar cualquier sombra heredada */
+}
+
+/* Alinear la columna de acciones a la derecha y centrar verticalmente */
+.recent-table td:last-child {
+	display: flex;
+	gap: 12px;
+	align-items: center;
+	justify-content: flex-end;
+	padding-right: 24px;
+}
+
+@media (max-width: 900px) {
+	.recent-table td:last-child {
+		flex-direction: column;
+		align-items: flex-end;
+	}
+	.recent-table td:last-child .btn-view,
+	.recent-table td:last-child .btn-reject {
+		width: 120px;
+		margin: 6px 0;
+	}
+}
+
+/* Pequeño ajuste para que el estado "Activo" quede verticalmente centrado */
+.recent-table td.status-active {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 6px 10px;
+}
+
+// Navegación admin (puedes personalizar más si lo deseas)
+.dashboard-admin-nav {
+	margin-top: 32px;
+}
+
+/* -----------------------
+	 MODO OSCURO (dashboard)
+	 Aplica cuando el <body> tenga la clase `global-dark`
+	 ----------------------- */
+body.global-dark {
+	.dashboard {
+		/* gris neutro más suave (menos negro) */
+		background: linear-gradient(120deg, #202425 60%, #17191a 100%);
+		color: #e6eef8;
+	}
+
+	.dashboard-title { color: #f6f8f9; }
+	.dashboard-subtitle { color: #9aa3ab; }
+
+	/* Tarjetas resumen: fondo gris suave, menos contraste absoluto */
+	.summary-card {
+		background: linear-gradient(180deg, rgba(255,255,255,0.035), rgba(255,255,255,0.02));
+		border: 1px solid rgba(255,255,255,0.04);
+		box-shadow: 0 10px 30px -8px rgba(0,0,0,0.55), 0 6px 18px rgba(0,0,0,0.35);
+		color: #e6eef8;
+	}
+
+	/* Table styles for dark mode */
+	.recent-table {
+		background: transparent;
+		color: #e6e6e6;
+	}
+
+	.recent-table th {
+		color: #cfcfcf;
+		border-bottom: 1px solid rgba(255,255,255,0.06);
+	}
+
+	.recent-table td {
+		border-bottom: 1px solid rgba(255,255,255,0.03);
+	}
+
+	.recent-table td.status-active {
+		color: #77c46b; /* verde más suave para modo oscuro */
+		background: rgba(119,196,107,0.07);
+	}
+
+	.recent-table td:last-child {
+		justify-content: flex-end;
+	}
+
+	.recent-table td .btn-view {
+		background-color: #3a3f45; /* gris oscuro neutro */
+		color: #e9eef3; /* gris suave para texto */
+		border: 1px solid rgba(255,255,255,0.06);
+		box-shadow: none;
+	}
+
+	.recent-table td .btn-view:hover {
+		background-color: #2f3337;
+	}
+
+	.recent-table td .btn-reject {
+		background-color: transparent;
+		color: #ffb3b3; /* rojo suave sobre oscuro */
+		border: 1px solid rgba(255,255,255,0.06);
+	}
+
+	.recent-table td .btn-reject:hover {
+		background-color: rgba(255,179,179,0.06);
+	}
+	.summary-card h2 { color: #eef4f8; }
+	.summary-card p { color: #f6f9fb; }
+
+	/* icono circular: degradado más gris, menor brillo */
+	.summary-card::before {
+		background: linear-gradient(135deg, #9aa0a6 0%, #dfe3e6 100%);
+		box-shadow: 0 8px 18px rgba(0,0,0,0.22);
+	}
+	.summary-card .summary-icon { color: #0b1220; }
+
+	/* Botones de acciones: en tema oscuro usar tonos oscuros/grises para no resaltar tanto */
+	.dashboard-actions button {
+		background: linear-gradient(90deg, #22272a 0%, #2f3538 100%);
+		border: 1px solid rgba(255,255,255,0.03);
+		box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+		color: #e6eef8;
+	}
+	.dashboard-actions button:hover {
+		transform: translateY(-2px);
+		filter: brightness(1.06);
+		box-shadow: 0 10px 28px rgba(0,0,0,0.65);
+	}
+
+	/* Tabla principal: filas y fondo en gris suave */
+	.dashboard-recent {
+		background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.00));
+		border: 1px solid rgba(255,255,255,0.035);
+		box-shadow: 0 10px 36px -10px rgba(0,0,0,0.55);
+	}
+	.dashboard-recent h2 { color: #eef4f8; }
+
+	/* Ajustes específicos: tarjetas blancas dentro de dashboard-recent deben adaptarse al modo oscuro */
+	.dashboard-recent .recent-table tbody tr {
+		background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+		border: 1px solid rgba(255,255,255,0.03);
+		box-shadow: 0 6px 20px rgba(0,0,0,0.6);
+	}
+
+	.dashboard-recent .recent-table td .cell-content {
+		background: transparent; /* quitar blanco fuerte */
+		color: #d7e7fb; /* texto más claro */
+		padding: 12px 0; /* ajustamos padding para el layout oscuro */
+		height: auto;
+		box-shadow: none;
+	}
+
+	.dashboard-recent .recent-table .cell-icon {
+		background: rgba(255,255,255,0.03);
+		color: #9fd1ff;
+		box-shadow: none;
+	}
+
+	.dashboard-recent .recent-table .cell-title .title-text { color: #eef4f8; }
+	.dashboard-recent .recent-table .cell-title .meta { color: #9aa3ab; }
+
+	/* Badge activo en oscuro: mantener degradado pero más oscuro */
+	.dashboard-recent .recent-table td.status-active .cell-content {
+		background: linear-gradient(180deg,#1f9a3a 0%, #146428 100%);
+		color: #e6f8ee;
+		box-shadow: 0 6px 12px rgba(0,0,0,0.5);
+	}
+
+	/* Botones en tarjetas: tonos más suaves que armonicen con fondo oscuro */
+	.dashboard-recent .recent-table td .btn-view {
+		background-color: #0b73ff;
+		color: #fff;
+		border: 1px solid rgba(255,255,255,0.04);
+		box-shadow: 0 6px 18px rgba(11,115,255,0.12);
+	}
+
+	.dashboard-recent .recent-table td .btn-reject {
+		background-color: #d65b56;
+		color: #fff;
+		border: 1px solid rgba(255,255,255,0.04);
+		box-shadow: 0 6px 18px rgba(214,91,86,0.08);
+	}
+
+	.recent-table th { color: #a0a9b0; }
+	.recent-table td {
+		background: rgba(255,255,255,0.02);
+		color: #d7e7fb;
+	}
+
+	.recent-table td button.btn-view {
+		background-color: #0a66cc;
+		box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+	}
+	.recent-table td button.btn-reject {
+		background-color: #c2413b;
+		box-shadow: 0 6px 16px rgba(0,0,0,0.38);
+	}
+
+	/* Estado Activo en oscuro: tono verde sobre gris, ligeramente más apagado */
+	.recent-table td.status-active {
+		color: #e6f8ee;
+		background: linear-gradient(180deg,#1d4d2b,#13361f);
+		border-radius: 8px;
+		box-shadow: inset 0 -1px 0 rgba(0,0,0,0.18);
+	}
+
+	/* Ajustes para el icono en modo oscuro (contraste gris) */
+	.summary-card .summary-icon {
+		box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+	}
+
+	/* Asegurar elementos interactivos legibles */
+	.recent-table td button,
+	.dashboard-actions button { color: #fff; }
+
+	/* Forzar apariencia coherente para los botones y badge dentro de dashboard-recent */
+	.dashboard-recent .recent-table tbody tr {
+		background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+		border: 1px solid rgba(255,255,255,0.03);
+	}
+
+	.dashboard-recent .recent-table td .btn-view {
+		background: linear-gradient(90deg,#1e6ef3,#0b73ff);
+		color: #fff;
+		border: 1px solid rgba(255,255,255,0.04);
+		box-shadow: 0 6px 18px rgba(11,115,255,0.08);
+	}
+
+	.dashboard-recent .recent-table td .btn-reject {
+		background: linear-gradient(90deg,#e06760,#c2413b);
+		color: #fff;
+		border: 1px solid rgba(255,255,255,0.04);
+		box-shadow: 0 6px 18px rgba(200,70,70,0.06);
+	}
+
+	.dashboard-recent .recent-table td.status-active .cell-content {
+		background: linear-gradient(180deg,#2fa84a,#1b6b2d);
+		color: #ffffff;
+		box-shadow: 0 6px 18px rgba(0,0,0,0.6);
+	}
+
+	/* Reglas más específicas para asegurarnos que los botones y el badge
+	   respeten el tema oscuro incluso si hay otras reglas competidoras */
+	/* Mantener colores claros en los botones dentro de modo oscuro, pero sin borde.
+	   Añadimos un filo sutil usando box-shadow (rim + sombra) para que resalten sobre fondo oscuro. */
+	.recent-table td button.btn-view,
+	body.global-dark .dashboard-recent .recent-table td .btn-view {
+		background: linear-gradient(90deg,#1e6ef3,#0b73ff) !important;
+		color: #ffffff !important;
+		border: none !important;
+		/* sombra principal + filo exterior sutil del mismo color */
+		box-shadow: 0 6px 18px rgba(11,115,255,0.12), 0 0 0 4px rgba(11,115,255,0.04) !important;
+	}
+
+	.recent-table td button.btn-reject,
+	body.global-dark .dashboard-recent .recent-table td .btn-reject {
+		background: linear-gradient(90deg,#ef4444,#d43b3b) !important;
+		color: #ffffff !important;
+		border: none !important;
+		/* sombra principal + filo exterior sutil rojizo */
+		box-shadow: 0 6px 18px rgba(214,91,86,0.12), 0 0 0 4px rgba(214,91,86,0.04) !important;
+	}
+
+	.recent-table td.status-active .cell-content,
+	body.global-dark .dashboard-recent .recent-table td.status-active .cell-content {
+		background: linear-gradient(180deg,#2fa84a,#1b6b2d) !important;
+		color: #ffffff !important;
+		box-shadow: none !important; /* menos prominencia en oscuro */
+	}
+
+	/* Forzar que .btn-view mantenga el gradiente azul incluso en modo oscuro */
+	body.global-dark .dashboard .recent-table td .btn-view,
+	body.global-dark .dashboard-recent .recent-table td .btn-view,
+	body.global-dark .recent-table td .btn-view {
+		background: linear-gradient(90deg, #0b73ff, #4fb8ff) !important;
+		background-image: linear-gradient(90deg, #0b73ff, #4fb8ff) !important;
+		color: #ffffff !important;
+		border: none !important;
+		box-shadow: 0 12px 30px rgba(11,115,255,0.16) !important;
+	}
+	body.global-dark .dashboard .recent-table td .btn-view:hover,
+	body.global-dark .recent-table td .btn-view:hover {
+		transform: translateY(-2px) !important;
+		filter: brightness(0.98) !important;
+	}
+
+}

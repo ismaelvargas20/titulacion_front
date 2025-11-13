@@ -13,20 +13,17 @@ import {
     FaMoon,
     FaBars,
     FaTimes,
+    FaThLarge,
+    FaFileAlt,
 } from 'react-icons/fa';
 import '../../assets/scss/header.scss';
 import cascoImg from '../../assets/img/casco.png';
 
-const Header = () => {
-    // ... (toda la lógica de useState, useEffect, useRef se queda igual) ...
+const Header = ({ adminMode = false }) => {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const dropdownRef = useRef(null);
     const navigate = useNavigate();
 
-    // Tema aplicado a la zona de contenido (.app-main)
-    // El tema por defecto será siempre 'light' a menos que el usuario haya guardado
-    // explícitamente una preferencia en localStorage. Esto evita que la app abra
-    // en modo oscuro por preferencia del sistema al cerrar sesión.
     const [theme, setTheme] = useState(() => {
         try {
             const t = localStorage.getItem('theme');
@@ -34,11 +31,9 @@ const Header = () => {
         } catch (e) {
             // ignore
         }
-        // Forzamos 'light' como valor por defecto
         return 'light';
     });
 
-    // Menú móvil
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
     useEffect(() => {
@@ -54,25 +49,19 @@ const Header = () => {
     }, [dropdownRef]);
 
     const handleLogout = (e) => {
-        // Al cerrar sesión no queremos que quede guardado el tema oscuro.
-        // Eliminamos únicamente la key 'theme' y forzamos tema claro.
         try {
             localStorage.removeItem('theme');
-            // NO limpiamos todo el localStorage para no borrar otras prefs del usuario
         } catch (err) {}
-        // Forzamos tema claro en la UI
         setTheme('light');
         setIsDropdownOpen(false);
     };
 
-    // Toggle theme: apply class to the .app-main element so header remains unchanged.
     const applyThemeToContent = (t) => {
         try {
             const main = document.querySelector('.app-main');
             if (!main) return;
             if (t === 'dark') main.classList.add('dark-theme');
             else main.classList.remove('dark-theme');
-            // also set a global body class to avoid white gaps when main does not cover full page
             try {
                 if (t === 'dark') document.body.classList.add('global-dark');
                 else document.body.classList.remove('global-dark');
@@ -90,6 +79,20 @@ const Header = () => {
 
     const toggleTheme = () => setTheme((s) => (s === 'dark' ? 'light' : 'dark'));
 
+    const menuItems = adminMode
+        ? [
+                        { to: '/dashboard', label: 'Dashboard', icon: FaThLarge },
+                        { to: '/usuarios', label: 'Usuarios', icon: FaUser },
+                        { to: '/posteadas', label: 'Publicaciones', icon: FaFileAlt },
+                        { to: '/comunidad', label: 'Comunidad', icon: FaComments },
+          ]
+        : [
+            { to: '/motos', label: 'Motos', icon: FaMotorcycle },
+            { to: '/repuestos', label: 'Repuestos', icon: FaTools },
+            { to: '/comunidad', label: 'Comunidad', icon: FaUsers },
+            { to: '/vender', label: 'Vender', icon: FaTag },
+            { to: '/chat', label: 'Chat', icon: FaComments },
+          ];
 
     return (
         <header className="app-header">
@@ -116,56 +119,22 @@ const Header = () => {
                 {/* --- NAV PRINCIPAL (Igual que antes) --- */}
                 <nav className="main-nav">
                     <ul className={`nav-list ${mobileMenuOpen ? 'open' : ''}`}>
-                        <li>
-                            <NavLink 
-                                to="/motos" 
-                                className={({ isActive }) => (isActive ? 'nav-link cta-link secondary active' : 'nav-link cta-link secondary')}
-                                onClick={() => setMobileMenuOpen(false)}
-                            >
-                                <FaMotorcycle className="nav-icon" />
-                                Motos
-                            </NavLink>
-                        </li>
-                        <li>
-                            <NavLink 
-                                to="/repuestos" 
-                                className={({ isActive }) => (isActive ? 'nav-link cta-link secondary active' : 'nav-link cta-link secondary')}
-                                onClick={() => setMobileMenuOpen(false)}
-                            >
-                                <FaTools className="nav-icon" />
-                                Repuestos
-                            </NavLink>
-                        </li>
-                        <li>
-                            <NavLink 
-                                to="/comunidad" 
-                                className={({ isActive }) => (isActive ? 'nav-link cta-link secondary active' : 'nav-link cta-link secondary')}
-                                onClick={() => setMobileMenuOpen(false)}
-                            >
-                                <FaUsers className="nav-icon" />
-                                Comunidad
-                            </NavLink>
-                        </li>
-                        <li>
-                            <NavLink 
-                                to="/vender" 
-                                className={({ isActive }) => (isActive ? 'nav-link cta-link secondary active' : 'nav-link cta-link secondary')}
-                                onClick={() => setMobileMenuOpen(false)}
-                            >
-                                <FaTag className="nav-icon" />
-                                Vender
-                            </NavLink>
-                        </li>
-                        <li>
-                            <NavLink
-                                to="/chat"
-                                className={({ isActive }) => (isActive ? 'nav-link cta-link secondary active' : 'nav-link cta-link secondary')}
-                                onClick={() => setMobileMenuOpen(false)}
-                            >
-                                <FaComments className="nav-icon" />
-                                Chat
-                            </NavLink>
-                        </li>
+                        {menuItems.map(({ to, label, icon: Icon }) => (
+                            <li key={to}>
+                                <NavLink
+                                    to={to}
+                                    className={({ isActive }) =>
+                                        isActive
+                                            ? 'nav-link cta-link secondary active'
+                                            : 'nav-link cta-link secondary'
+                                    }
+                                    onClick={() => setMobileMenuOpen(false)}
+                                >
+                                    <Icon className="nav-icon" />
+                                    {label}
+                                </NavLink>
+                            </li>
+                        ))}
                     </ul>
                 </nav>
 
@@ -188,7 +157,6 @@ const Header = () => {
                     />
 
                     {isDropdownOpen && (
-                        // ... (El dropdown se queda exactamente igual) ...
                         <div className="profile-dropdown">
                             <div className="dropdown-header">
                                 <strong>¡Hola, Luna!</strong>
@@ -201,13 +169,11 @@ const Header = () => {
                                         to="/perfil"
                                         className="dropdown-item"
                                         onClick={(e) => {
-                                            // Cerramos el dropdown y navegamos al perfil en modo edición
                                             e.preventDefault();
                                             setIsDropdownOpen(false);
                                             try {
                                                 navigate('/perfil', { state: { edit: true } });
                                             } catch (err) {
-                                                // fallback: usar href
                                                 window.location.href = '/perfil';
                                             }
                                         }}
@@ -217,7 +183,11 @@ const Header = () => {
                                     </NavLink>
                                 </li>
                                 <li>
-                                    <NavLink to="/login" className="dropdown-item danger plain" onClick={handleLogout}>
+                                    <NavLink
+                                        to="/login"
+                                        className="dropdown-item danger plain"
+                                        onClick={handleLogout}
+                                    >
                                         <FaSignOutAlt className="dropdown-icon" />
                                         Cerrar Sesión
                                     </NavLink>
