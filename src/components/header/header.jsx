@@ -84,7 +84,7 @@ const Header = ({ adminMode = false }) => {
                         { to: '/dashboard', label: 'Dashboard', icon: FaThLarge },
                         { to: '/usuarios', label: 'Usuarios', icon: FaUser },
                         { to: '/posteadas', label: 'Publicaciones', icon: FaFileAlt },
-                        { to: '/comunidad', label: 'Comunidad', icon: FaComments },
+                        { to: '/comentarios', label: 'Comentarios', icon: FaComments },
           ]
         : [
             { to: '/motos', label: 'Motos', icon: FaMotorcycle },

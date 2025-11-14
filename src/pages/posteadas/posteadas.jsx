@@ -1,32 +1,37 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import '../../assets/scss/usuarios.scss';
 
 export default function Posteadas() {
 	const initialPosts = [
-		{ id: 1, title: 'Yamaha MT-09 2022', type: 'Moto', price: '$9,500', location: 'Quito', rating: 5, status: 'Pendiente', author: 'Juan Pérez' },
-		{ id: 2, title: 'Casco Integral AGV K3', type: 'Repuesto', price: '$120', location: 'Guayaquil', rating: 4, status: 'Pendiente', author: 'María García' },
-		{ id: 3, title: 'Honda CBR600RR', type: 'Moto', price: '$8,200', location: 'Cuenca', rating: 5, status: 'Aprobado', author: 'Carlos López' },
-		{ id: 4, title: 'Royal Enfield Classic 350', type: 'Moto', price: '$4,500', location: 'Quito', rating: 4, status: 'Aprobado', author: 'Pedro Ruiz' },
+		{ id: 1, title: 'Yamaha MT-09 2022', type: 'Moto', price: '$9,500', location: 'Quito', rating: 5, status: 'Activo', author: 'Juan Pérez' },
+		{ id: 2, title: 'Casco Integral AGV K3', type: 'Repuesto', price: '$120', location: 'Guayaquil', rating: 4, status: 'Suspendido', author: 'María García' },
+		{ id: 5, title: 'Casco Integral AGV K3', type: 'Repuesto', price: '$120', location: 'Guayaquil', rating: 4, status: 'Suspendido', author: 'María García' },
+		{ id: 3, title: 'Honda CBR600RR', type: 'Moto', price: '$8,200', location: 'Cuenca', rating: 5, status: 'Activo', author: 'Carlos López' },
+		{ id: 4, title: 'Royal Enfield Classic 350', type: 'Moto', price: '$4,500', location: 'Quito', rating: 4, status: 'Vendido', author: 'Pedro Ruiz' },
 	];
 
 	const [posts, setPosts] = useState(initialPosts);
 	const [q, setQ] = useState('');
+	const [typeFilter, setTypeFilter] = useState('all');
+	const [stateFilter, setStateFilter] = useState('all');
 	const [openMenuId, setOpenMenuId] = useState(null);
 
 	const filtered = useMemo(() => {
 		const term = q.trim().toLowerCase();
-		if (!term) return posts;
-		return posts.filter(p => p.title.toLowerCase().includes(term) || p.author.toLowerCase().includes(term));
-	}, [q, posts]);
+		return posts.filter(p => {
+			const matchesTerm = !term || p.title.toLowerCase().includes(term) || p.author.toLowerCase().includes(term);
+			if (!matchesTerm) return false;
+			if (typeFilter !== 'all' && p.type.toLowerCase() !== typeFilter) return false;
+			if (stateFilter !== 'all' && p.status.toLowerCase() !== stateFilter) return false;
+			return true;
+		});
+	}, [q, posts, typeFilter, stateFilter]);
+
 
 	const totalMotos = posts.filter(p => p.type === 'Moto').length;
 	const totalRepuestos = posts.filter(p => p.type === 'Repuesto').length;
-	const pendientes = posts.filter(p => p.status === 'Pendiente').length;
-
-	function approvePost(id) {
-		setPosts(prev => prev.map(p => p.id === id ? { ...p, status: 'Aprobado' } : p));
-		setOpenMenuId(null);
-	}
+	const nuevos30 = posts.filter(p => p.status === 'Activo').length; // considerados nuevos (30 días) - ahora contamos 'Activo'
+	const suspensos = posts.filter(p => p.status === 'Suspendido' || p.status === 'Rechazado').length;
 
 	function deletePost(id) {
 		if (!window.confirm('Eliminar publicación?')) return;
@@ -42,24 +47,24 @@ export default function Posteadas() {
 
 				<section className="usuarios-summary">
 					<div className="sum-card">
-						<div className="sum-icon sum-icon-total"><i className="fas fa-motorcycle" aria-hidden="true"></i></div>
+						<div className="sum-icon sum-icon-motos"><i className="fas fa-motorcycle" aria-hidden="true"></i></div>
 						<h3>Total Motos</h3>
 						<p className="sum-value">{totalMotos}</p>
 					</div>
 					<div className="sum-card">
-						<div className="sum-icon sum-icon-total"><i className="fas fa-tools" aria-hidden="true"></i></div>
+						<div className="sum-icon sum-icon-repuestos"><i className="fas fa-tools" aria-hidden="true"></i></div>
 						<h3>Total Repuestos</h3>
 						<p className="sum-value">{totalRepuestos}</p>
 					</div>
 					<div className="sum-card">
-						<div className="sum-icon sum-icon-new"><i className="fas fa-clock" aria-hidden="true"></i></div>
-						<h3>Pendientes</h3>
-						<p className="sum-value sum-orange">{pendientes}</p>
+						<div className="sum-icon sum-icon-suspended"><i className="fas fa-ban" aria-hidden="true"></i></div>
+						<h3>Suspensos</h3>
+						<p className="sum-value sum-orange">{suspensos}</p>
 					</div>
 					<div className="sum-card">
-						<div className="sum-icon sum-icon-suspended"><i className="fas fa-ban" aria-hidden="true"></i></div>
-						<h3>Rechazadas (30d)</h3>
-						<p className="sum-value sum-orange">0</p>
+						<div className="sum-icon sum-icon-new"><i className="fas fa-clock" aria-hidden="true"></i></div>
+						<h3>Nuevos (30 días)</h3>
+						<p className="sum-value sum-blue">{nuevos30}</p>
 					</div>
 				</section>
 
@@ -68,6 +73,20 @@ export default function Posteadas() {
 						<div className="search-input" role="search">
 							<i className="fas fa-search" aria-hidden="true"></i>
 							<input type="text" placeholder="Buscar publicaciones..." value={q} onChange={e => setQ(e.target.value)} aria-label="Buscar publicaciones" />
+						</div>
+						<div className="search-filters">
+							<select className="filter-select" value={typeFilter} onChange={e => setTypeFilter(e.target.value)} aria-label="Filtrar por tipo">
+								<option value="all">Todos los tipos</option>
+								<option value="moto">Moto</option>
+								<option value="repuesto">Repuesto</option>
+							</select>
+							<select className="filter-select" value={stateFilter} onChange={e => setStateFilter(e.target.value)} aria-label="Filtrar por estado">
+								<option value="all">Todos los estados</option>
+								<option value="activo">Activo</option>
+								<option value="suspendido">Suspendido</option>
+								<option value="vendido">Vendido</option>
+							</select>
+							<button className="filter-btn" onClick={() => { setQ(''); setTypeFilter('all'); setStateFilter('all'); }}>Limpiar</button>
 						</div>
 					</div>
 				</section>
@@ -92,37 +111,50 @@ export default function Posteadas() {
 								</tr>
 							</thead>
 							<tbody>
-								{filtered.map(p => (
-									<tr key={p.id} className="usuario-row">
-										<td className="td-user">
-											<div className="td-user-inner">
-												<div className="user-avatar small">{p.title.charAt(0)}</div>
-												<div className="user-meta">
-													<div className="user-name">{p.title}</div>
-													<div className="user-email">{p.author}</div>
+													{filtered.map(p => {
+									const isSold = p.status === 'Aprobado' || p.status === 'Vendido';
+									let badgeClass;
+									if (isSold) badgeClass = 'state-sold';
+									else if (p.status === 'Activo') badgeClass = 'state-active';
+									else badgeClass = 'state-suspended';
+									const label = isSold ? 'Vendido' : (p.status === 'Activo' ? 'Activo' : 'Suspendido');
+
+									return (
+										<tr key={p.id} className="usuario-row">
+											<td className="td-user">
+												<div className="td-user-inner">
+													<div className="user-avatar small">{p.title.charAt(0)}</div>
+													<div className="user-meta">
+														<div className="user-name">{p.title}</div>
+														<div className="user-email">{p.author}</div>
+													</div>
 												</div>
-											</div>
-										</td>
-										<td className="td-price">{p.price}</td>
-										<td className="td-location">{p.location}</td>
-										<td className="td-rating">⭐ {p.rating}</td>
-										<td className="td-state"><span className={`state-badge ${p.status === 'Aprobado' ? 'state-active' : 'state-suspended'}`}>{p.status}</span></td>
-										<td className="td-actions">
-											<div className="actions-wrap">
-												<button className="action-btn" aria-haspopup="true" aria-expanded={openMenuId === p.id} onClick={() => setOpenMenuId(openMenuId === p.id ? null : p.id)}>⋮</button>
-												{openMenuId === p.id && (
-													<ul className="action-list" role="menu">
-														<li className="action-item" role="menuitem"><button onClick={() => { setOpenMenuId(null); alert('Ver publicación: ' + p.title); }}>Ver</button></li>
-														<li className="action-item" role="menuitem"><button onClick={() => approvePost(p.id)}>Aprobar</button></li>
-														<li className="action-item" role="menuitem"><button onClick={() => deletePost(p.id)}>Eliminar</button></li>
-													</ul>
-												)}
-											</div>
-										</td>
-									</tr>
-								))}
+											</td>
+											<td className="td-price">{p.price}</td>
+											<td className="td-location">{p.location}</td>
+											<td className="td-rating">⭐ {p.rating}</td>
+											<td className="td-state">
+												<span className={`state-badge ${badgeClass}`}>
+													{label}
+												</span>
+											</td>
+											<td className="td-actions">
+												<div className="actions-wrap">
+													<button className="action-btn" aria-haspopup="true" aria-expanded={openMenuId === p.id} onClick={() => setOpenMenuId(openMenuId === p.id ? null : p.id)}>⋮</button>
+													{openMenuId === p.id && (
+														<ul className="action-list" role="menu">
+															<li className="action-item" role="menuitem"><button onClick={() => { setOpenMenuId(null); alert('Ver publicación: ' + p.title); }}>Ver</button></li>
+															<li className="action-item" role="menuitem"><button onClick={() => deletePost(p.id)}>Eliminar</button></li>
+														</ul>
+													)}
+												</div>
+											</td>
+										</tr>
+									);
+								})}
 							</tbody>
 						</table>
+
 					</div>
 				</section>
 			</main>

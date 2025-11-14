@@ -185,8 +185,103 @@ body.global-dark .dashboard .recent-table td.status-active .cell-content {
 	transition: box-shadow 0.25s cubic-bezier(.2,.8,.2,1), transform 0.18s;
 }
 .summary-card:hover {
-	box-shadow: 0 18px 50px -12px rgba(37,99,235,0.15), 0 10px 30px rgba(11,115,255,0.08);
-	transform: translateY(-4px) scale(1.03);
+	/* Efecto de borde azul similar a Usuarios: no overlay interno, solo borde/sombra */
+	background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+	border: 1px solid rgba(11,115,255,0.14);
+	box-shadow: 0 28px 80px -28px rgba(11,115,255,0.14), 0 16px 46px rgba(11,115,255,0.06);
+	transform: translateY(-10px) scale(1.01);
+}
+
+/* Acento adicional en el borde exterior para que destaque sin pintar el interior */
+.summary-card:hover {
+	outline: 3px solid rgba(11,115,255,0.03);
+	outline-offset: 6px;
+}
+
+/* Asegurar que el icono y el contenido sigan por encima */
+.summary-card h2,
+.summary-card p { position: relative; z-index: 3; }
+.summary-card .summary-icon { z-index: 5; }
+
+/* Hacer que las tarjetas del Dashboard coincidan visualmente con las de Usuarios */
+/* Hacer que las tarjetas del Dashboard coincidan exactamente con las de Usuarios */
+.dashboard .summary-card {
+	background: linear-gradient(180deg,#ffffff 0%, #fbfdff 100%);
+	border: 1px solid rgba(11,115,255,0.06);
+	border-radius: 14px;
+	padding: 22px 24px;
+	box-shadow: 0 10px 36px -14px rgba(37,99,235,0.06), 0 8px 22px rgba(11,115,255,0.04);
+	min-height: 96px;
+	position: relative;
+	overflow: visible;
+}
+.dashboard .summary-card h2 {
+	margin: 0 0 8px 0;
+	font-size: 0.98rem;
+	color: #6b7280;
+	font-weight: 800;
+}
+.dashboard .summary-card p {
+	font-size: 2.1rem;
+	font-weight: 900;
+	margin: 0;
+	color: #111827;
+}
+
+/* Burbuja de icono idéntica a la de Usuarios (círculo con gradiente) */
+.dashboard .summary-card .summary-icon {
+	position: absolute;
+	right: 16px;
+	top: 12px;
+	width: 56px !important;
+	height: 56px !important;
+	border-radius: 50% !important;
+	display: flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	color: #ffffff !important;
+	font-size: 20px;
+	background: linear-gradient(135deg,#0b73ff 0%, #4fb8ff 100%) !important;
+	box-shadow: 0 8px 22px rgba(11,115,255,0.12) !important;
+	z-index: 3;
+	transition: transform 260ms ease, box-shadow 260ms ease;
+}
+
+/* Dark mode: use the same dark card surface as Usuarios */
+body.global-dark .dashboard .summary-card {
+	background: linear-gradient(180deg,#2f3740 0%, #1b2226 100%);
+	border: 1px solid rgba(255,255,255,0.04);
+	box-shadow: 0 12px 36px -18px rgba(2,6,23,0.5);
+}
+body.global-dark .dashboard .summary-card h2,
+body.global-dark .dashboard .summary-card p { color: var(--u-text, #e6eef8); }
+
+/* Ajuste para icono interior en modo oscuro (más neutro) */
+body.global-dark .dashboard .summary-card .summary-icon { background: transparent; color: #dfeefe; }
+
+/* Forzar que los iconos / burbujas mantengan colores del tema claro */
+body.global-dark .dashboard .summary-card .summary-icon,
+body.global-dark .dashboard .summary-card::before {
+	background: linear-gradient(135deg,#0b73ff 0%, #4fb8ff 100%) !important;
+	color: #ffffff !important;
+	box-shadow: 0 8px 22px rgba(11,115,255,0.12) !important;
+}
+
+/* Forzar icono de las filas recientes */
+body.global-dark .dashboard-recent .recent-table .cell-icon {
+	background: linear-gradient(180deg,#eef8ff,#f5fbff) !important;
+	color: #0b73ff !important;
+	box-shadow: 0 6px 18px rgba(11,115,255,0.06) !important;
+}
+
+/* Forzar avatars / pequeños iconos dentro del dashboard a mantener colores claros */
+body.global-dark .user-avatar,
+body.global-dark .user-avatar.small,
+body.global-dark .um-icon-inner,
+body.global-dark .usuarios-modal-avatar {
+	background: linear-gradient(180deg,#eef8ff,#f5fbff) !important;
+	color: #0b73ff !important;
+	box-shadow: 0 12px 34px rgba(11,115,255,0.06) !important;
 }
 
 /* Animación de entrada y microinteracciones similares a las de Usuarios */
@@ -258,6 +353,23 @@ body.global-dark .dashboard .recent-table td.status-active .cell-content {
 	font-size: 24px; /* aumentar tamaño para mejor visibilidad */
 	line-height: 1;
 }
+
+/* Refuerzo: asegurar que la burbuja del icono sea estrictamente circular y del tamaño correcto
+	 (usa !important para ganar a reglas menos específicas que estaban aplicando tamaño cuadrado) */
+.dashboard .summary-card .summary-icon,
+.summary-card .summary-icon {
+	width: 56px !important;
+	height: 56px !important;
+	border-radius: 50% !important;
+	display: flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	background: linear-gradient(135deg,#0b73ff 0%, #4fb8ff 100%) !important;
+	box-shadow: 0 8px 22px rgba(11,115,255,0.12) !important;
+	color: #ffffff !important;
+}
+.dashboard .summary-card .summary-icon i,
+.summary-card .summary-icon i { color: #ffffff !important; }
 
 // Acciones
 .dashboard-actions {
@@ -914,6 +1026,11 @@ body.global-dark {
 		color: #ffffff !important;
 		box-shadow: none !important; /* menos prominencia en oscuro */
 	}
+
+/* Nota: restaurado comportamiento original del pseudo-elemento ::before
+   (círculo degradado detrás de la burbuja). Si se quiere eliminar este
+   efecto en el futuro, hacerlo con una regla específica y probada. */
+
 
 	/* Forzar que .btn-view mantenga el gradiente azul incluso en modo oscuro */
 	body.global-dark .dashboard .recent-table td .btn-view,

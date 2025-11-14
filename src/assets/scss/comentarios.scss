@@ -1,0 +1,466 @@
+/* Estilos específicos para la página de comentarios
+   Objetivo: ampliar las tarjetas resumen (sum-card) solo en esta página.
+*/
+
+.comentarios-admin-page .usuarios-summary {
+  display: flex;
+  gap: 18px;
+  align-items: stretch;
+}
+
+.comentarios-admin-page .usuarios-summary .sum-card {
+  flex: 1 1 260px; /* base más ancho */
+  min-width: 220px;
+  padding: 20px 20px;
+  border-radius: 10px;
+}
+
+/* Ajustes menores responsive */
+@media (max-width: 900px) {
+  .comentarios-admin-page .usuarios-summary {
+    flex-direction: column;
+  }
+  .comentarios-admin-page .usuarios-summary .sum-card {
+    width: 100%;
+    flex: none;
+  }
+}
+
+/* Título de sección con línea gris */
+.comentarios-admin-page .section-title {
+  margin: 0 0 12px;
+  font-size: 20px;
+  font-weight: 600;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #e5e7eb; /* línea gris clara */
+  color: #111827;
+}
+
+/* Mejora de la apariencia de las tarjetas de preguntas */
+.comentarios-admin-page .usuarios-table-wrap {
+  display: block;
+}
+
+.comentarios-admin-page .usuarios-table-wrap .user-card {
+  background: #ffffff;
+  border: 1px solid #e6eef6; /* borde muy claro azulado */
+  border-radius: 10px;
+  padding: 14px 16px;
+  box-shadow: 0 1px 0 rgba(15,23,42,0.02);
+  transition: box-shadow .15s ease, transform .08s ease;
+}
+
+.comentarios-admin-page .usuarios-table-wrap .user-card:hover {
+  box-shadow: 0 6px 18px rgba(14,30,37,0.06);
+  transform: translateY(-2px);
+}
+
+.comentarios-admin-page .usuarios-table-wrap .user-card h4 {
+  margin: 0 0 6px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.2;
+}
+
+.comentarios-admin-page .usuarios-table-wrap .user-card h4 + div {
+  color: #6b7280;
+  font-size: 13px;
+  margin-top: 6px;
+}
+
+.comentarios-admin-page .usuarios-table-wrap .user-card .card-body {
+  margin-top: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 12px;
+  border-top: 1px solid #f1f5f9; /* separación ligera */
+}
+
+.comentarios-admin-page .usuarios-table-wrap .user-card .comment-count {
+  font-weight: 700;
+  color: #374151;
+  display: inline-block;
+}
+
+.comentarios-admin-page .usuarios-table-wrap .user-card .state-badge {
+  background: #ef4444;
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.comentarios-admin-page .usuarios-table-wrap .user-card .btn {
+  background: #fff;
+  border: 1px solid #e6eef6;
+  color: #111827;
+  padding: 8px 10px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: none;
+}
+
+.comentarios-admin-page .usuarios-table-wrap .user-card .btn i {
+  margin: 0;
+}
+
+.comentarios-admin-page .usuarios-table-wrap .user-card .btn.danger {
+  border-color: rgba(239,68,68,0.15);
+  color: #ef4444;
+}
+
+.comentarios-admin-page .usuarios-table-wrap .user-card .btn.danger:hover {
+  background: #ef4444;
+  color: #fff;
+}
+
+/* Ajustes responsive para tarjetas */
+@media (max-width: 600px) {
+  .comentarios-admin-page .usuarios-table-wrap .user-card {
+    padding: 12px;
+
+/* Grid de página para controlar responsive layout */
+.comentarios-admin-page .page-grid {
+  display: grid;
+  grid-template-columns: 55% 45%;
+  gap: 20px;
+  margin-top: 18px;
+  align-items: start; /* asegurar que aside quede alineado al inicio de la sección */
+}
+
+/* Breakpoint: tablets / medium screens */
+@media (max-width: 1024px) {
+  .comentarios-admin-page .page-grid {
+    grid-template-columns: 1fr 340px; /* aside más estrecho */
+  }
+  .comentarios-admin-page .usuarios-summary .sum-card {
+    min-width: 180px;
+  }
+}
+
+/* Breakpoint: móviles (stack) */
+@media (max-width: 768px) {
+  .comentarios-admin-page .page-grid {
+    grid-template-columns: 1fr; /* apilar contenido */
+  }
+
+  .comentarios-admin-page aside {
+    order: 2;
+  }
+  .comentarios-admin-page section {
+    order: 1;
+  }
+
+  /* Hacer que filtros se adapten y los botones ocupen menos espacio */
+  .comentarios-admin-page .filters-top .filters-row {
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 8px;
+  }
+  .comentarios-admin-page .filters-top .filter-btn {
+    padding: 6px 8px;
+    font-size: 13px;
+  }
+  .comentarios-admin-page .filters-top .filter-btn.clear {
+    width: auto;
+    margin-left: 0;
+  }
+
+  /* Tarjetas de la lista ocupan todo el ancho */
+  .comentarios-admin-page .usuarios-table-wrap .user-card {
+    padding: 12px;
+  }
+
+  .comentarios-admin-page .usuarios-summary {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  /* Ajustes para las tarjetas laterales */
+  .comentarios-admin-page .um-card {
+    width: 100%;
+  }
+}
+
+/* Breakpoint: pantallas muy pequeñas - compactar tipografías y botones */
+@media (max-width: 480px) {
+  .comentarios-admin-page .usuarios-title { font-size: 20px; }
+  .comentarios-admin-page .section-title { font-size: 18px; }
+
+  .comentarios-admin-page .usuarios-summary .sum-card {
+    padding: 14px;
+  }
+
+  .comentarios-admin-page .usuarios-table-wrap .user-card h4 {
+    font-size: 14px;
+  }
+  .comentarios-admin-page .usuarios-table-wrap .user-card h4 + div {
+    font-size: 12px;
+  }
+
+  .comentarios-admin-page .usuarios-table-wrap .user-card .card-body {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .comentarios-admin-page .usuarios-table-wrap .user-card .card-body div {
+    font-size: 13px;
+  }
+
+  .comentarios-admin-page .pagination .page-btn { padding: 6px 8px; font-size: 12px; }
+}
+
+/* Responsive específico para la barra de búsqueda cuando existe en esta página
+   (no altera otras páginas; sólo afecta elementos bajo `.comentarios-admin-page`) */
+@media (max-width: 760px) {
+  .comentarios-admin-page .usuarios-search-card {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    padding: 12px;
+  }
+  .comentarios-admin-page .search-form {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  .comentarios-admin-page .search-input {
+    min-width: 0;
+    width: 100%;
+    padding: 8px 12px;
+  }
+  .comentarios-admin-page .search-filters {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+  .comentarios-admin-page .search-filters .filter-btn,
+  .comentarios-admin-page .filters-top .filter-btn.clear {
+    width: 100%;
+    padding: 8px 10px;
+  }
+}
+  }
+  .comentarios-admin-page .usuarios-table-wrap .user-card h4 {
+    font-size: 14px;
+  }
+}
+
+/* Sticky footer de filtros dentro de la columna izquierda */
+.comentarios-admin-page .filters-top {
+  position: sticky;
+  top: 12px;
+  margin-bottom: 12px;
+  z-index: 6;
+}
+
+.comentarios-admin-page .filters-top .filters-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  background: #ffffff;
+  padding: 10px;
+  border: 1px solid #e6eef6;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(14,30,37,0.04);
+}
+
+.comentarios-admin-page .filters-top .filter-btn {
+  background: transparent;
+  border: 1px solid transparent;
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-weight: 600;
+  color: #374151;
+  cursor: pointer;
+}
+.comentarios-admin-page .filters-top .filter-btn.active {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+  color: #1e40af;
+}
+.comentarios-admin-page .filters-top .filter-btn.clear {
+  margin-left: auto;
+  background: linear-gradient(90deg,#0b73ff,#4fb8ff);
+  color: #fff;
+  border: none;
+  box-shadow: 0 12px 30px rgba(11,115,255,0.12);
+}
+
+@media (max-width: 900px) {
+  .comentarios-admin-page .filters-top {
+    position: static;
+  }
+}
+
+/* Paginación */
+.comentarios-admin-page .pagination-wrap {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 24px; /* separar paginación del borde inferior (no demasiado) */
+}
+.comentarios-admin-page .pagination {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  padding: 6px;
+  border-radius: 10px;
+}
+.comentarios-admin-page .pagination .page-btn {
+  background: #fff;
+  border: 1px solid #e6eef6;
+  padding: 6px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  color: #334155;
+  font-weight: 600;
+}
+.comentarios-admin-page .pagination .page-btn[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.comentarios-admin-page .pagination .page-btn.active {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+  color: #1e40af;
+}
+
+@media (max-width: 480px) {
+  .comentarios-admin-page .pagination .page-btn {
+    padding: 6px 8px;
+    font-size: 13px;
+  }
+}
+
+/* Dark mode overrides for comentarios page (match usuarios dark style) */
+body.global-dark .comentarios-admin-page {
+  color: var(--u-text, #e6eef8);
+}
+
+/* Añadir un poco de espacio final dentro del layout para evitar que
+   la paginación o contenido se pegue al borde inferior de la ventana */
+.comentarios-admin-page .usuarios-main {
+  padding-bottom: 28px;
+}
+
+body.global-dark .comentarios-admin-page .usuarios-summary .sum-card {
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  border: 1px solid rgba(255,255,255,0.04);
+}
+
+body.global-dark .comentarios-admin-page .section-title {
+  border-bottom-color: rgba(255,255,255,0.04);
+  color: var(--u-text, #e6eef8);
+}
+
+body.global-dark .comentarios-admin-page .usuarios-table-wrap .user-card {
+  /* Usar el mismo tono gris translúcido que las otras tarjetas (um-card)
+     para que todas las cartas tengan fondo/borde consistentes en modo oscuro */
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.04);
+  box-shadow: none;
+}
+
+body.global-dark .comentarios-admin-page .usuarios-table-wrap .user-card h4 {
+  color: var(--u-text, #e6eef8);
+}
+
+body.global-dark .comentarios-admin-page .usuarios-table-wrap .user-card h4 + div,
+body.global-dark .comentarios-admin-page .usuarios-table-wrap .user-card .card-body div {
+  color: #9aa3ab;
+}
+
+body.global-dark .comentarios-admin-page .usuarios-table-wrap .user-card .card-body {
+  border-top-color: rgba(255,255,255,0.03);
+}
+
+body.global-dark .comentarios-admin-page .usuarios-table-wrap .user-card .state-badge {
+  background: linear-gradient(90deg,#ef4444,#c2413b);
+  color: #fff;
+}
+
+body.global-dark .comentarios-admin-page .usuarios-table-wrap .user-card .btn{
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.04);
+  color: var(--u-text, #e6eef8);
+}
+
+body.global-dark .comentarios-admin-page .filters-top .filters-row {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.04);
+}
+
+body.global-dark .comentarios-admin-page .filters-top .filter-btn {
+  color: #cbd5e1;
+  border-color: transparent;
+}
+
+body.global-dark .comentarios-admin-page .filters-top .filter-btn.active {
+  /* usar gris suave en lugar de azul brillante */
+  background: rgba(255,255,255,0.03);
+  border-color: rgba(255,255,255,0.06);
+  color: #cbd5e1;
+}
+
+body.global-dark .comentarios-admin-page .pagination .page-btn {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.04);
+  color: #cbd5e1;
+}
+
+body.global-dark .comentarios-admin-page .pagination .page-btn.active {
+  background: rgba(11,115,255,0.08);
+  color: #cfe0ff;
+  border-color: rgba(11,115,255,0.12);
+}
+
+body.global-dark .comentarios-admin-page .um-card {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.04);
+}
+
+body.global-dark .comentarios-admin-page .um-card .um-icon-inner i,
+body.global-dark .comentarios-admin-page .um-card .um-icon-inner {
+  /* iconos en columna derecha: tono gris claro, no blanco/azul */
+  color: #93a3b3;
+}
+
+/* mantener títulos y labels en tono gris, no blancos puros */
+body.global-dark .comentarios-admin-page .um-card .trend-title,
+body.global-dark .comentarios-admin-page .um-card .um-label {
+  color: #cbd5e1;
+}
+
+/* Convertir tonos azules a grises en resumen superior y contadores */
+body.global-dark .comentarios-admin-page .usuarios-summary .sum-icon {
+  background: linear-gradient(135deg,#374151 0%, #1f2937 100%);
+  box-shadow: 0 8px 26px rgba(2,6,23,0.25);
+}
+
+body.global-dark .comentarios-admin-page .usuarios-summary .sum-icon i,
+body.global-dark .comentarios-admin-page .usuarios-summary .sum-icon .fa {
+  color: #cbd5e1; /* icono menos brillante */
+}
+
+/* Pastillas de conteo en Tendencias: gris neutro */
+body.global-dark .comentarios-admin-page .um-card .trend-list .count {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.04);
+  color: #cbd5e1;
+}
+
+/* Asegurar que botones pequeños (comentarios count) no sean azul brillante */
+body.global-dark .comentarios-admin-page .usuarios-table-wrap .user-card .comment-count,
+body.global-dark .comentarios-admin-page .usuarios-table-wrap .user-card .comment-count i {
+  color: #cbd5e1;
+}
+
+@media (max-width: 900px) {
+  body.global-dark .comentarios-admin-page .filters-top { position: static; }
+}

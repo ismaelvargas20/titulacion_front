@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { FaMotorcycle, FaTools, FaUsers, FaTag } from 'react-icons/fa';
+import { FaMotorcycle, FaTools, FaUsers, FaTag, FaComments } from 'react-icons/fa';
 import '../../assets/scss/header.scss';
 
 const AdminNavButtons = () => {
@@ -18,9 +18,9 @@ const AdminNavButtons = () => {
         <span className="nav-icon">📄</span>
         Publicaciones
       </NavLink>
-      <NavLink to="/comunidad" className="nav-link cta-link secondary">
-        <FaUsers className="nav-icon" />
-        Comunidad
+      <NavLink to="/comentarios" className="nav-link cta-link secondary">
+        <FaComments className="nav-icon" />
+        Comentarios
       </NavLink>
     </div>
   );
