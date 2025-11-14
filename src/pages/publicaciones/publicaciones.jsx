@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../../assets/scss/publicaciones.scss';
 import { FaEdit, FaTimes } from 'react-icons/fa';
@@ -13,6 +13,19 @@ export default function Publicaciones() {
   const removePost = (id) => {
     if (window.confirm('Eliminar esta publicación?')) setPosts((p) => p.filter(x => x.id !== id));
   };
+
+  const [page, setPage] = useState(1);
+  const pageSize = 4; // coincidir con comentarios
+
+  const totalPages = Math.max(1, Math.ceil(posts.length / pageSize));
+  const paginated = useMemo(() => {
+    const start = (page - 1) * pageSize;
+    return posts.slice(start, start + pageSize);
+  }, [posts, page]);
+
+  useEffect(() => {
+    setPage(p => Math.min(p, totalPages));
+  }, [totalPages]);
 
   return (
     <div className="publicaciones-page">
@@ -35,7 +48,7 @@ export default function Publicaciones() {
 
         <div className="posts-grid">
           {posts.length === 0 && <p className="muted">No tienes publicaciones todavía.</p>}
-          {posts.map((p) => (
+          {paginated.map((p) => (
             <div key={p.id} className="post-card">
               <img src={p.img} alt={p.title} className="post-image" />
               <div className="post-body">
@@ -59,6 +72,19 @@ export default function Publicaciones() {
             </div>
           ))}
         </div>
+
+        {/* Paginación (igual diseño que en comentarios) */}
+        {totalPages > 1 && (
+          <div className="pagination-wrap" style={{ marginTop: 14 }}>
+            <div className="pagination">
+              <button className="page-btn" onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}>Anterior</button>
+              {Array.from({ length: totalPages }).map((_, i) => (
+                <button key={i} className={`page-btn ${page === i + 1 ? 'active' : ''}`} onClick={() => setPage(i + 1)}>{i + 1}</button>
+              ))}
+              <button className="page-btn" onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages}>Siguiente</button>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );

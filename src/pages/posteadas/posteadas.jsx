@@ -27,6 +27,19 @@ export default function Posteadas() {
 		});
 	}, [q, posts, typeFilter, stateFilter]);
 
+	// Paginación local (igual que en comentarios/publicaciones)
+	const [page, setPage] = useState(1);
+	const pageSize = 4;
+	const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+	const paginated = useMemo(() => {
+		const start = (page - 1) * pageSize;
+		return filtered.slice(start, start + pageSize);
+	}, [filtered, page]);
+
+	useEffect(() => {
+		setPage(p => Math.min(p, totalPages));
+	}, [totalPages]);
+
 
 	const totalMotos = posts.filter(p => p.type === 'Moto').length;
 	const totalRepuestos = posts.filter(p => p.type === 'Repuesto').length;
@@ -111,7 +124,7 @@ export default function Posteadas() {
 								</tr>
 							</thead>
 							<tbody>
-													{filtered.map(p => {
+													{paginated.map(p => {
 									const isSold = p.status === 'Aprobado' || p.status === 'Vendido';
 									let badgeClass;
 									if (isSold) badgeClass = 'state-sold';
@@ -157,6 +170,19 @@ export default function Posteadas() {
 
 					</div>
 				</section>
+
+					{/* Paginación */}
+					{totalPages > 1 && (
+						<div className="pagination-wrap" style={{ marginTop: 14 }}>
+							<div className="pagination">
+								<button className="page-btn" onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}>Anterior</button>
+								{Array.from({ length: totalPages }).map((_, i) => (
+									<button key={i} className={`page-btn ${page === i + 1 ? 'active' : ''}`} onClick={() => setPage(i + 1)}>{i + 1}</button>
+								))}
+								<button className="page-btn" onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages}>Siguiente</button>
+							</div>
+						</div>
+					)}
 			</main>
 		</div>
 	);

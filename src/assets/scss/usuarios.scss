@@ -24,20 +24,34 @@
   }
   .posteadas-page .pagination .page-btn {
     margin: 0 6px;
-    padding: 8px 10px;
-    border-radius: 6px;
-    background: #f3f4f6;
-    border: 1px solid #e5e7eb;
+    padding: 6px 10px;
+    border-radius: 8px;
+    background: #fff;
+    border: 1px solid #e6eef6;
     cursor: pointer;
+    color: #334155;
+    font-weight: 600;
   }
   .posteadas-page .pagination .page-btn.active {
-    background: #2563eb;
-    color: white;
-    border-color: #1e40af;
+    background: #eff6ff;
+    border-color: #bfdbfe;
+    color: #1e40af;
   }
   .posteadas-page .pagination .page-btn[disabled] {
     opacity: 0.5;
-    cursor: default;
+    cursor: not-allowed;
+  }
+  /* Dark mode overrides for posteadas pagination to match comentarios.scss */
+  body.global-dark .posteadas-page .pagination .page-btn {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.04);
+    color: #cbd5e1;
+  }
+
+  body.global-dark .posteadas-page .pagination .page-btn.active {
+    background: rgba(11,115,255,0.08);
+    color: #cfe0ff;
+    border-color: rgba(11,115,255,0.12);
   }
 
 /* Ajuste específico para la página admin de Comentarios: separar del header y dar espacio visual */
@@ -399,6 +413,54 @@ body.global-dark {
 body.global-dark .usuarios-page { color: var(--u-text); }
 body.global-dark .usuarios-main { color: var(--u-text); }
 
+/* Paginación: estilo idéntico a comentarios (claro) */
+.usuarios-page .pagination-wrap {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+.usuarios-page .pagination {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  padding: 6px;
+  border-radius: 10px;
+}
+.usuarios-page .pagination .page-btn {
+  background: #fff;
+  border: 1px solid #e6eef6;
+  padding: 6px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  color: #334155;
+  font-weight: 600;
+}
+.usuarios-page .pagination .page-btn[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.usuarios-page .pagination .page-btn.active {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+  color: #1e40af;
+}
+
+/* Dark mode: igual que comentarios */
+body.global-dark .usuarios-page .pagination .page-btn {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.04);
+  color: #cbd5e1;
+}
+body.global-dark .usuarios-page .pagination .page-btn.active {
+  background: rgba(11,115,255,0.08);
+  color: #cfe0ff;
+  border-color: rgba(11,115,255,0.12);
+}
+
+@media (max-width: 480px) {
+  .usuarios-page .pagination .page-btn { padding: 6px 8px; font-size: 13px; }
+}
+
 body.global-dark .usuarios-summary .sum-card {
   /* usar un gris suave en las tarjetas para separarlas del fondo oscuro */
   background: linear-gradient(180deg,#2f3740 0%, #1b2226 100%);
@@ -728,6 +790,47 @@ body.global-dark .usuarios-modal-avatar {
 .td-email { color:#374151; }
 .td-pubs { font-weight:800; color:#0f1724; }
 .td-actions { color:#9aa3ab; font-size:20px; text-align: right; }
+
+/* Alineación y estilo para botones de acciones dentro de la tabla de usuarios/anuncios */
+.usuarios-table tbody tr td .actions-wrap {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+/* Alinear los botones de la columna 'Acciones' de forma que comiencen
+   directamente debajo del texto del encabezado 'Acciones' */
+.usuarios-table thead th:last-child { text-align: left; padding-left: 14px; }
+.usuarios-table tbody tr td:last-child { text-align: left; padding-left: 14px; }
+.usuarios-table tbody tr td:last-child .actions-wrap { justify-content: flex-start; }
+
+.usuarios-table .btn-view,
+.usuarios-table .btn-reject {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 36px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 8px 20px rgba(2,6,23,0.06);
+  transition: transform 220ms cubic-bezier(.2,.8,.2,1), filter 160ms ease;
+}
+
+.usuarios-table .btn-view {
+  background: linear-gradient(90deg,#0b73ff,#4fb8ff);
+  color: #fff;
+}
+.usuarios-table .btn-view:hover { transform: translateY(-2px); filter: brightness(0.98); }
+
+.usuarios-table .btn-reject {
+  background: linear-gradient(90deg,#ef4444,#c2413b);
+  color: #fff;
+}
+.usuarios-table .btn-reject:hover { transform: translateY(-3px); }
 
 /* Actions menu (three-dots) */
 .actions-wrap { position: relative; display: inline-block; }

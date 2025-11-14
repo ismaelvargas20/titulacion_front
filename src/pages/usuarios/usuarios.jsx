@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import '../../assets/scss/usuarios.scss';
 import UsuariosModal from './usuarios_modal';
 
@@ -30,6 +30,18 @@ const Usuarios = () => {
       return true;
     });
   }, [q, roleFilter, stateFilter, users]);
+  // Paginación local (mismo comportamiento que en comentarios/publicaciones)
+  const [page, setPage] = useState(1);
+  const pageSize = 4;
+  const totalPages = Math.max(1, Math.ceil(filteredUsers.length / pageSize));
+  const paginatedUsers = useMemo(() => {
+    const start = (page - 1) * pageSize;
+    return filteredUsers.slice(start, start + pageSize);
+  }, [filteredUsers, page]);
+
+  useEffect(() => {
+    setPage(p => Math.min(p, totalPages));
+  }, [totalPages]);
   return (
     <div className="usuarios-page">
       <main className="usuarios-main">
@@ -108,7 +120,7 @@ const Usuarios = () => {
                 </tr>
               </thead>
               <tbody>
-                {filteredUsers.map(u => (
+                {paginatedUsers.map(u => (
                   <tr key={u.id} className="usuario-row">
                     <td className="td-user">
                       <div className="td-user-inner">
@@ -140,6 +152,18 @@ const Usuarios = () => {
             </table>
           </div>
         </section>
+        {/* Paginación */}
+        {totalPages > 1 && (
+          <div className="pagination-wrap" style={{ marginTop: 14 }}>
+            <div className="pagination">
+              <button className="page-btn" onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}>Anterior</button>
+              {Array.from({ length: totalPages }).map((_, i) => (
+                <button key={i} className={`page-btn ${page === i + 1 ? 'active' : ''}`} onClick={() => setPage(i + 1)} aria-current={page === i + 1 ? 'page' : undefined}>{i + 1}</button>
+              ))}
+              <button className="page-btn" onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages}>Siguiente</button>
+            </div>
+          </div>
+        )}
         {selectedUser && (
           <UsuariosModal user={selectedUser} onClose={() => setSelectedUser(null)} />
         )}

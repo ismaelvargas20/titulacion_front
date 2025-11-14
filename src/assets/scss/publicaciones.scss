@@ -227,4 +227,52 @@ body.global-dark .question-file-button {
 	box-shadow: none;
 }
 
+/* Paginación: copiar diseño y variantes de modo oscuro desde comentarios.scss */
+.publicaciones-page .pagination-wrap {
+	display: flex;
+	justify-content: center;
+	margin-bottom: 24px;
+}
+.publicaciones-page .pagination {
+	display: inline-flex;
+	gap: 8px;
+	align-items: center;
+	padding: 6px;
+	border-radius: 10px;
+}
+.publicaciones-page .pagination .page-btn {
+	background: #fff;
+	border: 1px solid #e6eef6;
+	padding: 6px 10px;
+	border-radius: 8px;
+	cursor: pointer;
+	color: #334155;
+	font-weight: 600;
+}
+.publicaciones-page .pagination .page-btn[disabled] {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+.publicaciones-page .pagination .page-btn.active {
+	background: #eff6ff;
+	border-color: #bfdbfe;
+	color: #1e40af;
+}
+
+/* Dark mode overrides matching comentarios.scss look */
+body.global-dark .publicaciones-page .pagination .page-btn {
+	background: rgba(255,255,255,0.02);
+	border: 1px solid rgba(255,255,255,0.04);
+	color: #cbd5e1;
+}
+body.global-dark .publicaciones-page .pagination .page-btn.active {
+	background: rgba(11,115,255,0.08);
+	color: #cfe0ff;
+	border-color: rgba(11,115,255,0.12);
+}
+
+@media (max-width: 480px) {
+	.publicaciones-page .pagination .page-btn { padding: 6px 8px; font-size: 13px; }
+}
+
 

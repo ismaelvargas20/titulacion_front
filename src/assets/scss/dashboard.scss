@@ -74,8 +74,8 @@ body .dashboard .recent-table td .btn-view:hover {
 /* Hover: mantener un tono ligeramente más oscuro para feedback */
 .dashboard .recent-table td .btn-reject:hover,
 .recent-table td .btn-reject:hover {
-  background: linear-gradient(90deg,#e04444,#b73733) !important;
-  transform: scale(1.03);
+	background: linear-gradient(90deg,#e04444,#b73733) !important;
+	transform: translateY(-3px);
 }
 
 
@@ -391,7 +391,7 @@ body.global-dark .usuarios-modal-avatar {
 		cursor: pointer;
 		box-shadow: 0 12px 30px rgba(11,115,255,0.16);
 		letter-spacing: 0.5px;
-		transition: transform 0.18s, filter 0.15s;
+		transition: transform 220ms cubic-bezier(.2,.8,.2,1), filter 160ms ease;
 		font-family: 'Roboto', sans-serif; // Igual que el header
 		min-width: 170px; /* tamaño consistente */
 		text-align: center;
@@ -482,7 +482,7 @@ body.global-dark .usuarios-modal-avatar {
 	padding: 6px 12px; /* más compacto */
 	border-radius: 8px;
 	border: none;
-	transition: transform 0.18s ease, box-shadow 0.18s ease;
+	transition: transform 220ms cubic-bezier(.2,.8,.2,1), box-shadow 220ms ease;
 	box-shadow: 0 3px 6px rgba(2,6,23,0.06);
 	height: 36px;
 	display: inline-flex;
@@ -501,7 +501,7 @@ body.global-dark .usuarios-modal-avatar {
 .recent-table td button.btn-view:hover {
 	background-color: #0a66cc;
 	border-color: #094bb2;
-	transform: scale(1.05);
+	transform: translateY(-3px);
 }
 .recent-table td button.btn-reject {
 	background-color: #ef4444; // Ajustar al rojo mostrado
@@ -511,7 +511,22 @@ body.global-dark .usuarios-modal-avatar {
 .recent-table td button.btn-reject:hover {
 	background-color: #dc2626;
 	border-color: #b91c1c;
-	transform: scale(1.05);
+	transform: translateY(-3px);
+}
+
+/* Asegurar que cuando se añade la clase state-suspended al botón de eliminación
+	 use exactamente el mismo degradado que la badge 'Suspendido' en Usuarios */
+.btn-reject.state-suspended,
+.recent-table td button.btn-reject.state-suspended {
+	background: linear-gradient(90deg,#ef4444,#c2413b) !important;
+	color: #ffffff !important;
+	border: none !important;
+	box-shadow: 0 8px 22px rgba(236,72,72,0.08) !important;
+}
+.btn-reject.state-suspended:hover,
+.recent-table td button.btn-reject.state-suspended:hover {
+	background: linear-gradient(90deg,#e04444,#b73733) !important;
+	transform: translateY(-3px) !important;
 }
 
 /* --------------------------------------------------
@@ -1048,4 +1063,53 @@ body.global-dark {
 		filter: brightness(0.98) !important;
 	}
 
+}
+
+/* Paginación del Dashboard: reutiliza el mismo estilo que .usuarios-page pero
+	 está acotado a .dashboard para evitar efectos colaterales en otras páginas */
+.dashboard .pagination-wrap {
+	display: flex;
+	justify-content: center;
+	margin-bottom: 24px;
+}
+.dashboard .pagination {
+	display: inline-flex;
+	gap: 8px;
+	align-items: center;
+	padding: 6px;
+	border-radius: 10px;
+}
+.dashboard .pagination .page-btn {
+	background: #fff;
+	border: 1px solid #e6eef6;
+	padding: 6px 10px;
+	border-radius: 8px;
+	cursor: pointer;
+	color: #334155;
+	font-weight: 600;
+}
+.dashboard .pagination .page-btn[disabled] {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+.dashboard .pagination .page-btn.active {
+	background: #eff6ff;
+	border-color: #bfdbfe;
+	color: #1e40af;
+}
+
+/* Dark mode variants */
+body.global-dark .dashboard .pagination .page-btn {
+	background: rgba(255,255,255,0.02);
+	border: 1px solid rgba(255,255,255,0.04);
+	color: #cbd5e1;
+}
+body.global-dark .dashboard .pagination .page-btn.active {
+	background: rgba(11,115,255,0.08);
+	color: #cfe0ff;
+	border-color: rgba(11,115,255,0.12);
+}
+
+@media (max-width: 480px) {
+	.dashboard .pagination .page-btn { padding: 6px 8px; font-size: 13px; }
 }
