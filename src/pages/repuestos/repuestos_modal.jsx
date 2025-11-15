@@ -2,7 +2,7 @@ import React from 'react';
 import { FaTag, FaMapMarkerAlt, FaTimes, FaEnvelope, FaStar } from 'react-icons/fa';
 import '../../assets/scss/motos_modal.scss';
 
-const RepuestosModal = ({ selectedPart, onClose, showContactForm, setShowContactForm, contactForm, handleContactChange, handleContactSubmit, contactSent }) => {
+const RepuestosModal = ({ selectedPart, onClose, showContactForm, setShowContactForm, contactForm, handleContactChange, handleContactSubmit, contactSent, hideHeaderContact = false }) => {
   if (!selectedPart) return null;
 
   return (
@@ -20,7 +20,10 @@ const RepuestosModal = ({ selectedPart, onClose, showContactForm, setShowContact
             <span className="modal-location"><FaMapMarkerAlt /> {selectedPart.location}</span>
             <span className="modal-category">{selectedPart.category || '—'}</span>
             <span className="modal-stars">{(selectedPart.stars || 0)} <FaStar className="star-icon" /></span>
-            {/* mostrar teléfono si existe, si no mostrar fallback 'consultar' dentro del bloque de chips más abajo */}
+            {/* mostrar teléfono en el header solo si no se pide ocultarlo (Dashboard) */}
+            {!hideHeaderContact && selectedPart.contact && selectedPart.contact.phone && (
+              <span className="modal-contact-phone">☎ {selectedPart.contact.phone}</span>
+            )}
           </div>
 
           <div className="modal-desc">

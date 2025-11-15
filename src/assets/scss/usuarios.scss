@@ -1061,3 +1061,7 @@ body.global-dark .usuarios-modal-avatar {
   border: none;
   box-shadow: 0 12px 30px rgba(11,115,255,0.12);
 }
+/* Ocultar el botón "Contactar vendedor" cuando el modal se abre desde la página Posteadas */
+.posteadas-page .moto-modal .modal-actions .btn.btn-primary {
+  display: none !important;
+}

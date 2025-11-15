@@ -1,13 +1,79 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import '../../assets/scss/dashboard.scss';
 import '../../assets/scss/usuarios.scss';
+import MotosModal from '../motos/motos_modal';
+import RepuestosModal from '../repuestos/repuestos_modal';
+import cascosImg from '../../assets/img/cascos.jpg';
+import suzuImg from '../../assets/img/suzu.png';
 
 const Dashboard = () => {
   const initialAnnouncements = [
-    { id: 1, title: 'Yamaha MT-09 2022', type: 'Moto', author: 'Juan Pérez', state: 'Activo', subtitle: 'Detalles de la moto' },
-    { id: 2, title: 'Casco Integral AGV K3', type: 'Repuesto', author: 'María García', state: 'Activo', subtitle: 'Repuesto en buen estado' },
-    { id: 3, title: 'Honda CBR600RR', type: 'Moto', author: 'Carlos López', state: 'Activo', subtitle: 'Deportivo, buen estado' },
-    { id: 4, title: 'Honda CBR600RR', type: 'Moto', author: 'Carlos López', state: 'Activo', subtitle: 'Deportivo, buen estado' }
+    {
+      id: 1,
+      title: 'Yamaha MT-09 2022',
+      type: 'Moto',
+      author: 'Juan Pérez',
+      state: 'Activo',
+      subtitle: 'Detalles de la moto',
+      img: suzuImg,
+      price: 8200,
+      location: 'Quito',
+      stars: 4,
+      year: 2022,
+      kilometraje: '8,500 km',
+      transmission: 'manual',
+      contactPhone: '+593987654321',
+      revision: 'Honda MT-09 2022',
+      description: 'Excelente para trayectos urbanos y escapadas de fin de semana. Pregunta por mantenimiento y accesorios antes de comprar.'
+    },
+    {
+      id: 2,
+      title: 'Casco Integral AGV K3',
+      type: 'Repuesto',
+      author: 'María García',
+      state: 'Activo',
+      subtitle: 'Detalles de la moto',
+      img: cascosImg,
+      price: 250,
+      location: 'Guayaquil',
+      stars: 5,
+      contactPhone: '+593912345678',
+      condition: 'Nuevo',
+      description: 'Casco integral talla M, nuevo, con certificación de seguridad. Ideal para uso urbano y pista.'
+    },
+    {
+      id: 3,
+      title: 'Honda CBR600RR',
+      type: 'Moto',
+      author: 'Carlos López',
+      state: 'Activo',
+      subtitle: 'Detalles de la moto',
+      img: suzuImg,
+      price: 9200,
+      location: 'Quito',
+      stars: 4,
+      year: 2018,
+      kilometraje: '22,000 km',
+      transmission: 'manual',
+      contactPhone: '+593998877665',
+      revision: 'CBR600RR',
+      description: 'Mantenimiento al día, muy buen estado mecánico y estético. Ideal para track days.'
+    },
+    {
+      id: 4,
+      title: 'Juego de Pastillas de Freno',
+      type: 'Repuesto',
+      author: 'Taller MotoPlus',
+      state: 'Activo',
+      subtitle: 'Detalles de la moto',
+      img: cascosImg,
+      price: 45,
+      location: 'Cuenca',
+      stars: 4,
+      contactPhone: '+593999001122',
+      condition: 'Nuevo',
+      description: 'Juego de pastillas de freno semi-metal con alta durabilidad. Incluye piezas para instalación.'
+    }
   ];
 
   const [announcements, setAnnouncements] = useState(initialAnnouncements);
@@ -20,6 +86,26 @@ const Dashboard = () => {
   }, [announcements, page]);
 
   const [selected, setSelected] = useState(null);
+  // Shared contact form state used by the reusable modals
+  const [showContactForm, setShowContactForm] = useState(false);
+  const [contactForm, setContactForm] = useState({ message: '' });
+  const [contactSent, setContactSent] = useState(false);
+
+  const handleContactChange = (e) => {
+    const { name, value } = e.target;
+    setContactForm(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleContactSubmit = (e) => {
+    e.preventDefault();
+    // Simple client-side behaviour: mark sent and reset shortly after
+    setContactSent(true);
+    setTimeout(() => {
+      setShowContactForm(false);
+      setContactSent(false);
+      setContactForm({ message: '' });
+    }, 1200);
+  };
 
   useEffect(() => {
     // Forzar estilo inline en botones .btn-view para que conserven el gradiente claro
@@ -125,22 +211,58 @@ const Dashboard = () => {
             )}
 
             {selected && (
-              <div className="usuarios-modal-overlay">
-                <div className="usuarios-modal">
-                  <button className="usuarios-modal-close" onClick={() => setSelected(null)}>×</button>
-                  <div className="usuarios-modal-inner">
-                    <div className="usuarios-modal-left">
-                      <div className="usuarios-modal-avatar">{selected.title.charAt(0)}</div>
-                    </div>
-                    <div className="usuarios-modal-right">
-                      <h2 className="usuarios-modal-name">{selected.title}</h2>
-                      <div className="usuarios-modal-city">{selected.type} — {selected.author}</div>
-                      <p style={{ marginTop: 12 }}>{selected.subtitle}</p>
-                      <div style={{ marginTop: 12 }}><strong>Estado:</strong> {selected.state}</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              selected.type === 'Moto' ? (
+                <MotosModal
+                  selectedMoto={{
+                    id: selected.id,
+                    title: selected.title,
+                    price: selected.price || '—',
+                    location: selected.author || '—',
+                    stars: selected.stars || 4,
+                    img: selected.img || 'https://via.placeholder.com/800x480?text=Imagen',
+                    model: selected.title,
+                    revision: selected.revision || '—',
+                    condition: selected.state || 'Desconocido',
+                    contact: { phone: selected.contactPhone || 'consultar' },
+                    year: selected.year || '—',
+                    kilometraje: selected.kilometraje || '—',
+                    transmission: selected.transmission || null
+                    ,
+                    description: selected.description || selected.subtitle || ''
+                  }}
+                  onClose={() => setSelected(null)}
+                  showContactForm={showContactForm}
+                  setShowContactForm={setShowContactForm}
+                  contactForm={contactForm}
+                  handleContactChange={handleContactChange}
+                  handleContactSubmit={handleContactSubmit}
+                  contactSent={contactSent}
+                  hideHeaderContact={true}
+                />
+              ) : (
+                <RepuestosModal
+                  selectedPart={{
+                    id: selected.id,
+                    title: selected.title,
+                    price: selected.price || '—',
+                    location: selected.author || '—',
+                    category: selected.type || 'Repuesto',
+                    stars: selected.stars || 0,
+                    img: selected.img || 'https://via.placeholder.com/800x480?text=Imagen',
+                    condition: selected.state || 'Consultar',
+                    contact: { phone: selected.contactPhone || 'consultar' },
+                    description: selected.description || selected.subtitle || ''
+                  }}
+                  onClose={() => setSelected(null)}
+                  showContactForm={showContactForm}
+                  setShowContactForm={setShowContactForm}
+                  contactForm={contactForm}
+                  handleContactChange={handleContactChange}
+                  handleContactSubmit={handleContactSubmit}
+                  contactSent={contactSent}
+                  hideHeaderContact={true}
+                />
+              )
             )}
           </div>
         </section>

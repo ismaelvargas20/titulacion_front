@@ -1113,3 +1113,10 @@ body.global-dark .dashboard .pagination .page-btn.active {
 @media (max-width: 480px) {
 	.dashboard .pagination .page-btn { padding: 6px 8px; font-size: 13px; }
 }
+
+/* Ocultar el botón "Contactar vendedor" cuando el modal se abre desde el Dashboard
+	 Esto evita tocar los componentes de los modales y afecta únicamente al ámbito
+	 de la página `dashboard` (no impacta otros lugares donde se usan los mismos modales). */
+.dashboard .moto-modal .modal-actions .btn.btn-primary {
+	display: none !important;
+}

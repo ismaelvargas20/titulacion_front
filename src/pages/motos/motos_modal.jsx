@@ -2,7 +2,7 @@ import React from 'react';
 import { FaTag, FaMapMarkerAlt, FaStar, FaTimes, FaEnvelope } from 'react-icons/fa';
 import '../../assets/scss/motos_modal.scss';
 
-const MotosModal = ({ selectedMoto, onClose, showContactForm, setShowContactForm, contactForm, handleContactChange, handleContactSubmit, contactSent }) => {
+const MotosModal = ({ selectedMoto, onClose, showContactForm, setShowContactForm, contactForm, handleContactChange, handleContactSubmit, contactSent, hideHeaderContact = false }) => {
   if (!selectedMoto) return null;
 
   return (
@@ -18,7 +18,7 @@ const MotosModal = ({ selectedMoto, onClose, showContactForm, setShowContactForm
             <span className="modal-price"><FaTag /> ${selectedMoto.price}</span>
             <span className="modal-location"><FaMapMarkerAlt /> {selectedMoto.location}</span>
             <span className="modal-stars">{selectedMoto.stars} <FaStar className="star-icon" /></span>
-            {selectedMoto.contact && selectedMoto.contact.phone && (
+            {!hideHeaderContact && selectedMoto.contact && selectedMoto.contact.phone && (
               <span className="modal-contact-phone">☎ {selectedMoto.contact.phone}</span>
             )}
           </div>
@@ -39,7 +39,7 @@ const MotosModal = ({ selectedMoto, onClose, showContactForm, setShowContactForm
               <li><strong>Transmisión:</strong> {selectedMoto.transmission ? (selectedMoto.transmission === 'manual' ? 'Manual' : 'Automática') : 'consultar'}</li>
             </ul>
 
-            <p className="desc-note">Excelente para trayectos urbanos y escapadas de fin de semana. Pregunta por mantenimiento y accesorios antes de comprar.</p>
+            <p className="desc-note">{selectedMoto.description || 'Excelente para trayectos urbanos y escapadas de fin de semana. Pregunta por mantenimiento y accesorios antes de comprar.'}</p>
           </div>
 
           {!showContactForm && (
