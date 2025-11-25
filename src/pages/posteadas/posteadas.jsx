@@ -2,8 +2,11 @@ import React, { useState, useMemo, useEffect } from 'react';
 import '../../assets/scss/usuarios.scss';
 import MotosModal from '../motos/motos_modal';
 import RepuestosModal from '../repuestos/repuestos_modal';
+import Swal from 'sweetalert2';
 import cascosImg from '../../assets/img/cascos.jpg';
 import suzuImg from '../../assets/img/suzu.png';
+import { listarPublicaciones, eliminarPublicacion } from '../../services/motos';
+import { listarRepuestos, eliminarRepuesto } from '../../services/repuestos';
 
 export default function Posteadas() {
 	const initialPosts = [
@@ -15,6 +18,7 @@ export default function Posteadas() {
 	];
 
 	const [posts, setPosts] = useState(initialPosts);
+	const [loading, setLoading] = useState(false);
 	const [selected, setSelected] = useState(null);
 	// contact form state similar to other pages (used by the modals)
 	const [showContactForm, setShowContactForm] = useState(false);
@@ -49,16 +53,116 @@ export default function Posteadas() {
 		setPage(p => Math.min(p, totalPages));
 	}, [totalPages]);
 
+	useEffect(() => {
+		// recargar cuando cambien filtros
+		fetchPosts();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [stateFilter, typeFilter]);
+
 
 	const totalMotos = posts.filter(p => p.type === 'Moto').length;
 	const totalRepuestos = posts.filter(p => p.type === 'Repuesto').length;
-	const nuevos30 = posts.filter(p => p.status === 'Activo').length; // considerados nuevos (30 días) - ahora contamos 'Activo'
-	const suspensos = posts.filter(p => p.status === 'Suspendido' || p.status === 'Rechazado').length;
+	const nuevos30 = posts.filter(p => ((p.status || '').toLowerCase() === 'publicado')).length; // contar publicado según BD
+	const eliminados = posts.filter(p => {
+		const s = (p.status || '').toLowerCase();
+		return s === 'eliminado' || s === 'suspendido' || s.includes('elim') || s.includes('rechaz');
+	}).length;
 
-	function deletePost(id) {
-		if (!window.confirm('Eliminar publicación?')) return;
-		setPosts(prev => prev.filter(p => p.id !== id));
+	async function fetchPosts() {
+		setLoading(true);
+		try {
+			// solicitar estados no-publicados cuando el filtro sea "eliminado" o "vendido"
+			const includeDeleted = stateFilter === 'eliminado' || stateFilter === 'vendido';
+			const [motosRes, repuestosRes] = await Promise.all([
+				listarPublicaciones({ tipo: 'moto', includeDetails: 'true', limit: 200, incluirEliminados: includeDeleted ? 'true' : undefined }).catch(() => []),
+				listarRepuestos({ includeDetails: 'true', limit: 200, incluirEliminados: includeDeleted ? 'true' : undefined }).catch(() => [])
+			]);
+
+			const mappedMotos = Array.isArray(motosRes) ? motosRes.map(p => ({
+				id: p.id,
+				title: p.titulo || p.title || `Moto ${p.id}`,
+				type: 'Moto',
+				author: (p.detalle && (p.detalle.autor_nombre || p.detalle.nombre || p.detalle.clienteNombre)) || (p.cliente && (p.cliente.nombre || p.cliente.nombre_completo)) || p.autor_nombre || null,
+				clienteId: p.clienteId || p.usuarioId || (p.detalle && (p.detalle.clienteId || p.detalle.usuarioId)) || (p.cliente && (p.cliente.id || p.cliente.clienteId)) || null,
+				// conservar el estado crudo desde la BD (p.estado / p.status)
+				rawState: p.estado || p.status || (p.detalle && (p.detalle.status || p.detalle.estado)) || null,
+				status: p.estado || p.status || (p.detalle && (p.detalle.status || p.detalle.estado)) || 'Desconocido',
+				subtitle: p.descripcion || p.subtitle || '',
+				img: (p.imagenes && p.imagenes[0] && p.imagenes[0].url) ? p.imagenes[0].url : (p.detalle && p.detalle.imagenes && p.detalle.imagenes[0]) || suzuImg,
+				price: p.precio || p.price || p.valor || '—',
+				location: (p.detalle && (p.detalle.ubicacion || p.detalle.ciudad)) || (p.cliente && (p.cliente.ciudad || p.cliente.ubicacion)) || p.ubicacion || p.location || '—',
+				stars: (p.detalle && p.detalle.estrellas) || p.estrellas || p.puntuacion || 0,
+				rating: (p.detalle && p.detalle.estrellas) || p.estrellas || p.puntuacion || 0,
+				year: (p.detalle && (p.detalle.ano || p.detalle.anio || p.detalle.year || p.detalle['año'])) || p.ano || p.anio || p.year || p['año'] || null,
+				kilometraje: (p.detalle && p.detalle.kilometraje) || p.kilometraje || null,
+				transmission: (p.detalle && p.detalle.transmision) || p.transmission || null,
+				contactPhone: (p.detalle && (p.detalle.telefono_contacto || (p.detalle.contacto && p.detalle.contacto.telefono))) || p.telefono || (p.cliente && (p.cliente.telefono || p.cliente.phone)) || null,
+				revision: (p.detalle && p.detalle.revision) || p.revision || null,
+				model: (p.detalle && (p.detalle.modelo || p.detalle.model)) || p.modelo || p.model || null,
+				condition: (p.detalle && (p.detalle.condicion || (p.detalle.estado && !['publicado','activo','aprobado','vigente'].includes(String(p.detalle.estado).toLowerCase()) ? p.detalle.estado : null))) || p.condicion || ((p.estado && !['publicado','activo','aprobado','vigente'].includes(String(p.estado).toLowerCase())) ? p.estado : null) || null,
+				description: p.descripcion || ''
+			})) : [];
+
+			const mappedRepuestos = Array.isArray(repuestosRes) ? repuestosRes.map(p => ({
+				id: p.id,
+				title: p.titulo || p.title || `Repuesto ${p.id}`,
+				type: 'Repuesto',
+				author: (p.detalle && (p.detalle.autor_nombre || p.detalle.nombre || p.detalle.clienteNombre)) || (p.cliente && (p.cliente.nombre || p.cliente.nombre_completo)) || p.autor_nombre || null,
+				clienteId: p.clienteId || p.usuarioId || (p.detalle && (p.detalle.clienteId || p.detalle.usuarioId)) || (p.cliente && (p.cliente.id || p.cliente.clienteId)) || null,
+				rawState: p.estado || p.status || (p.detalle && (p.detalle.status || p.detalle.estado)) || null,
+				status: p.estado || p.status || (p.detalle && (p.detalle.status || p.detalle.estado)) || 'Desconocido',
+				subtitle: p.descripcion || p.subtitle || '',
+				img: (p.imagenes && p.imagenes[0] && p.imagenes[0].url) ? p.imagenes[0].url : (p.detalle && p.detalle.imagenes && p.detalle.imagenes[0]) || cascosImg,
+				price: p.precio || p.price || '—',
+				location: (p.detalle && (p.detalle.ubicacion || p.detalle.ciudad)) || (p.cliente && (p.cliente.ciudad || p.cliente.ubicacion)) || p.ubicacion || p.location || '—',
+				stars: (p.detalle && p.detalle.estrellas) || p.estrellas || 0,
+				rating: (p.detalle && p.detalle.estrellas) || p.estrellas || 0,
+				contactPhone: (p.detalle && (p.detalle.telefono_contacto || (p.detalle.contacto && p.detalle.contacto.telefono))) || p.telefono || (p.cliente && (p.cliente.telefono || p.cliente.phone)) || null,
+				condition: (p.detalle && (p.detalle.condicion || (p.detalle.estado && !['publicado','activo','aprobado','vigente'].includes(String(p.detalle.estado).toLowerCase()) ? p.detalle.estado : null))) || p.condicion || ((p.estado && !['publicado','activo','aprobado','vigente'].includes(String(p.estado).toLowerCase())) ? p.estado : null) || null,
+				year: (p.detalle && (p.detalle.ano || p.detalle.anio || p.detalle.year || p.detalle['año'])) || p.ano || p.anio || p.year || p['año'] || null,
+				description: p.descripcion || ''
+			})) : [];
+
+			const combined = [...mappedMotos, ...mappedRepuestos];
+			const mapByKey = new Map();
+			combined.forEach(it => { const key = `${it.type}:${it.id}`; if (!mapByKey.has(key)) mapByKey.set(key, it); });
+			const deduped = Array.from(mapByKey.values());
+
+			setPosts(deduped);
+		} catch (err) {
+			console.debug('Error cargando publicaciones', err?.message || err);
+		} finally {
+			setLoading(false);
+		}
+	}
+
+	async function deletePost(item) {
 		setOpenMenuId(null);
+		try {
+			const res = await Swal.fire({
+				title: `Eliminar publicación`,
+				text: `¿Eliminar "${item.title}"? Esta acción no se puede deshacer.`,
+				icon: 'warning',
+				showCancelButton: true,
+				confirmButtonText: 'Sí, eliminar',
+				cancelButtonText: 'Cancelar'
+			});
+			if (!res.isConfirmed) return;
+
+			setLoading(true);
+			if (item.type === 'Repuesto') {
+				await eliminarRepuesto(item.id);
+			} else {
+				await eliminarPublicacion(item.id);
+			}
+			await fetchPosts();
+			try { Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Publicación eliminada', showConfirmButton: false, timer: 1500 }); } catch (e) {}
+		} catch (err) {
+			console.error('Error eliminando publicación', err);
+			try { Swal.fire({ icon: 'error', title: 'Error', text: (err && err.response && err.response.data && err.response.data.error) || err.message || 'No se pudo eliminar' }); } catch (e) { alert('No se pudo eliminar la publicación'); }
+		} finally {
+			setLoading(false);
+		}
 	}
 
 	const handleContactChange = (e) => {
@@ -95,8 +199,8 @@ export default function Posteadas() {
 					</div>
 					<div className="sum-card">
 						<div className="sum-icon sum-icon-suspended"><i className="fas fa-ban" aria-hidden="true"></i></div>
-						<h3>Suspensos</h3>
-						<p className="sum-value sum-orange">{suspensos}</p>
+						<h3>Eliminados</h3>
+						<p className="sum-value sum-orange">{eliminados}</p>
 					</div>
 					<div className="sum-card">
 						<div className="sum-icon sum-icon-new"><i className="fas fa-clock" aria-hidden="true"></i></div>
@@ -117,12 +221,12 @@ export default function Posteadas() {
 								<option value="moto">Moto</option>
 								<option value="repuesto">Repuesto</option>
 							</select>
-							<select className="filter-select" value={stateFilter} onChange={e => setStateFilter(e.target.value)} aria-label="Filtrar por estado">
-								<option value="all">Todos los estados</option>
-								<option value="activo">Activo</option>
-								<option value="suspendido">Suspendido</option>
-								<option value="vendido">Vendido</option>
-							</select>
+								<select className="filter-select" value={stateFilter} onChange={e => setStateFilter(e.target.value)} aria-label="Filtrar por estado">
+									<option value="all">Todos los estados</option>
+									<option value="publicado">Publicado</option>
+									<option value="eliminado">Eliminado</option>
+									<option value="vendido">Vendido</option>
+								</select>
 							<button className="filter-btn" onClick={() => { setQ(''); setTypeFilter('all'); setStateFilter('all'); }}>Limpiar</button>
 						</div>
 					</div>
@@ -149,12 +253,13 @@ export default function Posteadas() {
 							</thead>
 							<tbody>
 													{paginated.map(p => {
-									const isSold = p.status === 'Aprobado' || p.status === 'Vendido';
+									// badgeClass: derivar solo la clase visual a partir del texto del estado (sin transformar el label)
+									const stnorm = (p.status || '').toLowerCase();
 									let badgeClass;
-									if (isSold) badgeClass = 'state-sold';
-									else if (p.status === 'Activo') badgeClass = 'state-active';
+									if (stnorm.includes('vend')) badgeClass = 'state-sold';
+									else if (stnorm.includes('public')) badgeClass = 'state-active';
 									else badgeClass = 'state-suspended';
-									const label = isSold ? 'Vendido' : (p.status === 'Activo' ? 'Activo' : 'Suspendido');
+									const label = p.status || '—';
 
 									return (
 										<tr key={p.id} className="usuario-row">
@@ -181,7 +286,7 @@ export default function Posteadas() {
 													{openMenuId === p.id && (
 														<ul className="action-list" role="menu">
 															<li className="action-item" role="menuitem"><button onClick={() => { setOpenMenuId(null); setSelected(p); }}>Ver</button></li>
-															<li className="action-item" role="menuitem"><button onClick={() => deletePost(p.id)}>Eliminar</button></li>
+															<li className="action-item" role="menuitem"><button onClick={() => deletePost(p)}>Eliminar</button></li>
 														</ul>
 													)}
 												</div>
@@ -202,18 +307,18 @@ export default function Posteadas() {
 								selectedMoto={{
 									id: selected.id,
 									title: selected.title,
-									price: selected.price ? selected.price.replace('$','') : '—',
+									price: selected.price || '—',
 									location: selected.location || selected.author || '—',
-									stars: selected.rating || 4,
-									img: selected.img,
-									model: selected.title,
-									revision: selected.title,
-									condition: selected.status || 'Desconocido',
+									stars: selected.stars || 4,
+									img: selected.img || 'https://via.placeholder.com/800x480?text=Imagen',
+									model: selected.model || selected.title,
+									revision: selected.revision || '—',
+									condition: selected.condition || selected.state || 'Desconocido',
 									contact: { phone: selected.contactPhone || 'consultar' },
-									year: selected.year || '—',
+									year: selected.year,
 									kilometraje: selected.kilometraje || '—',
 									transmission: selected.transmission || null,
-									description: selected.description || ''
+									description: selected.description || selected.subtitle || ''
 								}}
 								onClose={() => setSelected(null)}
 								showContactForm={showContactForm}
@@ -222,21 +327,28 @@ export default function Posteadas() {
 								handleContactChange={handleContactChange}
 								handleContactSubmit={handleContactSubmit}
 								contactSent={contactSent}
-								hideHeaderContact={true}
+								hideHeaderContact={false}
+								isOwner={(() => {
+									try {
+										const raw = sessionStorage.getItem('currentUser');
+										const cur = raw ? JSON.parse(raw) : null;
+										return cur && cur.id && selected && (Number(cur.id) === Number(selected.clienteId || selected.usuarioId));
+									} catch (e) { return false; }
+								})()}
 							/>
 						) : (
 							<RepuestosModal
 								selectedPart={{
 									id: selected.id,
 									title: selected.title,
-									price: selected.price ? selected.price.replace('$','') : '—',
+									price: selected.price || '—',
 									location: selected.location || selected.author || '—',
 									category: selected.type || 'Repuesto',
-									stars: selected.rating || 0,
-									img: selected.img,
-									condition: selected.status || 'Consultar',
+									stars: selected.stars || 0,
+									img: selected.img || 'https://via.placeholder.com/800x480?text=Imagen',
+									condition: selected.condition || selected.state || 'Consultar',
 									contact: { phone: selected.contactPhone || 'consultar' },
-									description: selected.description || ''
+									description: selected.description || selected.subtitle || ''
 								}}
 								onClose={() => setSelected(null)}
 								showContactForm={showContactForm}
@@ -245,7 +357,14 @@ export default function Posteadas() {
 								handleContactChange={handleContactChange}
 								handleContactSubmit={handleContactSubmit}
 								contactSent={contactSent}
-								hideHeaderContact={true}
+								hideHeaderContact={false}
+								isOwner={(() => {
+									try {
+										const raw = sessionStorage.getItem('currentUser');
+										const cur = raw ? JSON.parse(raw) : null;
+										return cur && cur.id && selected && (Number(cur.id) === Number(selected.clienteId || selected.usuarioId));
+									} catch (e) { return false; }
+								})()}
 							/>
 						)
 					)}

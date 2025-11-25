@@ -136,12 +136,46 @@ $accent: #00b4ff;
 .icon-send { width:18px; height:18px; }
 
 /* ensure the add-response input and button sit nicely */
-.add-response-form { display:flex; gap:8px; margin-top:12px; align-items:center; }
-.input-response { flex:1; padding:8px 10px; border-radius:8px; border:1px solid rgba(0,0,0,0.06); }
+.add-response-form { display:flex; gap:8px; margin-top:12px; align-items:center; flex-wrap:wrap; }
+.input-response { flex:1 1 auto; min-width:160px; padding:8px 10px; border-radius:8px; border:1px solid rgba(0,0,0,0.06); }
 
 .add-response-form { display:flex; gap:8px; margin-top:12px; }
 .input-response { flex:1; padding:8px 10px; border-radius:8px; border:1px solid rgba(0,0,0,0.06); }
 .icon-btn { background: $primary; color:#fff; border:none; padding:8px 10px; border-radius:8px; }
+
+/* Estilo para la línea "Respondiendo a ..." encima del input de respuesta */
+.replying-row { display:flex; align-items:center; gap:10px; margin-bottom:0; flex:0 0 auto; white-space:nowrap; }
+.replying-to { font-size:0.95rem; color: $primary; display:flex; align-items:center; gap:6px; }
+.replying-to-name { font-weight:800; color: $primary; background: rgba(11,115,255,0.06); padding:4px 8px; border-radius:8px; }
+
+/* Botón "Cancelar" más ligero y en línea con otros controles pequeños */
+.replying-row .btn {
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: transparent;
+  border: 1px solid rgba(0,0,0,0.06);
+  color: #6b7280; /* texto gris suave en tema claro */
+  font-weight: 700;
+  box-shadow: none;
+  transition: transform 160ms ease, box-shadow 160ms ease, background 120ms ease;
+  align-self:center;
+}
+.replying-row .btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgba(11,115,255,0.06);
+  background: rgba(11,115,255,0.03);
+}
+
+/* Modo oscuro: botón sutil y legible */
+.app-main.dark-theme .replying-row .btn {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.06);
+  color: #dfeaf7;
+}
+.app-main.dark-theme .replying-row .btn:hover {
+  background: rgba(255,255,255,0.02);
+  box-shadow: none;
+}
 
 .post-header { display:flex; gap:12px; align-items:center; margin-bottom:12px; }
 .icon-user {
@@ -166,6 +200,66 @@ $accent: #00b4ff;
 .icon-user svg { width: 60%; height: 60%; display: block; transform: none; }
 .icon-user:hover { transform: translateY(-3px) scale(1.03); box-shadow: 0 14px 36px rgba(11,115,255,0.12); }
 .post-question { margin:0; font-size:1.05rem; font-weight:700; }
+
+/* Styles for inline edit mode in PostCard */
+.post-header { align-items:flex-start; }
+.post-header > div[style] { flex: 1; }
+.post-header-actions { display:flex; gap:8px; align-items:center; margin-left:12px; }
+.post-header .edit-icon {
+  background: #fff;
+  border: 1px solid rgba(11,115,255,0.12);
+  color: $primary;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px; /* agrandar el icono */
+  box-shadow: 0 8px 20px rgba(11,115,255,0.06);
+  transition: transform 160ms ease, box-shadow 160ms ease, background 120ms ease;
+}
+.post-header .edit-icon:hover {
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 14px 36px rgba(11,115,255,0.12);
+  background: #f6fbff;
+}
+
+/* Alinear y hacer el botón de eliminar igual que el de editar */
+.post-header .post-header-actions { align-items: center; }
+.post-header .icon-btn {
+  /* match edit-icon dimensions */
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: #fff;
+  border: 1px solid rgba(11,115,255,0.12);
+  color: $primary;
+  font-size: 18px;
+  box-shadow: 0 8px 20px rgba(11,115,255,0.06);
+  transition: transform 160ms ease, box-shadow 160ms ease, background 120ms ease;
+}
+.post-header .icon-btn:hover { transform: translateY(-3px) scale(1.03); box-shadow: 0 14px 36px rgba(11,115,255,0.12); background: #f6fbff; }
+.post-header .icon-btn.danger { color: #c94b4b; border-color: rgba(201,75,75,0.12); background: #fff; }
+.post-header .icon-btn svg, .post-header .icon-btn > svg, .post-header .icon-btn > i { width: 58%; height: 58%; }
+
+.input-edit-title { width:100%; padding:8px 10px; border-radius:10px; border:1px solid rgba(0,0,0,0.08); font-weight:700; }
+.edit-box { display:flex; flex-direction:column; gap:8px; }
+.edit-actions { display:flex; gap:8px; justify-content:flex-end; }
+.btn-save { background: linear-gradient(90deg, #1670d6, #29a6e6); color:#fff; padding:8px 12px; border-radius:8px; display:inline-flex; align-items:center; gap:6px; }
+.btn-cancel { background: transparent; border: 1px solid rgba(0,0,0,0.08); color: #6b7280; padding:8px 12px; border-radius:8px; }
+
+/* Small refinement: make edit icon smaller on compact widths */
+@media (max-width: 640px) {
+  .post-header-actions { margin-left:8px; gap:6px; }
+  .post-header .edit-icon { width: 36px; height: 36px; font-size: 16px; }
+  .input-edit-title { font-size:0.95rem; }
+}
 .lead-inner { display:flex; gap:12px; align-items:flex-start; }
 .icon-bulb { width:18px; height:18px; color:#f5c518; }
 .lead-text { margin:0; }
@@ -305,6 +399,54 @@ $accent: #00b4ff;
   color: #fff;
 }
 .app-main.dark-theme .post-image { border: 1px solid rgba(255,255,255,0.04); }
+.app-main.dark-theme .post-image-wrap {
+  /* Ensure image container follows dark surfaces: subtle transparent background and rounded mask */
+  background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));
+  padding: 6px;
+  border-radius: 12px;
+  margin-left: 12px;
+  box-shadow: none;
+}
+
+/* Preview used in NewQuestionForm should also adapt in dark mode */
+.app-main.dark-theme .question-preview {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.04);
+  box-shadow: none;
+}
+
+/* When editing the title, the input should match dark surfaces (avoid bright white) */
+.app-main.dark-theme .input-edit-title {
+  /* fondo más suave y legible que el negro intenso */
+  background: linear-gradient(180deg, #151718, #191c1d);
+  border: 1px solid rgba(255,255,255,0.05);
+  color: #e6eef8;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.01);
+}
+/* Botones de la caja de edición en modo oscuro: más suaves y legibles */
+.app-main.dark-theme .btn-save {
+  background: linear-gradient(90deg, #2b6fb8, #4ea8e8);
+  color: #fff;
+  border: none;
+  box-shadow: 0 8px 18px rgba(46,125,255,0.055);
+  /* transición más suave y menos brusca en modo oscuro */
+  transition: transform 200ms cubic-bezier(.2,.8,.2,1), box-shadow 200ms cubic-bezier(.2,.8,.2,1), filter 160ms ease;
+  transform: translateZ(0);
+}
+.app-main.dark-theme .btn-save:hover {
+  /* reducir el zoom al mínimo y usar solo un pequeño desplazamiento vertical */
+  transform: translateY(-2px) scale(1.01);
+  box-shadow: 0 10px 26px rgba(46,125,255,0.08);
+}
+.app-main.dark-theme .btn-cancel {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.04);
+  color: #9aa6b2;
+}
+.app-main.dark-theme .btn-cancel:hover {
+  background: rgba(255,255,255,0.02);
+  color: #e6eef8;
+}
 .app-main.dark-theme .author { color: #9aa6b2; }
 .app-main.dark-theme .post-question { color: #fff; }
 .app-main.dark-theme .lead-text { color: #cbd6e3; }
@@ -491,6 +633,95 @@ $accent: #00b4ff;
 @media (max-width: 820px) {
   .community-hero { flex-direction: column; align-items: flex-start; gap: 12px; }
   .community-hero .hero-text { max-width: 100%; }
+
+  /* Ajustes específicos para el formulario de respuesta en móviles
+     - Apilar la etiqueta "Respondiendo a" encima del input
+     - Hacer el input full-width y el botón enviar alineado a la derecha
+     - Mantener el botón "Cancelar" ligero y legible */
+  .add-response-form {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .replying-row {
+    width: 100%;
+    margin-bottom: 6px;
+    justify-content: flex-start;
+    gap: 8px;
+    white-space: normal;
+  }
+
+  .replying-to { font-size: 0.95rem; }
+  .replying-to-name {
+    display: inline-block;
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+    padding: 4px 8px;
+  }
+
+  .replying-row .btn {
+    /* pequeño y sin empujar el layout */
+    padding: 6px 8px;
+    margin-left: 0;
+    align-self: center;
+  }
+
+  .input-response { order: 2; width: 100%; min-width: 0; }
+  .small-send { order: 3; align-self: flex-end; }
+
+  /* En pantallas muy pequeñas reducir un poco paddings para que quepa mejor */
+  @media (max-width: 420px) {
+    .replying-to-name { max-width: 120px; }
+    .replying-row .btn { padding: 5px 8px; font-size: 0.9rem; }
+    .input-response { padding: 6px 8px; }
+  }
+
+  /* Ajustes adicionales para mejorar alineación en distintas resoluciones */
+  .replying-row {
+    gap: 6px;
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  .replying-row .replying-to {
+    flex: 0 1 auto;
+    min-width: 0;
+  }
+
+  .replying-row .replying-to-name {
+    max-width: 160px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: inline-block;
+  }
+
+  /* Colocar el botón cancelar inmediatamente después del nombre en móvil, pero no romper la línea */
+  .replying-row .btn {
+    order: 2;
+    margin-left: 6px;
+    padding: 6px 8px;
+    font-size: 0.95rem;
+  }
+
+  /* Asegurar que el input ocupe la línea siguiente y el send quede a la derecha */
+  .input-response { order: 3; width: 100%; }
+  .small-send { order: 4; align-self: flex-end; }
+
+  /* Respuesta acciones (iconos) se envuelven si falta espacio */
+  .response-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+
+  /* Modo oscuro: hacer el texto de la etiqueta más legible y suavizar el botón cancelar */
+  .app-main.dark-theme .replying-row { color: #cbd6e3; }
+  .app-main.dark-theme .replying-row .btn {
+    border-color: rgba(255,255,255,0.06);
+    color: #dfeaf7;
+    background: rgba(255,255,255,0.02);
+  }
 }
 
 /* Modal styles for new question */
@@ -533,3 +764,28 @@ $accent: #00b4ff;
 
 /* Small helper */
 .muted { color: #6b7280; }
+
+/* Highlight animations: suave, elegante y no agresivo. */
+.highlight-thread {
+  /* Ultra-sutil: más duración, opacidad muy baja y easing suave */
+  animation: threadHighlight 7000ms cubic-bezier(.25,.8,.25,1) both;
+}
+@keyframes threadHighlight {
+  0% { background-color: rgba(11,115,255,0); box-shadow: none; }
+  12% { background-color: rgba(11,115,255,0.18); box-shadow: 0 10px 28px rgba(11,115,255,0.05); }
+  45% { background-color: rgba(11,115,255,0.12); box-shadow: 0 8px 22px rgba(11,115,255,0.035); }
+  85% { background-color: rgba(11,115,255,0.06); box-shadow: 0 6px 16px rgba(11,115,255,0.02); }
+  100% { background-color: rgba(11,115,255,0); box-shadow: none; }
+}
+
+.highlight-response {
+  /* Respuesta aún más suave y prolongada */
+  animation: responseHighlight 8200ms cubic-bezier(.25,.8,.25,1) both;
+}
+@keyframes responseHighlight {
+  0% { background-color: transparent; box-shadow: none; }
+  10% { background-color: rgba(255,245,160,0.36); box-shadow: 0 8px 22px rgba(255,200,50,0.025); }
+  48% { background-color: rgba(255,245,160,0.28); box-shadow: 0 6px 18px rgba(255,200,50,0.02); }
+  85% { background-color: rgba(255,245,160,0.12); box-shadow: 0 4px 12px rgba(255,200,50,0.01); }
+  100% { background-color: transparent; box-shadow: none; }
+}

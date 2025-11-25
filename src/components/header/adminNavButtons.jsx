@@ -12,7 +12,7 @@ const AdminNavButtons = () => {
       </NavLink>
       <NavLink to="/usuarios" className="nav-link cta-link secondary">
         <FaUsers className="nav-icon" />
-        Usuarios
+        Clientes
       </NavLink>
       <NavLink to="/posteadas" className="nav-link cta-link secondary">
         <span className="nav-icon">📄</span>

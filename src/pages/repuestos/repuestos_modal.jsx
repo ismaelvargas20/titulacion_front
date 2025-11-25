@@ -2,7 +2,7 @@ import React from 'react';
 import { FaTag, FaMapMarkerAlt, FaTimes, FaEnvelope, FaStar } from 'react-icons/fa';
 import '../../assets/scss/motos_modal.scss';
 
-const RepuestosModal = ({ selectedPart, onClose, showContactForm, setShowContactForm, contactForm, handleContactChange, handleContactSubmit, contactSent, hideHeaderContact = false }) => {
+const RepuestosModal = ({ selectedPart, onClose, showContactForm, setShowContactForm, contactForm, handleContactChange, handleContactSubmit, contactSent, hideHeaderContact = false, isOwner = false }) => {
   if (!selectedPart) return null;
 
   return (
@@ -11,7 +11,10 @@ const RepuestosModal = ({ selectedPart, onClose, showContactForm, setShowContact
       <div className="moto-modal" role="dialog" aria-modal="true">
         <button className="modal-close" aria-label="Cerrar" onClick={onClose}><FaTimes /></button>
         <div className="modal-left">
-          <img src={`${selectedPart.img}?${selectedPart.id}`} alt={selectedPart.title} />
+          {(() => {
+            const imgSrc = (selectedPart.img && String(selectedPart.img).startsWith('data:')) ? selectedPart.img : `${selectedPart.img}?${selectedPart.id}`;
+            return <img src={imgSrc} alt={selectedPart.title} />;
+          })()}
         </div>
         <div className="modal-right">
           <h2 className="modal-title">{selectedPart.title}</h2>
@@ -32,7 +35,6 @@ const RepuestosModal = ({ selectedPart, onClose, showContactForm, setShowContact
             <div className="modal-features">
               <span className="chip">Categoría: {selectedPart.category || '—'}</span>
               <span className="chip">Condición: {selectedPart.condition || 'Consultar'}</span>
-              <span className="chip">Teléfono: {(selectedPart.contact && selectedPart.contact.phone) ? selectedPart.contact.phone : 'consultar'}</span>
             </div>
 
             <p className="preview-desc" style={{ marginTop: 8 }}>{selectedPart.description || 'No hay descripción. Puedes preguntar al vendedor.'}</p>
@@ -40,11 +42,15 @@ const RepuestosModal = ({ selectedPart, onClose, showContactForm, setShowContact
 
           {!showContactForm && (
             <div className="modal-actions">
-              <button className="btn btn-primary" onClick={() => setShowContactForm(true)}><FaEnvelope style={{ marginRight: 8 }} /> Contactar vendedor</button>
+              {!isOwner ? (
+                <button className="btn btn-primary" onClick={() => setShowContactForm(true)}><FaEnvelope style={{ marginRight: 8 }} /> Contactar vendedor</button>
+              ) : (
+                <button className="btn btn-primary owner-note" disabled aria-disabled="true">No puedes escribir en tu publicación.</button>
+              )}
             </div>
           )}
 
-          {showContactForm && (
+          {showContactForm && !isOwner && (
             <form className="modal-contact" onSubmit={handleContactSubmit}>
               <label>Mensaje<textarea name="message" value={contactForm.message} onChange={handleContactChange} rows={6} required /></label>
               <div className="modal-contact-actions">

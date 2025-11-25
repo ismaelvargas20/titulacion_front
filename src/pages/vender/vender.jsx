@@ -1,7 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaTag, FaMotorcycle, FaTools, FaEnvelope, FaTimes, FaRegCommentDots, FaCommentAlt, FaBell, FaTrash } from 'react-icons/fa';
+import { FaTag, FaMotorcycle, FaTools, FaEnvelope, FaTimes, FaRegCommentDots, FaCommentAlt, FaBell, FaTrash, FaSyncAlt } from 'react-icons/fa';
 import '../../assets/scss/vender.scss';
+import Swal from 'sweetalert2';
+import { crearPublicacion } from '../../services/motos';
+import { crearRepuesto } from '../../services/repuestos';
+import { loadLocalNotifications, pushLocalNotification } from '../../utils/notificacion';
+import { listarNotificaciones, marcarEliminada } from '../../services/notificaciones';
 
 export default function Vender() {
   const navigate = useNavigate();
@@ -21,16 +26,138 @@ export default function Vender() {
   const [publishSuccessPart, setPublishSuccessPart] = useState(false);
 
   // Inbox mock state (notifications). Each item has id, title, excerpt, time, to, type
-  const [inboxItems, setInboxItems] = useState([
-    { id: 1, title: 'Carlos López te respondió', excerpt: 'Se recomienda empezar con una moto de baja cilindrada', time: 'Hace 5 min', to: '/comunidad', type: 'comment' },
-    { id: 2, title: 'Nuevo mensaje de María García', excerpt: 'Buenos días, ¿acepta permuta por otra moto?', time: 'Hace 1 hora', to: '/chat', type: 'chat' },
-  ]);
+  const [inboxItems, setInboxItems] = useState([]);
+  const [loadingInbox, setLoadingInbox] = useState(false);
 
   const deleteInboxItem = (id) => {
     setInboxItems((prev) => prev.filter((it) => it.id !== id));
   };
 
+  // Eliminar también de localStorage (fallback) si existe
+  const removeFromLocalStorage = (id) => {
+    try {
+      const key = 'localInbox';
+      const raw = localStorage.getItem(key);
+      if (!raw) return;
+      const arr = JSON.parse(raw);
+      const filtered = arr.filter(i => String(i.id) !== String(id));
+      localStorage.setItem(key, JSON.stringify(filtered.slice(0, 200)));
+    } catch (e) { console.warn('removeFromLocalStorage error', e); }
+  };
+
+  // Handler con confirmación usando SweetAlert2
+  const handleDeleteClick = async (e, item) => {
+    if (e && e.stopPropagation) e.stopPropagation();
+    try {
+      const result = await Swal.fire({
+        title: 'Eliminar notificación',
+        text: '¿Seguro que quieres eliminar esta notificación?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar'
+      });
+      if (result && result.isConfirmed) {
+        // Intentar eliminar en backend si el id parece provenir del servidor
+        try {
+          if (item && item.id && String(item.id).startsWith && !String(item.id).startsWith('b-')) {
+            await marcarEliminada(item.id);
+          }
+        } catch (err) {
+          // Si falla, continuamos con el borrado local como fallback
+          console.warn('No se pudo eliminar notificación en servidor, se elimina localmente', err && err.message ? err.message : err);
+        }
+        // quitar del estado
+        deleteInboxItem(item.id);
+        // quitar del localstorage si aplica
+        removeFromLocalStorage(item.id);
+      }
+    } catch (err) {
+      console.warn('Error en confirmación de borrado', err);
+    }
+  };
+
+  // Función reutilizable para cargar notificaciones (llamada desde useEffect y desde el botón "Refrescar")
+  const fetchNotificationsFn = async () => {
+    try {
+      setLoadingInbox(true);
+      // Si hay usuario en sessionStorage intentar obtener su id
+      let clienteId = null;
+      try { const cur = JSON.parse(sessionStorage.getItem('currentUser') || 'null'); if (cur && cur.id) clienteId = cur.id; } catch (e) {}
+      let backendList = [];
+      if (clienteId) {
+        try {
+          backendList = await listarNotificaciones({ clienteId, limit: 50 });
+        } catch (err) {
+          console.warn('No se pudieron cargar notificaciones desde backend:', err && err.message ? err.message : err);
+        }
+      }
+
+      if (backendList && backendList.length) {
+        // Normalizar estructura que venga del backend para garantizar campos conocidos
+        console.debug('Backend notifications raw:', backendList);
+        const normalized = backendList.map((it, idx) => {
+          const sender = it.senderName || it.fromName || it.userName || (it.user && it.user.name) || it.nombre || (it.cliente && (it.cliente.nombre || (it.cliente.firstName && `${it.cliente.firstName} ${it.cliente.lastName}`))) || it.author || null;
+          const excerpt = (it.excerpt || it.mensaje || it.message || it.body || it.text || '').toString().trim();
+          let inferredSender = null;
+          if (!sender && excerpt) {
+            const match = excerpt.match(/^([A-ZÁÉÍÓÚÑ][A-Za-zÁÉÍÓÚÑáéíóúüñ]+(?:\s+[A-ZÁÉÍÓÚÑ][A-Za-zÁÉÍÓÚÑáéíóúüñ]+)+)[:\-,\s]/);
+            if (match && match[1]) inferredSender = match[1];
+          }
+          const finalSender = sender || inferredSender;
+          let title = (it.title || it.titulo || '').toString();
+          try {
+            title = title.replace(/respondi[oó]\s+tu\s+hilo/gi, 'te respondió');
+            title = title.replace(/respondi[oó]\s+tu\s+comentario/gi, 'te respondió');
+            title = title.replace(/respondi[oó]s?/gi, 'respondió');
+          } catch (e) { /* noop */ }
+          if (finalSender) {
+            if (it.type === 'comment' || it.type === 'respuesta') title = `${finalSender} te respondió`;
+            else if (it.type === 'chat' || it.type === 'mail') title = `Nuevo mensaje de ${finalSender}`;
+            else if (!title) title = `${finalSender}`;
+          } else if (!title) {
+            if (it.type === 'chat' || it.type === 'mail') title = 'Nuevo mensaje';
+            else if (it.type === 'comment') title = 'Respuesta nueva';
+            else title = 'Notificación';
+          }
+
+          const to = it.to || it.link || (it.type === 'chat' ? '/chat' : '/comunidad');
+          const time = it.time || it.fecha || it.createdAt || it.created_at || '';
+          return {
+            id: it.id || it._id || `b-${idx}-${Math.random().toString(36).slice(2,8)}`,
+            title,
+            excerpt,
+            to,
+            type: it.type || 'mail',
+            time,
+            _raw: it,
+          };
+        });
+        console.debug('Backend notifications normalized:', normalized);
+        setInboxItems(normalized);
+        setLoadingInbox(false);
+        return;
+      }
+
+      // Si el backend no devolvió notificaciones, intentar cargar local pero NO sembrar ejemplos por defecto
+      const local = loadLocalNotifications();
+      if (local && local.length) {
+        setInboxItems(local);
+      } else {
+        // Lista vacía: mostrar mensaje informativo en la UI
+        setInboxItems([]);
+      }
+    } catch (e) {
+      console.warn('Error cargando notificaciones (backend/local):', e);
+      setInboxItems([]);
+    } finally {
+      setLoadingInbox(false);
+    }
+  };
+
   useEffect(() => {
+    fetchNotificationsFn();
+
     return () => {
       if (motoPreview) URL.revokeObjectURL(motoPreview);
       if (partPreview) URL.revokeObjectURL(partPreview);
@@ -74,28 +201,128 @@ export default function Vender() {
 
   const submitMoto = (e) => {
     e.preventDefault();
-    setPublishLoadingMoto(true);
-    setTimeout(() => {
-      setPublishLoadingMoto(false);
-      setPublishSuccessMoto(true);
-      setTimeout(() => setPublishSuccessMoto(false), 1800);
-      setShowMotoForm(false);
-      setMotoForm({ title: '', model: '', revision: 'Al día', condition: 'Excelente', price: '', location: '', stars: 5, img: '', description: '', contactPhone: '', kilometraje: '', year: '', transmission: 'manual' });
-      setMotoPreview(null);
-    }, 1000);
+    const payload = new FormData();
+    try {
+      payload.append('title', motoForm.title || '');
+      payload.append('model', motoForm.model || '');
+      payload.append('revision', motoForm.revision || 'Al día');
+      payload.append('condition', motoForm.condition || 'Excelente');
+      payload.append('price', motoForm.price || '0');
+      payload.append('location', motoForm.location || '');
+      payload.append('stars', String(motoForm.stars || 0));
+      payload.append('description', motoForm.description || '');
+      payload.append('kilometraje', motoForm.kilometraje || '');
+      payload.append('year', motoForm.year || '');
+      payload.append('transmission', motoForm.transmission || 'manual');
+      payload.append('contactPhone', motoForm.contactPhone || '');
+      payload.append('tipo', 'moto');
+      // clienteId si está disponible en sessionStorage
+      try {
+        const cur = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
+        if (cur && cur.id) payload.append('clienteId', String(cur.id));
+      } catch (err) {}
+
+      // convertir dataURL a Blob si existe
+      if (motoForm.img && String(motoForm.img).startsWith('data:')) {
+        const dataURLtoBlob = (dataurl) => {
+          const arr = dataurl.split(',');
+          const mime = arr[0].match(/:(.*?);/)[1];
+          const bstr = atob(arr[1]);
+          let n = bstr.length;
+          const u8arr = new Uint8Array(n);
+          while (n--) {
+            u8arr[n] = bstr.charCodeAt(n);
+          }
+          return new Blob([u8arr], { type: mime });
+        };
+        try {
+          const blob = dataURLtoBlob(motoForm.img);
+          payload.append('image', blob, 'photo.jpg');
+        } catch (e) {
+          // no bloquear si falla la conversión
+        }
+      }
+
+      setPublishLoadingMoto(true);
+      crearPublicacion(payload)
+        .then((res) => {
+          setPublishLoadingMoto(false);
+          setPublishSuccessMoto(true);
+          try {
+            Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Anuncio publicado', showConfirmButton: false, timer: 2500 });
+          } catch (e) {}
+          setTimeout(() => setPublishSuccessMoto(false), 1800);
+          setShowMotoForm(false);
+          setMotoForm({ title: '', model: '', revision: 'Al día', condition: 'Excelente', price: '', location: '', stars: 5, img: '', description: '', contactPhone: '', kilometraje: '', year: '', transmission: 'manual' });
+          setMotoPreview(null);
+          // redirigir al listado para que recargue publicaciones
+          navigate('/motos');
+        })
+        .catch((err) => {
+          setPublishLoadingMoto(false);
+          const msg = (err && err.response && err.response.data && err.response.data.message) || 'Error al crear publicación';
+          try { Swal.fire({ icon: 'error', title: 'No se pudo publicar', text: msg }); } catch (e) { alert(msg); }
+        });
+    } catch (err) {
+      console.error('Error preparando publicación', err);
+    }
   };
 
   const submitPart = (e) => {
     e.preventDefault();
-    setPublishLoadingPart(true);
-    setTimeout(() => {
-      setPublishLoadingPart(false);
-      setPublishSuccessPart(true);
-      setTimeout(() => setPublishSuccessPart(false), 1800);
-      setShowPartForm(false);
-      setPartForm({ title: '', category: '', condition: 'Nuevo', price: '', location: '', img: '', description: '', contactPhone: '' });
-      setPartPreview(null);
-    }, 900);
+    const payload = new FormData();
+    try {
+      payload.append('title', partForm.title || '');
+      payload.append('category', partForm.category || '');
+      payload.append('condition', partForm.condition || 'Nuevo');
+      payload.append('price', partForm.price || '0');
+      payload.append('location', partForm.location || '');
+      payload.append('description', partForm.description || '');
+      payload.append('contactPhone', partForm.contactPhone || '');
+      payload.append('tipo', 'repuesto');
+      try {
+        const cur = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
+        if (cur && cur.id) payload.append('clienteId', String(cur.id));
+      } catch (err) {}
+
+      if (partForm.img && String(partForm.img).startsWith('data:')) {
+        const dataURLtoBlob = (dataurl) => {
+          const arr = dataurl.split(',');
+          const mime = arr[0].match(/:(.*?);/)[1];
+          const bstr = atob(arr[1]);
+          let n = bstr.length;
+          const u8arr = new Uint8Array(n);
+          while (n--) {
+            u8arr[n] = bstr.charCodeAt(n);
+          }
+          return new Blob([u8arr], { type: mime });
+        };
+        try {
+          const blob = dataURLtoBlob(partForm.img);
+          payload.append('image', blob, 'photo.jpg');
+        } catch (e) {}
+      }
+
+      setPublishLoadingPart(true);
+      crearRepuesto(payload)
+        .then((res) => {
+          setPublishLoadingPart(false);
+          setPublishSuccessPart(true);
+          try { Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Repuesto publicado', showConfirmButton: false, timer: 2500 }); } catch (e) {}
+          setTimeout(() => setPublishSuccessPart(false), 1800);
+          setShowPartForm(false);
+          setPartForm({ title: '', category: '', condition: 'Nuevo', price: '', location: '', img: '', description: '', contactPhone: '' });
+          setPartPreview(null);
+          navigate('/repuestos');
+        })
+        .catch((err) => {
+          setPublishLoadingPart(false);
+          const msg = (err && err.response && err.response.data && err.response.data.message) || 'Error al crear repuesto';
+          try { Swal.fire({ icon: 'error', title: 'No se pudo publicar', text: msg }); } catch (e) { alert(msg); }
+        });
+    } catch (err) {
+      console.error('Error preparando repuesto', err);
+    }
   };
 
   return (
@@ -135,34 +362,157 @@ export default function Vender() {
           <div className="inbox-card large" role="region" aria-label="Mis bandejas de entrada">
             <div className="inbox-header">
               <h3><FaEnvelope /> Mis bandejas de entrada</h3>
-              <div className="inbox-badge">2 nuevos</div>
+              {Array.isArray(inboxItems) && inboxItems.length > 0 && (
+                <div className="inbox-badge">{inboxItems.length} nuevo{inboxItems.length === 1 ? '' : 's'}</div>
+              )}
             </div>
 
             <p className="inbox-sub">Mensajes, notificaciones y respuestas a tus publicaciones</p>
 
-            <ul className="inbox-list">
-              {inboxItems.map((item) => (
-                <li key={item.id} className={`inbox-item ${item.muted ? 'muted' : ''}`} role="button" onClick={() => navigate(item.to)}>
-                  <div className="inbox-token">
-                    {item.type === 'comment' ? <FaRegCommentDots /> : item.type === 'chat' ? <FaCommentAlt /> : item.type === 'mail' ? <FaEnvelope /> : <FaBell />}
-                  </div>
+            {loadingInbox ? (
+              <div className="inbox-loading">Cargando notificaciones…</div>
+            ) : inboxItems && inboxItems.length === 0 ? (
+              <div className="inbox-empty" style={{ padding: 18 }}>
+                <p style={{ margin: 0, fontWeight: 600 }}>Actualmente no tienes notificaciones recibidas</p>
+                <p className="muted" style={{ marginTop: 6 }}>Mensajes, notificaciones y respuestas a tus publicaciones aparecerán aquí.</p>
+                <div style={{ marginTop: 12 }}>
+                  <button className="btn" onClick={() => fetchNotificationsFn()} aria-label="Refrescar bandeja">
+                    <FaSyncAlt className="btn-icon" aria-hidden="true" />
+                    Refrescar
+                  </button>
+                  <button className="btn btn-link" style={{ marginLeft: 12 }} onClick={() => navigate('/chat')}>Ver mensajes →</button>
+                </div>
+              </div>
+            ) : (
+              <>
+              <ul className="inbox-list">
+              {inboxItems.map((item) => {
+                // Determinar nombre del remitente si existe en la notificación
+                const sender = item.senderName || item.fromName || item.userName || (item.user && item.user.name) || item.nombre || item.usuario || (item.cliente && (item.cliente.nombre || (item.cliente.firstName && `${item.cliente.firstName} ${item.cliente.lastName}`))) || item.author || null;
+                let title = item.title || '';
+                const excerpt = item.excerpt || '';
 
-                  <div className="inbox-content">
-                    <div className="inbox-title">{item.title}</div>
-                    <div className="inbox-excerpt">{item.excerpt}</div>
-                  </div>
+                // Construir título según tipo: comentarios vs mensajes/chat/mail
+                if (sender) {
+                  if (item.type === 'comment' || item.type === 'respuesta') {
+                    title = `${sender} te respondió`;
+                  } else if (item.type === 'chat' || item.type === 'mail') {
+                    title = `Nuevo mensaje de ${sender}`;
+                  } else if (!title) {
+                    title = `${sender}`;
+                  }
+                } else {
+                  // Si no hay sender y no hay title, poner un fallback genérico
+                  if (!title) {
+                    if (item.type === 'chat' || item.type === 'mail') title = 'Nuevo mensaje';
+                    else if (item.type === 'comment' || item.type === 'respuesta') title = 'Te respondieron';
+                    else title = 'Notificación';
+                  }
+                }
 
-                  <div className="inbox-right">
-                    <div className="inbox-meta">{item.time}</div>
-                    <button className="inbox-delete" aria-label="Eliminar notificación" onClick={(e) => { e.stopPropagation(); deleteInboxItem(item.id); }}>
-                      <FaTrash />
-                    </button>
-                  </div>
-                </li>
-              ))}
+                // Determinar destino: nunca navegar directamente a `/hilos/...`.
+                // Por defecto `chat` va a `/chat`, todo lo demás a `/comunidad`.
+                let target = (item.type === 'chat' ? '/chat' : '/comunidad');
+                // Si el backend ha puesto `item.to` explícito y no apunta a /hilos, respetarlo
+                if (item.to && !String(item.to).includes('/hilos')) {
+                  target = item.to;
+                }
+
+                // Si `item.to` (o link/raw.link) apunta a `/hilos/<id>` preferimos construir
+                // un hash hacia `/comunidad#hilo-<id>` para mantener la navegación dentro
+                // de la página comunidad (esto cubre casos donde el backend marcó `to`
+                // con /hilos pero el tipo no es 'comment').
+                const extractIdsFrom = (s) => {
+                  if (!s) return { hilo: null, resp: null };
+                  try {
+                    const str = String(s);
+                    const mh = str.match(/\/hilos\/(\d+)/);
+                    const mr = str.match(/respuestas\/(\d+)/);
+                    return { hilo: mh && mh[1] ? mh[1] : null, resp: mr && mr[1] ? mr[1] : null };
+                  } catch (e) {
+                    return { hilo: null, resp: null };
+                  }
+                };
+                const raw = item._raw || {};
+                const candidates = [item.to, item.link, raw.link, raw.to, raw.href];
+                for (let c of candidates) {
+                  if (!c) continue;
+                  const ids = extractIdsFrom(c);
+                  if (ids && ids.hilo) {
+                    target = `/comunidad#hilo-${ids.hilo}` + (ids.resp ? `-resp-${ids.resp}` : '');
+                    break;
+                  }
+                }
+
+                // Para notificaciones de comentario intentamos construir un hash dentro de /comunidad
+                if (item.type === 'comment' || item.type === 'respuesta') {
+                  const raw = item._raw || {};
+                  const extractHiloFrom = (src) => {
+                    if (!src) return null;
+                    if (src.hiloId) return src.hiloId;
+                    if (src.hilo) return src.hilo;
+                    if (src.link) {
+                      const m = String(src.link).match(/\/hilos\/(\d+)/);
+                      if (m) return m[1];
+                    }
+                    return null;
+                  };
+                  const hiloId = extractHiloFrom(item) || extractHiloFrom(raw) || (item.link && (String(item.link).match(/\/hilos\/(\d+)/) || [])[1]) || null;
+                  const respId = item.responseId || item.respuestaId || raw.respuestaId || raw.responseId || (item.link && (String(item.link).match(/respuestas\/(\d+)/) || [])[1]) || null;
+                  if (hiloId) {
+                    target = `/comunidad#hilo-${hiloId}` + (respId ? `-resp-${respId}` : '');
+                  } else {
+                    target = '/comunidad';
+                  }
+                }
+
+                return (
+                  <li key={item.id} className={`inbox-item ${item.muted ? 'muted' : ''}`} role="button" onClick={() => {
+                    // Si es una notificación de chat o apunta a /chats/:id, navegar únicamente a /chat
+                    // (no abrir conversación concreta ni pasar estado).
+                    try {
+                      const raw = item._raw || {};
+                      const possible = [item.to, item.link, raw.link, raw.to];
+                      const pointsToChat = possible.some(p => !!(p && String(p).match(/\/chats\/(\d+)/)));
+                      if ((item && item.type === 'chat') || pointsToChat || (String(target || '').includes('/chats/'))) {
+                        navigate('/chat');
+                        return;
+                      }
+                    } catch (e) { /* ignore navigation error */ }
+
+                    // Navegación de notificaciones: respetar `target` calculado.
+                    try { console.debug('[Inbox] navigate target:', target, 'item:', item); } catch (e) {}
+                    if (target === '/comunidad' && (item.title || item.excerpt)) {
+                      const snippet = (item.title || item.excerpt).toString().slice(0, 120);
+                      try { console.debug('[Inbox] navigate to /comunidad with scrollQuery:', snippet); } catch (e) {}
+                      navigate(target, { state: { scrollQuery: snippet } });
+                    } else {
+                      navigate(target);
+                    }
+                  }}>
+                    <div className="inbox-token">
+                      {item.type === 'comment' ? <FaRegCommentDots /> : item.type === 'chat' ? <FaCommentAlt /> : item.type === 'mail' ? <FaEnvelope /> : <FaBell />}
+                    </div>
+
+                    <div className="inbox-content">
+                      <div className="inbox-title">{title}</div>
+                      <div className="inbox-excerpt">{excerpt}</div>
+                    </div>
+
+                    <div className="inbox-right">
+                      <div className="inbox-meta">{item.time}</div>
+                      <button className="inbox-delete" aria-label="Eliminar notificación" onClick={(e) => { handleDeleteClick(e, item); }}>
+                        <FaTrash />
+                      </button>
+                    </div>
+                  </li>
+                );
+              })}
             </ul>
 
             <div className="inbox-footer"><button className="btn btn-link" onClick={() => navigate('/chat')}>Ver todos los mensajes →</button></div>
+            </>
+            )}
           </div>
         </div>
       </main>

@@ -215,7 +215,51 @@
 .inbox-excerpt { color: rgba(7,40,66,0.7); margin-top:6px; font-size:0.95rem; }
 .inbox-meta { color: rgba(7,40,66,0.55); font-size:0.85rem; margin-left:12px; white-space:nowrap; }
 .inbox-footer { padding: 10px 18px; text-align:center; }
-.inbox-footer .btn-link { background:transparent; border:none; color: #0b73ff; cursor:pointer; font-weight:700; }
+
+/* Botones en la bandeja: estilo moderno
+   - .btn: botón primario (usado por "Refrescar") con gradiente
+   - .btn.btn-link: variante outline/pill (usado por "Ver mensajes") */
+.vender-page .btn {
+  min-width: 110px;
+  padding: 8px 14px;
+  border-radius: 12px;
+  background: linear-gradient(180deg,#63c8ff,#0b73ff);
+  color: #ffffff;
+  border: none;
+  box-shadow: 0 8px 24px rgba(11,115,255,0.12);
+  font-weight: 800;
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  transition: transform 160ms ease, box-shadow 160ms ease, filter 160ms ease, opacity 160ms;
+}
+.vender-page .btn:hover { transform: translateY(-3px); box-shadow: 0 14px 36px rgba(11,115,255,0.18); }
+.vender-page .btn:active { transform: translateY(-1px); }
+.vender-page .btn:focus { outline: none; box-shadow: 0 0 0 6px rgba(11,115,255,0.06); }
+
+.vender-page .btn.btn-link {
+  min-width: auto;
+  padding: 8px 14px;
+  border-radius: 12px;
+  background: transparent;
+  color: #0b73ff;
+  border: 1px solid rgba(11,115,255,0.18);
+  font-weight: 700;
+  transition: background 160ms ease, color 160ms ease, transform 160ms ease;
+}
+.vender-page .btn.btn-link:hover { background: rgba(11,115,255,0.06); transform: translateY(-2px); }
+.vender-page .btn.btn-link:focus { outline: none; box-shadow: 0 0 0 6px rgba(11,115,255,0.04); }
+
+/* Icon inside buttons */
+.vender-page .btn .btn-icon {
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+  margin-right: 8px;
+  transition: transform 220ms ease;
+}
+.vender-page .btn:hover .btn-icon { transform: rotate(20deg); }
 
 /* Delete button inside each inbox item */
 .inbox-right { display:flex; flex-direction:column; align-items:flex-end; gap:8px; }
@@ -339,7 +383,7 @@
 .app-main.dark-theme .inbox-title { color: #e9f7ff; }
 .app-main.dark-theme .inbox-excerpt { color: rgba(231,244,255,0.72); }
 .app-main.dark-theme .inbox-meta { color: rgba(231,244,255,0.55); }
-.app-main.dark-theme .inbox-footer .btn-link { color: #9fd6ff; }
+.app-main.dark-theme .vender-page .btn.btn-link { color: #9fd6ff; border-color: rgba(159,214,255,0.12); }
 .app-main.dark-theme .inbox-delete { color: rgba(231,244,255,0.55); }
 .app-main.dark-theme .inbox-delete:hover { background: rgba(255,255,255,0.02); color: #fff; }
 

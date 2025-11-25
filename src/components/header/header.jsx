@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import {
     FaUserEdit,
     FaSignOutAlt,
@@ -35,6 +35,26 @@ const Header = ({ adminMode = false }) => {
     });
 
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    // Estado para el usuario actual (guardado en sessionStorage por el login)
+    const [user, setUser] = useState(() => {
+        try {
+            const raw = sessionStorage.getItem('currentUser');
+            return raw ? JSON.parse(raw) : null;
+        } catch (e) {
+            return null;
+        }
+    });
+    const location = useLocation();
+
+    // Refrescar user cuando cambie la ruta (por ejemplo, después del login)
+    useEffect(() => {
+        try {
+            const raw = sessionStorage.getItem('currentUser');
+            setUser(raw ? JSON.parse(raw) : null);
+        } catch (e) {
+            setUser(null);
+        }
+    }, [location]);
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -52,8 +72,13 @@ const Header = ({ adminMode = false }) => {
         try {
             localStorage.removeItem('theme');
         } catch (err) {}
+        try {
+            sessionStorage.removeItem('currentUser');
+        } catch (err) {}
+        setUser(null);
         setTheme('light');
         setIsDropdownOpen(false);
+        try { navigate('/login'); } catch (e) {}
     };
 
     const applyThemeToContent = (t) => {
@@ -82,7 +107,7 @@ const Header = ({ adminMode = false }) => {
     const menuItems = adminMode
         ? [
                         { to: '/dashboard', label: 'Dashboard', icon: FaThLarge },
-                        { to: '/usuarios', label: 'Usuarios', icon: FaUser },
+                        { to: '/usuarios', label: 'Clientes', icon: FaUser },
                         { to: '/posteadas', label: 'Publicaciones', icon: FaFileAlt },
                         { to: '/comentarios', label: 'Comentarios', icon: FaComments },
           ]
@@ -159,8 +184,8 @@ const Header = ({ adminMode = false }) => {
                     {isDropdownOpen && (
                         <div className="profile-dropdown">
                             <div className="dropdown-header">
-                                <strong>¡Hola, Luna!</strong>
-                                <small>tuemail@ejemplo.com</small>
+                                <strong>¡Hola, {user && user.nombre ? user.nombre : 'Invitado'}!</strong>
+                                <small>{user && user.email ? user.email : 'No has iniciado sesión'}</small>
                             </div>
                             
                             <ul className="dropdown-menu">

@@ -136,6 +136,23 @@
 /* Small helper / hint text */
 .modal-contact .hint { font-size:0.85rem; color:var(--muted); margin-top:6px; }
 
+/* Estilo para el aviso cuando el usuario es propietario: mostrar como botón azul deshabilitado */
+.owner-note {
+  display: inline-block;
+  margin: 0;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-weight: 800;
+  color: #fff;
+  background: linear-gradient(90deg, var(--cta-light, #0b73ff), #4fb8ff);
+  box-shadow: 0 12px 32px rgba(11,115,255,0.16);
+  text-align: center;
+  cursor: default;
+  user-select: none;
+  opacity: 1 !important; /* sobrescribir reglas de disabled si existen */
+  pointer-events: none; /* asegurar que no sea clickable */
+}
+
 /* Error message */
 .contact-error { margin-top:10px; color: #7b1b1b; background: rgba(123,27,27,0.06); border-left: 4px solid #b91c1c; padding:10px 12px; border-radius:8px; font-weight:700; }
 .app-main.dark-theme .contact-error { color: #ffd7d7; background: rgba(150,50,50,0.06); border-left-color: rgba(255,120,120,0.2); }

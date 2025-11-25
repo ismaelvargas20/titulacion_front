@@ -113,12 +113,12 @@ $shadow: 0 6px 18px rgba(12, 35, 63, 0.12);
   /* icono dentro del botón un poco más grande */
   .carousel-button svg { width: 18px; height: 18px; }
 
-  /* Grid de tarjetas: 6 columnas en desktop, se adapta en responsive */
+  /* Grid de tarjetas: 4 columnas en desktop, se adapta en responsive */
   .item-cards-grid {
     display: grid;
     gap: 18px;
     padding: 6px 8px;
-    grid-template-columns: repeat(6, 1fr);
+    grid-template-columns: repeat(4, 1fr);
   }
 
   /* Tarjeta individual */
@@ -241,6 +241,62 @@ $shadow: 0 6px 18px rgba(12, 35, 63, 0.12);
   .motos-main { padding: 12px; }
   .item-cards-grid { grid-template-columns: repeat(2, 1fr); }
   .card-image { height: 120px; }
+}
+
+/* Ajustes adicionales para evitar que la preview del modal se descuadre
+   en anchos intermedios (p ej. 425px y 768px). Forzamos apilado y
+   eliminamos el sticky/borde-left para que la vista previa fluya correctamente. */
+@media (max-width: 780px) {
+  .sell-modal {
+    width: min(780px, calc(100% - 32px));
+    padding: 12px 14px;
+    max-height: calc(100vh - 32px);
+    overflow: hidden; /* gestionamos scroll dentro de la grid */
+    box-sizing: border-box;
+    margin: 12px auto; /* centrar el modal con margen superior */
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .sell-modal .sell-form-grid {
+    grid-template-columns: 1fr !important; /* apilar */
+    gap: 12px;
+    /* permitir scroll interno en la parte del formulario para evitar que el modal crezca más que la ventana */
+    max-height: calc(100vh - 160px);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .sell-modal .sell-form-preview {
+    position: static !important;
+    border-left: none !important;
+    padding-left: 0 !important;
+    margin-top: 8px;
+    max-width: none;
+    width: 100%;
+    max-height: 45vh; /* limitar alto para evitar overflow fuera del modal */
+    overflow-y: auto; /* permitir scroll interno si hace falta */
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .sell-modal .preview-image { height: 120px; }
+  .sell-modal .preview-card { display: block; margin-bottom: 8px; }
+
+  /* permitir que el overlay scrollée cuando el modal es alto en pantallas pequeñas */
+  .sell-modal-overlay { overflow-y: auto !important; }
+}
+
+@media (max-width: 425px) {
+  .sell-modal {
+    width: calc(100% - 20px);
+    padding: 8px 10px;
+    max-height: calc(100vh - 28px);
+  }
+  .sell-modal .sell-form { padding-right: 8px; }
+  .sell-modal .preview-image { height: 100px; }
+  .sell-modal .preview-card { padding: 8px; }
+
+  /* En pantallas muy pequeñas acortamos un poco el max-height de la preview para que no aparezca cortada */
+  .sell-modal .sell-form-preview { max-height: 38vh; }
 }
 
 /* Formulario de venta embebido */

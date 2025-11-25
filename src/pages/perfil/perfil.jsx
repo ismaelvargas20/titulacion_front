@@ -1,6 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 // useLocation removed — Perfil no longer reads URL hash for publicaciones
 import '../../assets/scss/perfil.scss'; // Importamos el SCSS desde assets
+import api from '../../api/axios';
+import * as clientesService from '../../services/clientes';
+import Swal from 'sweetalert2';
 
 // Iconos
 import { FaUser, FaMapMarkerAlt, FaUserCircle, FaSave, FaEdit, FaTimes, FaRegCalendarAlt } from 'react-icons/fa';
@@ -15,17 +18,22 @@ const Perfil = () => {
     const [isEditing, setIsEditing] = useState(initialEdit);
     // Mantener Perfil solo con formulario; la gestión de publicaciones vive en /publicaciones
 
-    // Estado para guardar los datos del usuario (puedes cargarlo desde tu backend)
+    // Estado para guardar los datos del usuario (se cargan desde backend al montar)
     const [userData, setUserData] = useState({
-        fullname: 'Juan Pérez',
-        birthdate: '1990-05-15',
-        email: 'juan.perez@email.com',
-        phone: '0987654321',
-    city: 'Quito',
+        fullname: '',
+        birthdate: '',
+        email: '',
+        phone: '',
+        city: '',
         // Dejamos las contraseñas vacías por seguridad
         newPassword: '',
         confirmPassword: ''
     });
+    const [loadingProfile, setLoadingProfile] = useState(false);
+    const [profileError, setProfileError] = useState(null);
+
+    // Identificador y rol del usuario en sesión (si existe)
+    const [loggedUser, setLoggedUser] = useState(null);
 
     // Refs para foco y submit programático
     const firstInputRef = useRef(null);
@@ -41,6 +49,58 @@ const Perfil = () => {
             try { firstInputRef.current.focus(); } catch (e) {}
         }
     }, [isEditing]);
+
+    // Cargar perfil del usuario logueado al montar
+    useEffect(() => {
+        (async () => {
+            try {
+                setLoadingProfile(true);
+                setProfileError(null);
+                const raw = sessionStorage.getItem('currentUser');
+                if (!raw) {
+                    setProfileError('No hay usuario logueado. Inicia sesión.');
+                    return;
+                }
+                const current = JSON.parse(raw);
+                setLoggedUser(current);
+                const id = current.id;
+                if (!id) {
+                    setProfileError('ID de usuario no disponible en sesión.');
+                    return;
+                }
+
+                // Si el rol es 'cliente' usamos detalleCliente, sino consultamos /usuarios/detalle/:id
+                let respData = null;
+                if (current.rol && String(current.rol).toLowerCase().includes('cliente')) {
+                    const detalle = await clientesService.detalleCliente(id);
+                    respData = detalle;
+                } else {
+                    const r = await api.get(`/usuarios/detalle/${encodeURIComponent(id)}`);
+                    respData = r && r.data ? r.data : null;
+                }
+
+                if (!respData) {
+                    setProfileError('No se pudo obtener datos del perfil.');
+                    return;
+                }
+
+                // Mapear campos comunes
+                setUserData(prev => ({
+                    ...prev,
+                    fullname: respData.fullname || respData.nombre || '',
+                    birthdate: respData.birthdate || respData.fecha_nacimiento || '',
+                    email: respData.email || respData.correo_electronico || '',
+                    phone: respData.phone || respData.telefono || '',
+                    city: respData.city || respData.ciudad || ''
+                }));
+            } catch (err) {
+                console.warn('Error cargando perfil:', err);
+                setProfileError((err && err.response && err.response.data && (err.response.data.error || err.response.data.message)) || err.message || 'Error al cargar perfil');
+            } finally {
+                setLoadingProfile(false);
+            }
+        })();
+    }, []);
 
     // Cuando se abre la sección de cambio de contraseña, hacer scroll y foco
     useEffect(() => {
@@ -69,18 +129,82 @@ const Perfil = () => {
     // Manejador para "guardar" el formulario
     const handleSubmit = (e) => {
         e.preventDefault();
-        // Aquí iría la lógica para enviar los datos a tu API
-        console.log('Datos guardados:', userData);
-        
-        // Validar que las contraseñas coincidan (si se escribieron)
-        if (userData.newPassword && userData.newPassword !== userData.confirmPassword) {
-            alert('Las nuevas contraseñas no coinciden.');
-            return;
-        }
+        (async () => {
+            try {
+                if (!loggedUser || !loggedUser.id) {
+                    alert('No hay usuario en sesión');
+                    return;
+                }
+                // Validar contraseñas locales si están presentes (no aplicarlas aquí)
+                if (userData.newPassword && userData.newPassword !== userData.confirmPassword) {
+                    alert('Las nuevas contraseñas no coinciden.');
+                    return;
+                }
 
-        // Desactivamos el modo edición después de guardar
-        setIsEditing(false);
-        alert('¡Perfil actualizado con éxito!');
+                // Preparar payload según tipo de usuario: el controlador de clientes espera
+                // los nombres en español ('nombre','fecha_nacimiento','correo_electronico','telefono','ciudad')
+                const id = loggedUser.id;
+                let res = null;
+                if (loggedUser.rol && String(loggedUser.rol).toLowerCase().includes('cliente')) {
+                    const payloadCliente = {
+                        nombre: userData.fullname,
+                        fecha_nacimiento: userData.birthdate,
+                        correo_electronico: userData.email,
+                        telefono: userData.phone,
+                        ciudad: userData.city
+                    };
+                    res = await api.put(`/clientes/actualizar/${encodeURIComponent(id)}`, payloadCliente);
+                } else {
+                    const payloadUsuario = {
+                        fullname: userData.fullname,
+                        birthdate: userData.birthdate,
+                        email: userData.email,
+                        phone: userData.phone,
+                        city: userData.city
+                    };
+                    res = await api.put(`/usuarios/actualizar/${encodeURIComponent(id)}`, payloadUsuario);
+                }
+
+                if (res && (res.status === 200 || res.status === 201)) {
+                    // Tomar la respuesta actualizada (clientes devuelven { cliente: { ... } }, usuarios devuelven el objeto directamente)
+                    const updated = (res.data && (res.data.cliente || res.data.usuario)) ? (res.data.cliente || res.data.usuario) : (res.data || {});
+
+                    // Mapear la respuesta a userData (manejando aliases)
+                    setUserData(prev => ({
+                        ...prev,
+                        fullname: updated.fullname || updated.nombre || userData.fullname,
+                        birthdate: updated.birthdate || updated.fecha_nacimiento || userData.birthdate,
+                        email: updated.email || updated.correo_electronico || userData.email,
+                        phone: updated.phone || updated.telefono || userData.phone,
+                        city: updated.city || updated.ciudad || userData.city
+                    }));
+
+                    // Actualizar sesión local si cambió el nombre o email
+                    try {
+                        const currentRaw = sessionStorage.getItem('currentUser');
+                        if (currentRaw) {
+                            const cur = JSON.parse(currentRaw);
+                            cur.nombre = updated.nombre || updated.fullname || cur.nombre;
+                            cur.name = updated.nombre || updated.fullname || cur.name;
+                            cur.email = updated.correo_electronico || updated.email || cur.email;
+                            sessionStorage.setItem('currentUser', JSON.stringify(cur));
+                            setLoggedUser(cur);
+                        }
+                    } catch (e) { /* noop */ }
+
+                    setIsEditing(false);
+                    try { Swal.fire({ icon: 'success', title: 'Perfil actualizado' }); } catch (e) {}
+                } else {
+                    alert('No se pudo actualizar el perfil.');
+                }
+            } catch (err) {
+                console.error('Error actualizando perfil:', err);
+                try {
+                    const msg = (err && err.response && (err.response.data && (err.response.data.error || err.response.data.message))) || err.message || String(err);
+                    Swal.fire({ icon: 'error', title: 'Error', text: String(msg).slice(0, 300) });
+                } catch (e) { alert('Error actualizando perfil'); }
+            }
+        })();
     };
 
     // Activa el modo edición
@@ -104,22 +228,44 @@ const Perfil = () => {
     // Manejar actualización de contraseña separada del submit general
     const handlePasswordUpdate = (e) => {
         e.preventDefault();
-        if (!userData.newPassword) {
-            alert('Escribe la nueva contraseña.');
-            return;
-        }
-        if (userData.newPassword !== userData.confirmPassword) {
-            alert('Las contraseñas no coinciden.');
-            return;
-        }
-        // Aquí iría la petición al backend para cambiar la contraseña
-        console.log('Contraseña actualizada a:', userData.newPassword);
-        alert('Contraseña actualizada con éxito.');
-        // Limpiamos campos y ocultamos sección
-        setUserData(prev => ({ ...prev, newPassword: '', confirmPassword: '' }));
-        // Cerrar la sección de contraseña y salir del modo edición para que la CTA reaparezca
-        setShowPasswordFields(false);
-        setIsEditing(false);
+        (async () => {
+            try {
+                if (!userData.newPassword) {
+                    alert('Escribe la nueva contraseña.');
+                    return;
+                }
+                if (userData.newPassword !== userData.confirmPassword) {
+                    alert('Las contraseñas no coinciden.');
+                    return;
+                }
+                if (!loggedUser || !loggedUser.id) {
+                    alert('No hay usuario en sesión');
+                    return;
+                }
+                const payload = { contrasena: userData.newPassword, password: userData.newPassword, contrasena_hash: undefined };
+                const id = loggedUser.id;
+                let res = null;
+                if (loggedUser.rol && String(loggedUser.rol).toLowerCase().includes('cliente')) {
+                    res = await api.put(`/clientes/actualizar/${encodeURIComponent(id)}`, { contrasena: userData.newPassword });
+                } else {
+                    res = await api.put(`/usuarios/actualizar/${encodeURIComponent(id)}`, { contrasena: userData.newPassword });
+                }
+                if (res && (res.status === 200 || res.status === 201)) {
+                    try { Swal.fire({ icon: 'success', title: 'Contraseña actualizada' }); } catch (e) {}
+                    setUserData(prev => ({ ...prev, newPassword: '', confirmPassword: '' }));
+                    setShowPasswordFields(false);
+                    setIsEditing(false);
+                } else {
+                    alert('No se pudo actualizar la contraseña.');
+                }
+            } catch (err) {
+                console.error('Error actualizando contraseña:', err);
+                try {
+                    const msg = (err && err.response && (err.response.data && (err.response.data.error || err.response.data.message))) || err.message || String(err);
+                    Swal.fire({ icon: 'error', title: 'Error', text: String(msg).slice(0, 300) });
+                } catch (e) { alert('Error actualizando contraseña'); }
+            }
+        })();
     };
 
     const handleCancelPasswordChange = (e) => {

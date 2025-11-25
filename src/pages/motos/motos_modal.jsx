@@ -2,7 +2,7 @@ import React from 'react';
 import { FaTag, FaMapMarkerAlt, FaStar, FaTimes, FaEnvelope } from 'react-icons/fa';
 import '../../assets/scss/motos_modal.scss';
 
-const MotosModal = ({ selectedMoto, onClose, showContactForm, setShowContactForm, contactForm, handleContactChange, handleContactSubmit, contactSent, hideHeaderContact = false }) => {
+const MotosModal = ({ selectedMoto, onClose, showContactForm, setShowContactForm, contactForm, handleContactChange, handleContactSubmit, contactSent, hideHeaderContact = false, isOwner = false }) => {
   if (!selectedMoto) return null;
 
   return (
@@ -10,7 +10,10 @@ const MotosModal = ({ selectedMoto, onClose, showContactForm, setShowContactForm
       <div className="moto-modal" role="dialog" aria-modal="true">
         <button className="modal-close" aria-label="Cerrar" onClick={onClose}><FaTimes /></button>
         <div className="modal-left">
-          <img src={`${selectedMoto.img}?${selectedMoto.id}`} alt={selectedMoto.title} />
+          {(() => {
+            const imgSrc = (selectedMoto.img && String(selectedMoto.img).startsWith('data:')) ? selectedMoto.img : `${selectedMoto.img}?${selectedMoto.id}`;
+            return <img src={imgSrc} alt={selectedMoto.title} />;
+          })()}
         </div>
         <div className="modal-right">
           <h2 className="modal-title">{selectedMoto.title}</h2>
@@ -29,8 +32,10 @@ const MotosModal = ({ selectedMoto, onClose, showContactForm, setShowContactForm
               <span className="chip">Modelo: {selectedMoto.model || selectedMoto.title}</span>
               <span className="chip">Revisión: {selectedMoto.revision || '—'}</span>
               <span className="chip">Estado: {selectedMoto.condition || 'Desconocido'}</span>
-              {/* Mostrar siempre la chip de teléfono; usar un fallback si no hay número */}
-              <span className="chip">Teléfono: {(selectedMoto.contact && selectedMoto.contact.phone) ? selectedMoto.contact.phone : 'consultar'}</span>
+              {/* Mostrar la chip de teléfono sólo si el encabezado NO la muestra (evita duplicado) */}
+              {hideHeaderContact && (
+                <span className="chip">Teléfono: {(selectedMoto.contact && selectedMoto.contact.phone) ? selectedMoto.contact.phone : 'consultar'}</span>
+              )}
             </div>
 
             <ul className="modal-specs">
@@ -44,11 +49,15 @@ const MotosModal = ({ selectedMoto, onClose, showContactForm, setShowContactForm
 
           {!showContactForm && (
             <div className="modal-actions">
-              <button className="btn btn-primary" onClick={() => { setShowContactForm(true); }}><FaEnvelope style={{ marginRight: 8 }} /> Contactar vendedor</button>
+              {!isOwner ? (
+                <button className="btn btn-primary" onClick={() => { setShowContactForm(true); }}><FaEnvelope style={{ marginRight: 8 }} /> Contactar vendedor</button>
+              ) : (
+                <button className="btn btn-primary owner-note" disabled aria-disabled="true">No puedes escribir en tu publicación.</button>
+              )}
             </div>
           )}
 
-          {showContactForm && (
+          {showContactForm && !isOwner && (
             <form className="modal-contact" onSubmit={handleContactSubmit}>
               <label>Mensaje<textarea name="message" value={contactForm.message} onChange={handleContactChange} rows={6} required /></label>
               <div className="modal-contact-actions">

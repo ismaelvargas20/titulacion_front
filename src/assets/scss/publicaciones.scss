@@ -183,6 +183,30 @@
 .post-actions .btn.btn-danger { min-width:110px; padding:10px 14px; border-radius:12px; background: transparent; color:#d9534f; border:1px solid rgba(217,83,79,0.12); box-shadow:none; font-weight:700; }
 .post-actions .btn.btn-danger:hover { background: rgba(217,83,79,0.06); box-shadow: 0 12px 28px rgba(217,83,79,0.08); transform: translateY(-3px); }
 
+/* Sold button and card styles */
+.post-actions .btn.btn-sold { min-width:140px; padding:10px 14px; border-radius:12px; background: linear-gradient(180deg,#7ee787,#2bb673); color:#ffffff; border: none; box-shadow: 0 8px 24px rgba(43,166,115,0.12); font-weight:800; display:inline-flex; gap:8px; align-items:center; justify-content:center; transition: transform 160ms ease, box-shadow 160ms ease, filter 160ms ease; }
+.post-actions .btn.btn-sold:disabled { opacity:0.75; cursor: default; }
+.post-actions .btn.btn-sold:hover { transform: translateY(-3px); filter: brightness(0.98); box-shadow: 0 18px 44px rgba(43,166,115,0.16); }
+
+.post-card.sold { border: 1px solid rgba(43,166,115,0.12); background: linear-gradient(180deg,#fbfff9,#f4fff6); }
+.post-card.sold .post-title { text-decoration: line-through; opacity:0.9; }
+.sold-label { display:inline-block; margin-top:8px; background:#e6fff0; color:#1f7a4a; font-weight:800; padding:6px 10px; border-radius:999px; font-size:0.8rem; box-shadow: 0 6px 18px rgba(43,166,115,0.06); }
+
+/* Icon spacing inside sold button */
+.post-actions .btn.btn-sold .btn-icon { margin-right:8px; display:inline-flex; align-items:center; }
+
+/* Mantener el color verde del botón en modo oscuro */
+.app-main.dark-theme .post-actions .btn.btn-sold,
+body.global-dark .post-actions .btn.btn-sold {
+	background: linear-gradient(180deg,#7ee787,#2bb673) !important;
+	color: #ffffff !important;
+	box-shadow: 0 8px 24px rgba(43,166,115,0.14) !important;
+}
+.app-main.dark-theme .post-actions .btn.btn-sold:disabled,
+body.global-dark .post-actions .btn.btn-sold:disabled {
+	opacity: 0.8;
+}
+
 /* Dark theme: keep Edit filled but slightly dimmer, Delete as soft outline */
 .app-main.dark-theme .post-actions .btn,
 body.global-dark .post-actions .btn {

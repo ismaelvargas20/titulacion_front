@@ -601,3 +601,32 @@ body, html {
     .register-btn { color: #ffffff !important; }
   }
 }
+
+/* ---------- SweetAlert2 custom content for login welcome ---------- */
+.swal-welcome {
+  text-align: center;
+  .swal-title {
+    font-size: 28px !important;
+    color: #1f2937 !important;
+    margin-bottom: 6px;
+  }
+  .swal-subtitle {
+    font-size: 20px !important;
+    font-weight: 700 !important;
+    color: #0f9d58 !important; /* default user green */
+  }
+  .swal-note {
+    font-size: 13px !important;
+    color: #6b7280 !important;
+    margin-top: 8px;
+  }
+}
+
+.swal-welcome.admin {
+  .swal-subtitle { color: #0b5ed7 !important; } /* admin blue */
+}
+
+/* Small responsive tweak for swal content */
+@media (max-width: 600px) {
+  .swal-welcome { .swal-title { font-size: 22px !important; } .swal-subtitle { font-size: 18px !important; } }
+}

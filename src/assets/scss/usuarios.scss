@@ -88,13 +88,98 @@
 }
 .usuarios-summary .sum-card {
   /* Fondo con ligero degradado y borde para distinguir sobre fondo blanco */
-  background: linear-gradient(180deg,#ffffff 0%, #fbfdff 100%);
-  border: 1px solid rgba(11,115,255,0.06);
-  border-radius: 14px;
-  padding: 22px 24px;
-  box-shadow: 0 10px 36px -14px rgba(37,99,235,0.06), 0 8px 22px rgba(11,115,255,0.04);
-  min-height: 96px; /* más grande */
-}
+    background: linear-gradient(180deg,#ffffff 0%, #fbfdff 100%);
+    border: 1px solid rgba(11,115,255,0.06);
+    border-radius: 14px;
+    padding: 22px 24px;
+    box-shadow: 0 10px 36px -14px rgba(37,99,235,0.06), 0 8px 22px rgba(11,115,255,0.04);
+    min-height: 96px; /* más grande */
+  }
+  .usuarios-summary .sum-card h3 {
+    margin: 0 0 8px 0;
+    font-size: 0.98rem;
+    color: #6b7280;
+    font-weight: 800;
+  }
+  .usuarios-summary .sum-value {
+    font-size: 2.1rem;
+    font-weight: 900;
+    margin: 0;
+    color: #111827;
+  }
+  /* Overrides específicos para la página de Comentarios: tarjetas más grandes y iconos más visibles
+     Esto asegura que, cuando haya 4 tarjetas, ocupen más espacio y no queden "apretadas". */
+  .comentarios-admin-page .usuarios-summary {
+    gap: 22px;
+  }
+  .comentarios-admin-page .usuarios-summary .sum-card {
+    padding: 28px 28px 24px 28px;
+    min-height: 128px; /* mayor altura para más presencia */
+    border-radius: 16px;
+  }
+  .comentarios-admin-page .usuarios-summary .sum-card h3 {
+    font-size: 1rem;
+    color: #6b7280;
+  }
+  .comentarios-admin-page .usuarios-summary .sum-value {
+    font-size: 2.6rem;
+    line-height: 1;
+  }
+  .comentarios-admin-page .usuarios-summary .sum-card .sum-icon {
+    right: 16px;
+    top: 14px;
+    width: 68px;
+    height: 68px;
+    font-size: 22px;
+    box-shadow: 0 14px 40px rgba(11,115,255,0.08);
+  }
+  .comentarios-admin-page .usuarios-summary .sum-card {
+    padding-right: 120px;
+  }
+  .comentarios-admin-page .usuarios-summary .sum-card h3, .comentarios-admin-page .usuarios-summary .sum-card .sum-value {
+    max-width: calc(100% - 120px);
+  }
+  @media (max-width: 980px) {
+    .comentarios-admin-page .usuarios-summary {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .comentarios-admin-page .usuarios-summary .sum-card {
+      min-height: 110px;
+    }
+    .comentarios-admin-page .usuarios-summary .sum-card .sum-icon {
+      width:56px;
+      height:56px;
+      font-size:18px;
+      right:12px;
+      top:12px;
+    }
+  }
+  .usuarios-summary .sum-green {
+    color: #16a34a;
+  }
+  .usuarios-summary .sum-orange {
+    color: #ff4d4f;
+  }
+  .usuarios-summary .sum-client {
+    color: #f97316;
+  }
+  .usuarios-summary .sum-blue {
+    color: #0b73ff;
+  }
+  .usuarios-summary .sum-new {
+    color: #8b5cf6;
+  }
+  @media (max-width: 980px) {
+    .usuarios-summary {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (max-width: 560px) {
+    .usuarios-summary {
+      grid-template-columns: 1fr;
+    }
+  }
+ 
 .usuarios-summary .sum-card h3 {
   margin: 0 0 8px 0;
   font-size: 0.98rem;
@@ -106,6 +191,10 @@
   font-weight: 900;
   margin: 0;
   color: #111827;
+}
+/* Asegurar que el valor de 'Nuevos' use el morado elegido, evitando ser sobreescrito */
+.usuarios-summary .sum-value.sum-new {
+  color: #8b5cf6;
 }
 
 /* Overrides específicos para la página de Comentarios: tarjetas más grandes y iconos más visibles
@@ -143,7 +232,8 @@
   .comentarios-admin-page .usuarios-summary .sum-card .sum-icon { width:56px; height:56px; font-size:18px; right:12px; top:12px; }
 }
 .usuarios-summary .sum-green { color: #16a34a; }
-.usuarios-summary .sum-orange { color: #f59e0b; }
+.usuarios-summary .sum-orange { color: #ff4d4f; }
+.usuarios-summary .sum-client { color: #f97316; }
 .usuarios-summary .sum-blue { color: #0b73ff; }
 
 @media (max-width: 980px) {
@@ -196,6 +286,9 @@
 .role-badge { background:#f1f5f9; color:#374151; padding:6px 10px; border-radius:999px; font-weight:700; font-size:0.82rem; }
 .role-admin { background: linear-gradient(90deg,#0b73ff,#4fb8ff); color:#fff; }
 .role-vendor { /* kept for backward compat */ background: linear-gradient(90deg,#0b73ff,#4fb8ff); color:#fff; }
+/* Nuevo: estilos para roles comunes en la app */
+.role-user { background: linear-gradient(90deg,#0b73ff,#4fb8ff); color:#fff; }
+.role-client { background: linear-gradient(90deg,#f97316,#fb923c); color:#fff; }
 .state-badge { padding:6px 10px; border-radius:999px; font-weight:700; font-size:0.82rem; }
 .state-active { background: linear-gradient(90deg,#16a34a,#059669); color:#fff; }
 .state-sold { background: linear-gradient(90deg,#0b73ff,#4fb8ff); color:#fff; }
@@ -266,14 +359,15 @@
   box-shadow: 0 8px 22px rgba(11,115,255,0.12);
 }
 .sum-icon-repuestos {
-  background: linear-gradient(135deg,#7c3aed 0%, #6d28d9 100%);
+  background: linear-gradient(135deg,#f97316 0%, #fb923c 100%);
   color: #ffffff;
   border: none;
-  box-shadow: 0 8px 22px rgba(124,58,237,0.12);
+  box-shadow: 0 8px 22px rgba(249,115,22,0.12);
 }
+.sum-icon-client { background: linear-gradient(135deg,#f97316 0%, #fb923c 100%); }
 .sum-icon-active { background: linear-gradient(135deg,#34d058 0%, #1f9a3a 100%); }
-.sum-icon-suspended { background: linear-gradient(135deg,#f59e0b 0%, #d97706 100%); }
-.sum-icon-new { background: linear-gradient(135deg,#0b73ff 0%, #4fb8ff 100%); }
+.sum-icon-suspended { background: linear-gradient(135deg,#ff4d4f 0%, #ff6b6b 100%); }
+.sum-icon-new { background: #8b5cf6; color: #ffffff; border: none; box-shadow: 0 8px 22px rgba(139,92,246,0.12); }
 
 /* Ajustes de posición del contenido para evitar solapamiento con el icono */
 .usuarios-summary .sum-card { padding-right: 96px; }
@@ -348,6 +442,17 @@
 /* Nueva sección de filtros para la tabla */
 .usuarios-filters { margin-top: 18px; }
 .usuarios-filters .usuarios-search-card { display:flex; gap:14px; align-items:center; }
+
+/* Nueva fila que contiene la barra de búsqueda y los filtros, permite colocar el botón arriba separado */
+.usuarios-search-card .search-row {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+.usuarios-search-card .search-row .search-input { flex: 1 1 60%; }
+.usuarios-search-card .search-row .search-filters { flex: 0 0 auto; display:flex; gap:10px; align-items:center; }
 .filter-select {
   padding: 8px 12px;
   border-radius: 10px;
@@ -365,7 +470,9 @@
 
 @media (max-width: 760px) {
   .usuarios-filters .usuarios-search-card { flex-direction: column; align-items: stretch; }
-  .usuarios-filters .search-filters { justify-content: flex-end; gap:8px; }
+  .usuarios-search-card .search-row { flex-direction: column; gap: 10px; }
+  .usuarios-search-card .search-row .search-input { width: 100%; }
+  .usuarios-search-card .search-row .search-filters { justify-content: flex-end; width: 100%; }
 }
 
 .search-filters { display: flex; gap: 10px; margin-left: 16px; }
@@ -383,6 +490,47 @@
   color: #ffffff;
   border: none;
   box-shadow: 0 12px 30px rgba(11,115,255,0.12);
+}
+
+/* Botón principal Crear usuario: estilo más vistoso y prominente dentro del panel de filtros */
+.usuarios-filters .reg-btn.primary {
+  padding: 10px 18px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #0b73ff 0%, #4fb8ff 100%);
+  color: #fff;
+  font-weight: 800;
+  box-shadow: 0 12px 36px rgba(11,115,255,0.18), 0 6px 18px rgba(11,115,255,0.08);
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  transition: transform 180ms ease, box-shadow 180ms ease, opacity 160ms ease;
+}
+.usuarios-filters .reg-btn.primary:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 18px 48px rgba(11,115,255,0.22), 0 10px 26px rgba(11,115,255,0.10);
+}
+.usuarios-filters .reg-btn.primary:active { transform: translateY(-1px); }
+
+/* Pequeño icono circular a la izquierda del texto (pseudo-elemento), simulando un + */
+.usuarios-filters .reg-btn.primary::before {
+  content: '+';
+  display: inline-flex;
+  width: 28px;
+  height: 28px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.12);
+  color: #fff;
+  font-weight: 800;
+  box-shadow: 0 6px 18px rgba(11,115,255,0.08) inset;
+}
+
+/* En pantallas pequeñas, el botón ocupa todo el ancho y se alinea con el input */
+@media (max-width: 760px) {
+  .usuarios-filters .reg-btn.primary { width: 100%; justify-content: center; }
+  .usuarios-filters { gap: 12px; }
 }
 
 /* Responsive */
@@ -763,6 +911,9 @@ body.global-dark .usuarios-modal-avatar {
   .usuarios-modal-left { width:100%; display:flex; justify-content:center; }
   .usuarios-modal-grid { grid-template-columns: 1fr; }
 }
+
+/* Modal: valores en peso normal (no negrita) */
+.usuarios-modal .um-value { font-weight: 400; }
 .usuarios-table thead th {
   text-align: left;
   font-size: 0.85rem;

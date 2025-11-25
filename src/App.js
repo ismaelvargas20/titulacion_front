@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import './App.css';
 import Header from './components/header/header';
+import Footer from './components/footer/footer';
 import Login from './pages/login/login';
 import Registro from './pages/registro.jsx/registro';
 import Inicio from './pages/inicio/inicio';
@@ -20,7 +21,7 @@ import Comentarios from './pages/comentarios/comentarios';
 const AppContent = () => {
   const location = useLocation();
   const hideHeaderPaths = ['/login', '/registro'];
-  const adminHeaderPaths = ['/dashboard', '/usuarios', '/publicaciones', '/posteadas', '/comunidad', '/comentarios'];
+  const adminHeaderPaths = ['/dashboard', '/usuarios', '/posteadas', '/comentarios'];
 
   const shouldShowHeader = !hideHeaderPaths.includes(location.pathname);
   const isAdminHeader = adminHeaderPaths.includes(location.pathname);
@@ -46,6 +47,8 @@ const AppContent = () => {
           <Route path="/dashboard" element={<Dashboard />} />
         </Routes>
       </main>
+      {/* Mostrar footer en páginas públicas/cliente: no mostrar en login/registro ni en rutas admin */}
+      {shouldShowHeader && !isAdminHeader && <Footer />}
     </>
   );
 };
