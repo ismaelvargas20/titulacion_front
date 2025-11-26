@@ -10,6 +10,7 @@ export default function Publicaciones() {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  // Nota: los contadores globales se muestran y gestionan en `posteadas.jsx`.
 
   const removePost = async (id) => {
     // localizar la publicación completa en el estado para saber si está vendida
@@ -187,6 +188,7 @@ export default function Publicaciones() {
         } catch (e) {
           setPosts(visibleByEstado);
         }
+        // contadores globales gestionados en `posteadas.jsx`; no inicializamos aquí
       } catch (err) {
         console.error('Error cargando publicaciones', err);
         if (mounted) setError('Error cargando publicaciones');
@@ -197,6 +199,8 @@ export default function Publicaciones() {
     load();
     return () => { mounted = false; };
   }, []);
+
+  // Contadores globales: la implementación y visualización quedan en `posteadas.jsx`.
 
   const [page, setPage] = useState(1);
   const pageSize = 4; // coincidir con comentarios
@@ -225,6 +229,8 @@ export default function Publicaciones() {
             </div>
           </div>
         </section>
+
+            {/* Resumen global eliminado: se muestra en `posteadas.jsx` para evitar duplicación */}
 
         <div className="section-header">
           <h2>Mis publicaciones</h2>

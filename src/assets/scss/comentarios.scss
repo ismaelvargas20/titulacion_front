@@ -51,8 +51,11 @@
   border-bottom: 1px solid rgba(15,23,42,0.04);
   background: transparent;
 }
-.cm-header h3 { margin:0; font-size: 1.05rem; font-weight:700; color: #0b1220; }
-.cm-header .cm-sub { color: #6b7280; margin-top:6px; font-size: 0.95rem; }
+.cm-header h3 { margin:0; font-size: 1.15rem; font-weight:800; color: #0b1220; }
+.cm-header .cm-sub { color: #6b7280; margin-top:6px; font-size: 0.95rem; display:flex; align-items:center; gap:8px; }
+.cm-badge { background: linear-gradient(90deg,#eef2ff,#e0f2fe); color:#1e40af; padding:4px 8px; border-radius:999px; font-weight:700; font-size:12px; }
+.cm-title-group { display:flex; flex-direction:column; }
+.cm-actions { display:flex; align-items:center; gap:8px; }
 .cm-close {
   background: transparent;
   border: 1px solid rgba(2,6,23,0.06);
@@ -63,12 +66,15 @@
 
 /* Body / list */
 .cm-body { padding: 18px 20px; overflow: auto; flex: 1 1 auto; }
-.cm-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
-.cm-item { background: #f8fafc; border: 1px solid #e6eef6; padding: 14px; border-radius: 10px; }
+.cm-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 14px; }
+.cm-item { background: transparent; border-radius: 10px; }
+.cm-item-body { display:flex; gap:12px; align-items:flex-start; padding: 12px; border-radius:10px; background: linear-gradient(180deg,#ffffff,#fbfcfe); border:1px solid #eef3fb; box-shadow: 0 6px 20px rgba(15,23,42,0.04); }
+.cm-avatar { width:44px; height:44px; border-radius:50%; background: linear-gradient(135deg,#4f46e5,#06b6d4); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px; }
+.cm-content { flex:1; }
 .cm-item-head { display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:8px; }
 .cm-author { color: #0f172a; font-weight:700; }
 .cm-date { color: #97a1ad; font-size: 12px; }
-.cm-text { color:#0b1220; line-height:1.45; }
+.cm-text { color:#0b1220; line-height:1.5; white-space:pre-wrap; }
 .cm-empty { color:#6b7280; padding: 18px; text-align:center; }
 
 /* scrollbar (WebKit) */
@@ -749,3 +755,51 @@ body.global-dark .comments-modal-overlay,
 .app-main.dark-theme .comments-modal-overlay {
   background: rgba(2,6,23,0.6) !important;
 }
+
+/* ===== Ajustes: usar gris suave consistente con el resto del tema (modo oscuro) ===== */
+body.global-dark .comentarios-admin-page .usuarios-table-wrap .user-card,
+body.global-dark .cm-item-body,
+.app-main.dark-theme .comentarios-admin-page .usuarios-table-wrap .user-card,
+.app-main.dark-theme .cm-item-body {
+  background: #232629 !important; /* mismo gris suave que el modal */
+  border-color: rgba(255,255,255,0.04) !important;
+  box-shadow: 0 6px 18px rgba(2,6,23,0.45) !important;
+  color: #e6eef8 !important;
+}
+
+/* Avatares: tono gris/azulado suave para mantener contraste sin colores vivos */
+body.global-dark .cm-avatar,
+.app-main.dark-theme .cm-avatar {
+  background: linear-gradient(135deg,#2b2e31,#1f2937) !important;
+  color: #d1d5db !important;
+  box-shadow: 0 2px 8px rgba(2,6,23,0.35) !important;
+}
+
+/* Textos dentro de tarjetas/modal: grises suaves */
+body.global-dark .cm-text,
+.app-main.dark-theme .cm-text,
+body.global-dark .cm-author,
+.app-main.dark-theme .cm-author {
+  color: #dbe7ef !important;
+}
+
+body.global-dark .cm-date,
+.app-main.dark-theme .cm-date {
+  color: #9aa3ab !important;
+}
+
+/* Botones dentro de las tarjetas en dark: bordes suaves y texto gris claro */
+body.global-dark .comentarios-admin-page .usuarios-table-wrap .user-card .btn,
+.app-main.dark-theme .comentarios-admin-page .usuarios-table-wrap .user-card .btn {
+  background: transparent !important;
+  border-color: rgba(255,255,255,0.04) !important;
+  color: #cbd5e1 !important;
+}
+
+body.global-dark .comentarios-admin-page .usuarios-table-wrap .user-card .btn.danger,
+.app-main.dark-theme .comentarios-admin-page .usuarios-table-wrap .user-card .btn.danger {
+  color: #fca5a5 !important;
+  border-color: rgba(252,165,165,0.08) !important;
+}
+
+/* Fin de ajustes */

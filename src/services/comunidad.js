@@ -11,6 +11,15 @@ export async function listarHilos(params = {}) {
   }
 }
 
+export async function listarHilosEliminados(params = {}) {
+  try {
+    const res = await api.get('/hilos/eliminados', { params });
+    return res.data;
+  } catch (err) {
+    throw err;
+  }
+}
+
 export async function crearHilo(payload) {
   try {
     if (!localStorage.getItem('csrfToken')) await fetchCsrfToken();
@@ -25,6 +34,14 @@ export async function crearHilo(payload) {
 export async function detalleHilo(id) {
   try {
     const res = await api.get(`/hilos/detalle/${encodeURIComponent(id)}`);
+    return res.data;
+  } catch (err) {
+    throw err;
+  }
+}
+export async function detalleHiloAdmin(id) {
+  try {
+    const res = await api.get(`/hilos/detalle/${encodeURIComponent(id)}?includeDeleted=true`);
     return res.data;
   } catch (err) {
     throw err;
@@ -83,6 +100,7 @@ export async function eliminarHilo(hiloId) {
 
 export default {
   listarHilos,
+  listarHilosEliminados,
   crearHilo,
   detalleHilo,
   crearRespuesta

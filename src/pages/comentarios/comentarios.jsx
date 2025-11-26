@@ -1,84 +1,21 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import '../../assets/scss/usuarios.scss';
 import '../../assets/scss/comentarios.scss';
+import { listarHilos, detalleHilo, eliminarHilo } from '../../services/comunidad';
+import { FaSyncAlt } from 'react-icons/fa';
+import Swal from 'sweetalert2';
 
-const initialPosts = [
-  {
-    id: 1,
-    question: '¿Cuál es la mejor moto para un principiante en el enduro?',
-    author: 'Carlos Mendez',
-    comments: 12,
-    lastResponder: 'José',
-    reported: false,
-    today: false,
-    commentsList: [
-      { id: 101, author: 'José', text: 'Yo recomiendo una 250cc ligera para empezar.', date: '2025-11-10 10:12' },
-      { id: 102, author: 'María', text: 'Coincido, y con suspensiones ajustables.', date: '2025-11-11 09:02' },
-      { id: 103, author: 'Luis', text: 'También considerar una moto con buen soporte de servicio local.', date: '2025-11-11 11:20' },
-      { id: 104, author: 'Ana', text: 'No olvides revisar la ergonomía y el asiento para viajes largos.', date: '2025-11-12 08:45' },
-      { id: 105, author: 'Pedro', text: 'Una 250 o 300 suele ser ideal para iniciarse.', date: '2025-11-12 10:05' },
-      { id: 106, author: 'Sofía', text: 'Busca repuestos fáciles de conseguir en tu zona.', date: '2025-11-12 12:30' },
-      { id: 107, author: 'Carlos', text: 'La relación peso-potencia es clave para practicar enduro.', date: '2025-11-12 13:50' },
-      { id: 108, author: 'Mariana', text: 'Asegúrate de llevar protección adecuada y practicar en terrenos seguros.', date: '2025-11-12 15:10' },
-      { id: 109, author: 'Diego', text: 'Si vas a salir de ruta, opta por llantas aptas para tierra.', date: '2025-11-12 16:00' },
-      { id: 110, author: 'Lucía', text: 'Una moto con suspensión ajustable te ayudará mucho.', date: '2025-11-12 17:22' },
-      { id: 111, author: 'Fernando', text: 'Prueba la moto antes de comprarla para sentir la manejabilidad.', date: '2025-11-12 18:05' },
-      { id: 112, author: 'Raquel', text: 'Consulta foros locales para recomendaciones de taller.', date: '2025-11-12 19:40' }
-    ]
-  },
-  {
-    id: 2,
-    question: '¿Qué mantenimiento básico debo hacerle a mi trail antes de un viaje largo por Sudamérica?',
-    author: 'Ana Ramírez',
-    comments: 8,
-    lastResponder: 'María',
-    reported: true,
-    today: false,
-    commentsList: [
-      { id: 201, author: 'Luis', text: 'Revisar frenos, cadena y nivel de aceite.', date: '2025-11-09 12:01' }
-    ]
-  },
-  {
-    id: 3,
-    question: 'Mejor aceite para una moto 2T',
-    author: 'Luis Torres',
-    comments: 5,
-    lastResponder: 'Pedro',
-    reported: false,
-    today: true,
-    commentsList: [{ id: 301, author: 'Pedro', text: 'Usa aceite sintético de buena marca.', date: '2025-11-12 08:30' }]
-  },
-  {
-    id: 4,
-    question: '¿Vale la pena la nueva Himalayan 450?',
-    author: 'María Fernández',
-    comments: 3,
-    lastResponder: null,
-    reported: false,
-    today: false,
-    commentsList: []
-  },
-  {
-    id: 5,
-    question: '¿Qué casco es mejor para la ciudad?',
-    author: 'Diego López',
-    comments: 2,
-    lastResponder: 'Ana',
-    reported: false,
-    today: false,
-    commentsList: [{ id: 501, author: 'Ana', text: 'Busca homologación y buena visibilidad.', date: '2025-11-08 14:20' }]
-  },
-  {
-    id: 6,
-    question: '¿Cómo ajustar la suspensión trasera?',
-    author: 'Sofía Ruiz',
-    comments: 6,
-    lastResponder: 'Carlos',
-    reported: true,
-    today: false,
-    commentsList: [{ id: 601, author: 'Carlos', text: 'Siguiendo el manual y midiendo pre-carga.', date: '2025-11-07 11:44' }]
-  },
-];
+// initialPosts se mantiene como ejemplo en el repo pero por defecto usaremos carga desde API
+const initialPosts = [];
+
+// Helper: detectar si una fecha está en el mismo día (considera strings y timestamps)
+function isSameDay(dateLike) {
+  if (!dateLike) return false;
+  const d = typeof dateLike === 'string' ? new Date(dateLike) : new Date(dateLike);
+  if (Number.isNaN(d.getTime())) return false;
+  const now = new Date();
+  return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth() && d.getDate() === now.getDate();
+}
 
 export default function Comentarios() {
   const [posts, setPosts] = useState(initialPosts);
@@ -87,16 +24,142 @@ export default function Comentarios() {
   const pageSize = 4; // items por página
   const [selectedPost, setSelectedPost] = useState(null);
   const [modalComments, setModalComments] = useState([]);
+  // Contadores globales (se calculan desde la carga general y no cambian con filtros)
+  const [totalQuestionsCount, setTotalQuestionsCount] = useState(0);
+  const [answeredCountTotal, setAnsweredCountTotal] = useState(0);
+  const [newTodayCountTotal, setNewTodayCountTotal] = useState(0);
 
-  const totalQuestions = posts.length;
+  // Cargar datos reales desde backend al montar el componente y al cambiar filtro
+  // función reutilizable para cargar hilos (la usaremos desde botones y useEffect)
+  async function fetchHilos(whichFilter) {
+    let mounted = true;
+    try {
+      const params = { limit: 100 };
+      if (whichFilter === 'deleted' || filter === 'deleted') params.onlyDeleted = 'true';
+      const data = await listarHilos(params);
+      if (!mounted) return;
+      let arr = [];
+      if (!Array.isArray(data)) {
+        arr = Array.isArray(data.hilos) ? data.hilos : [];
+      } else {
+        arr = data;
+      }
+      // Si pedimos 'deleted' pero la respuesta no contiene ningun hilo marcado
+      // como 'eliminado', hacemos un fallback: pedimos todo y filtramos en
+      // frontend. Esto cubre casos donde el backend ignore el parámetro.
+      if (whichFilter === 'deleted' || filter === 'deleted') {
+        // Si hay un endpoint dedicado, usarlo (más fiable). Intentamos usarlo
+        // en primera instancia; si falla, usamos la respuesta original.
+        try {
+          // llamar al endpoint especializado (nuevo service `listarHilosEliminados`)
+          // lo importamos dinámicamente para evitar ciclos en testing
+          const { listarHilosEliminados } = await import('../../services/comunidad');
+          const delData = await listarHilosEliminados({ limit: 100 });
+          const delArr = Array.isArray(delData) ? delData : (Array.isArray(delData.hilos) ? delData.hilos : []);
+          setPosts(delArr.map(mapHiloToPost));
+        } catch (eEndpoint) {
+          // si no está disponible, caer al comportamiento anterior (usar lo que vino)
+          setPosts(arr.map(mapHiloToPost));
+        }
+      } else {
+        const mapped = arr.map(mapHiloToPost);
+        setPosts(mapped);
+        // actualizar contadores globales basados en el conjunto general
+        setTotalQuestionsCount(mapped.length);
+        setAnsweredCountTotal(mapped.filter(p => (p.comments || 0) > 0).length);
+        setNewTodayCountTotal(mapped.filter(p => p.today).length);
+      }
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error('Error cargando hilos:', err);
+      // mostrar feedback visible en UI si quieres (descomentarlo)
+      // Swal.fire({ title: 'Error', text: String(err.message || err), icon: 'error' });
+    }
+    return () => { mounted = false; };
+  }
+
+  // Obtener solo los contadores globales (no altera la lista mostrada)
+  async function fetchGlobalCounts() {
+    try {
+      const data = await listarHilos({ limit: 500 });
+      const arr = Array.isArray(data) ? data : (Array.isArray(data.hilos) ? data.hilos : []);
+      const mapped = arr.map(mapHiloToPost);
+      setTotalQuestionsCount(mapped.length);
+      setAnsweredCountTotal(mapped.filter(p => (p.comments || 0) > 0).length);
+      setNewTodayCountTotal(mapped.filter(p => p.today).length);
+    } catch (err) {
+      // no bloquear la UI por fallos en contadores
+      // eslint-disable-next-line no-console
+      console.warn('No se pudieron actualizar contadores globales:', err && err.message ? err.message : err);
+    }
+  }
+
+  useEffect(() => {
+    fetchHilos(filter);
+  }, [filter]);
+
+  // Inicializar contadores al montar y escuchar eventos externos de creación
+  // de hilos para refrescar contadores y recargar la lista cuando otra
+  // parte de la app cree uno. Dependemos de `filter` para que al cambiar
+  // el filtro el listener tenga la versión correcta.
+  useEffect(() => {
+    // cargar valores iniciales de contadores
+    fetchGlobalCounts();
+
+    // listener que otras partes de la app pueden disparar:
+    // window.dispatchEvent(new Event('hiloCreado'))
+    // Cuando se recibe, refrescamos contadores y la lista actual.
+    const onHiloCreado = (ev) => {
+      fetchGlobalCounts();
+      // refrescar la lista visible (usa el filtro actual)
+      try {
+        fetchHilos(filter);
+      } catch (e) {
+        // ignore
+      }
+    };
+    window.addEventListener('hiloCreado', onHiloCreado);
+    return () => {
+      window.removeEventListener('hiloCreado', onHiloCreado);
+    };
+  }, [filter]);
+
+  // Normalizador: convierte un objeto hilo del backend al formato usado por este componente
+  function mapHiloToPost(h) {
+    const id = h.id || h.hiloId || h.hilo_id || null;
+    const question = h.titulo || h.title || h.question || h.pregunta || 'Sin título';
+    const author = h.autor_nombre || (h.cliente && (h.cliente.nombre || h.cliente.nombre_completo)) || h.autor || 'Anónimo';
+    // respuestas pueden venir como array o como contador
+    const commentsList = Array.isArray(h.respuestas) ? h.respuestas.map(r => ({ id: r.id, author: r.autor_nombre || r.autor || r.cliente_nombre || 'Anónimo', text: r.cuerpo || r.text || r.body || '', date: r.fecha_creacion || r.fecha_modificacion || r.createdAt })) : [];
+    // Preferir conteo total si el backend lo provee (respuestasCountAll),
+    // luego conteo activo (respuestasCount / respuestas_count), y por último
+    // fallback al tamaño del array si está presente.
+    const comments = (commentsList.length) || (typeof h.respuestasCountAll === 'number' ? h.respuestasCountAll : (typeof h.respuestas_count === 'number' ? h.respuestas_count : (h.respuestasCount || h.cantidad_respuestas || 0)));
+    // el backend expone `ultimaRespuesta` en listarHilos (objeto con autor_nombre y cuerpo)
+    const lastResponder = (h.ultimaRespuesta && (h.ultimaRespuesta.autor_nombre || h.ultimaRespuesta.autor)) || (commentsList.length ? commentsList[commentsList.length - 1].author : (h.ultima_respuesta_por || h.lastResponder || null));
+    const created = h.fecha_creacion || h.createdAt || h.created_at || null;
+    const today = isSameDay(created);
+    const reported = Boolean(h.reportado || h.reported || h.estado === 'reportado');
+    const estado = h.estado || null;
+    return { id, question, author, comments, lastResponder, reported, today, commentsList, estado };
+  }
+
+  // Mostrar contadores globales calculados desde la carga general
+  const totalQuestions = totalQuestionsCount;
   // Contadores claros: 'Respondidas' = preguntas con al menos 1 comentario
-  const answeredCount = posts.filter(p => (p.comments || 0) > 0).length;
+  const answeredCount = answeredCountTotal;
   // 'Nuevas hoy' = posts marcados con la bandera `today` en datos de ejemplo
-  const newTodayCount = posts.filter(p => p.today).length;
+  const newTodayCount = newTodayCountTotal;
   // Contador de publicaciones reportadas (para acceso rápido)
 
   const filtered = useMemo(() => {
     let base = posts;
+    // Garantía en frontend: si el usuario seleccionó 'Eliminadas', asegurarnos
+    // de mostrar sólo hilos cuyo estado sea 'eliminado' aunque el backend
+    // devolviera resultados mixtos.
+    if (filter === 'deleted') {
+      return base.filter(p => p.estado === 'eliminado');
+    }
     if (filter === 'most') {
       return [...posts].sort((a, b) => (b.comments || 0) - (a.comments || 0));
     }
@@ -118,21 +181,53 @@ export default function Comentarios() {
     return filtered.slice(start, start + pageSize);
   }, [filtered, page]);
 
-  function deletePost(id) {
-    if (!window.confirm('Eliminar pregunta?')) return;
-    setPosts(prev => prev.filter(p => p.id !== id));
+  async function deletePost(id) {
+    const resp = await Swal.fire({
+      title: '¿Eliminar pregunta?',
+      text: 'Esta acción eliminará la pregunta (y sus respuestas) en el backend.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar',
+      reverseButtons: true
+    });
+    if (!(resp && resp.isConfirmed)) return;
+
+    // intentar eliminar en backend
+    try {
+      await eliminarHilo(id);
+      // actualizar UI: quitar hilo de la lista
+      setPosts(prev => prev.filter(p => p.id !== id));
+      // refrescar contadores globales (frontend-only) sin cambiar la vista actual
+      fetchGlobalCounts();
+      Swal.fire({ title: 'Eliminada', text: 'La pregunta y sus respuestas fueron eliminadas.', icon: 'success', timer: 1400, showConfirmButton: false });
+    } catch (err) {
+      console.error('Error eliminando hilo:', err);
+      const msg = (err && err.response && err.response.data && (err.response.data.error || err.response.data.message)) || err.message || 'Error eliminando en servidor';
+      Swal.fire({ title: 'Error', text: String(msg), icon: 'error' });
+    }
   }
 
-  function toggleReport(id) {
-    setPosts(prev => prev.map(p => p.id === id ? { ...p, reported: !p.reported } : p));
-  }
-
-  function viewPost(id) {
+  async function viewPost(id) {
     console.log('viewPost()', id);
     const p = posts.find(x => x.id === id);
     if (!p) return;
     setSelectedPost(p);
-    setModalComments(p.commentsList ? [...p.commentsList] : []);
+    // solicitar detalle al backend para obtener todas las respuestas
+    try {
+      // Si estamos viendo hilos eliminados, pedir detalle incluyendo elementos eliminados
+      const { detalleHiloAdmin } = await import('../../services/comunidad');
+      const res = (filter === 'deleted') ? await detalleHiloAdmin(id) : await detalleHilo(id);
+      // res: { hilo, respuestas }
+      const respuestas = Array.isArray(res && res.respuestas) ? res.respuestas.map(r => ({ id: r.id, author: r.autor_nombre || r.autor || r.cliente_nombre || 'Anónimo', text: r.cuerpo || r.text || r.body || '', date: r.fecha_creacion || r.fecha_modificacion || r.createdAt })) : [];
+      setModalComments(respuestas);
+      // actualizar también el entry en la lista (opcional) para reflejar último responder y conteo
+      setPosts(prev => prev.map(item => item.id === p.id ? { ...item, comments: respuestas.length || item.comments, lastResponder: respuestas.length ? respuestas[respuestas.length - 1].author : item.lastResponder } : item));
+    } catch (err) {
+      console.error('Error cargando detalle de hilo:', err);
+      // fallback a lo que ya tiene
+      setModalComments(p.commentsList ? [...p.commentsList] : []);
+    }
   }
 
   function closeModal() {
@@ -186,33 +281,43 @@ export default function Comentarios() {
                 <button className={`filter-btn ${filter === 'most' ? 'active' : ''}`} onClick={() => setFilter('most')}>Más interacción</button>
                 <button className={`filter-btn ${filter === 'unanswered' ? 'active' : ''}`} onClick={() => setFilter('unanswered')}>Sin responder</button>
                 <button className={`filter-btn ${filter === 'new' ? 'active' : ''}`} onClick={() => setFilter('new')}>Nuevas hoy</button>
-                <button className={`filter-btn ${filter === 'reported' ? 'active' : ''}`} onClick={() => setFilter('reported')}>Reportadas</button>
-                <button className="filter-btn clear" onClick={() => setFilter('all')}>Limpiar</button>
+                <button className={`filter-btn ${filter === 'deleted' ? 'active' : ''}`} onClick={() => { setFilter('deleted'); fetchHilos('deleted'); }}>Eliminadas</button>
+                <button className="filter-btn clear" onClick={() => { setFilter('all'); fetchHilos('all'); }} aria-label="Limpiar filtros">
+                  <FaSyncAlt style={{ marginRight: 8 }} />Limpiar
+                </button>
               </div>
+              {/* Debug info removed */}
             </div>
 
             <div className="usuarios-table-wrap">
               {paginated.map(p => (
                 <div key={p.id} className="user-card" style={{ marginBottom: 12 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div>
-                      <h4 style={{ margin: 0 }}>{p.question}</h4>
-                      <div style={{ color: '#6b7280', marginTop: 6 }}>Por {p.author}</div>
+                  <div className="cm-item-body" style={{ padding: 12 }}>
+                    <div className="cm-avatar" aria-hidden>
+                      {p.author ? String(p.author).charAt(0).toUpperCase() : 'U'}
                     </div>
-                    <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-                      <div style={{ color: '#6b7280', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 6 }}>
-                        <i className="fas fa-comment" /> <span className="comment-count">{p.comments}</span>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div>
+                          <h4 style={{ margin: 0 }}>{p.question}</h4>
+                          <div style={{ color: '#6b7280', marginTop: 6 }}>Por {p.author}</div>
+                        </div>
+                        <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+                          <div style={{ color: '#6b7280', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 6 }}>
+                            <i className="fas fa-comment" /> <span className="comment-count">{p.comments}</span>
+                          </div>
+                        </div>
                       </div>
-                      {p.reported && <span className="state-badge state-suspended">Reportada</span>}
-                    </div>
-                  </div>
 
-                  <div className="card-body" style={{ marginTop: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div style={{ color: '#6b7280' }}>{p.lastResponder ? `Última respuesta de ${p.lastResponder}` : 'Última respuesta: —'}</div>
-                    <div style={{ display: 'flex', gap: 8 }}>
-                      <button type="button" className="btn" onClick={() => { console.log('click ver', p.id); viewPost(p.id); }} title="Ver"><i className="fas fa-eye" /></button>
-                      <button type="button" className="btn" onClick={() => toggleReport(p.id)} title="Marcar/Desmarcar reportado"><i className="fas fa-flag" /></button>
-                      <button type="button" className="btn danger" onClick={() => deletePost(p.id)} title="Eliminar"><i className="fas fa-trash" /></button>
+                      <div style={{ marginTop: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div style={{ color: '#6b7280' }}>{p.lastResponder ? `Última respuesta de ${p.lastResponder}` : 'Última respuesta: —'}</div>
+                        <div style={{ display: 'flex', gap: 8 }}>
+                          <button type="button" className="btn" onClick={() => viewPost(p.id)} title="Ver"><i className="fas fa-eye" /></button>
+                          {filter !== 'deleted' && (
+                            <button type="button" className="btn danger" onClick={() => deletePost(p.id)} title="Eliminar"><i className="fas fa-trash" /></button>
+                          )}
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -245,27 +350,37 @@ export default function Comentarios() {
           <div className="comments-modal-overlay" role="dialog" aria-modal="true" onClick={closeModal}>
             <div className="comments-modal" onClick={e => e.stopPropagation()}>
               <header className="cm-header">
-                <div>
+                <div className="cm-title-group">
                   <h3 style={{ margin: 0 }}>{selectedPost.question}</h3>
-                  <div style={{ color: '#6b7280', marginTop: 6 }}>Por {selectedPost.author} · {selectedPost.comments} comentarios</div>
+                  <div className="cm-sub">Por <strong>{selectedPost.author}</strong> · <span className="cm-badge">{selectedPost.comments} comentarios</span></div>
                 </div>
-                <button className="cm-close" onClick={closeModal} aria-label="Cerrar">×</button>
+                <div className="cm-actions">
+                  <button className="cm-close" onClick={closeModal} aria-label="Cerrar">×</button>
+                </div>
               </header>
 
               <div className="cm-body">
                 {modalComments.length === 0 ? (
-                  <div className="cm-empty">Aún no hay comentarios. Sé el primero en comentar.</div>
+                  <div className="cm-empty">No hay comentarios.</div>
                 ) : (
                   <ul className="cm-list">
-                    {modalComments.map(c => (
-                      <li key={c.id} className="cm-item">
-                        <div className="cm-item-head">
-                          <strong className="cm-author">{c.author}</strong>
-                          <span className="cm-date">{c.date}</span>
-                        </div>
-                        <div className="cm-text">{c.text}</div>
-                      </li>
-                    ))}
+                    {modalComments.map(c => {
+                      const initials = (c.author || 'A').split(' ').map(s => s[0]).filter(Boolean).slice(0,2).join('').toUpperCase();
+                      return (
+                        <li key={c.id} className="cm-item">
+                          <div className="cm-item-body">
+                            <div className="cm-avatar">{initials}</div>
+                            <div className="cm-content">
+                              <div className="cm-item-head">
+                                <strong className="cm-author">{c.author}</strong>
+                                <span className="cm-date">{c.date}</span>
+                              </div>
+                              <div className="cm-text">{c.text}</div>
+                            </div>
+                          </div>
+                        </li>
+                      );
+                    })}
                   </ul>
                 )}
               </div>

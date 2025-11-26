@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import './App.css';
 import Header from './components/header/header';
 import Footer from './components/footer/footer';
@@ -31,7 +31,16 @@ const AppContent = () => {
       {shouldShowHeader && <Header adminMode={isAdminHeader} />}
       <main className="app-main">
         <Routes>
-          <Route path="/" element={<Inicio />} />
+          <Route path="/" element={
+            // si hay usuario en sessionStorage mostramos Inicio; si no, redirigimos a /login
+            (function(){
+              try {
+                const cur = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
+                if (cur && (cur.id || cur.email)) return <Inicio />;
+              } catch (e) { /* ignore parse error */ }
+              return <Navigate to="/login" replace />;
+            })()
+          } />
           <Route path="/login" element={<Login />} />
           <Route path="/registro" element={<Registro />} />
           <Route path="/motos" element={<Motos />} />

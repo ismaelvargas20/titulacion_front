@@ -22,6 +22,11 @@ const Usuarios = () => {
   const [openMenuId, setOpenMenuId] = useState(null);
   const [selectedUser, setSelectedUser] = useState(null);
   const [loadingProfile, setLoadingProfile] = useState(false);
+  // Contadores globales (no dependen del filtro visible)
+  const [totalUsuariosActivos, setTotalUsuariosActivos] = useState(0);
+  const [totalClientesActivos, setTotalClientesActivos] = useState(0);
+  const [totalClientesEliminados, setTotalClientesEliminados] = useState(0);
+  const [totalNuevos30, setTotalNuevos30] = useState(0);
 
   // Derivar etiqueta de rol desde la respuesta del backend
   const deriveRole = (u) => {
@@ -153,6 +158,92 @@ const Usuarios = () => {
   // Cargar usuarios reales desde el backend cuando el componente monte
   const mountedRef = useRef(true);
 
+  // Helper: extraer recuento de publicaciones desde múltiples aliases/estructuras
+  const getPublicationsCount = (obj) => {
+    try {
+      if (!obj) return 0;
+      // campos directos que podrían representar el recuento (agregar aliases comunes)
+      const direct = [
+        obj.publicaciones_count, obj.posts_count, obj.pubs, obj.count_publicaciones, obj.publicaciones_total, obj.total_publicaciones,
+        obj.publicacionesTotal, obj.publicacionesTotalCount, obj.cantidad_publicaciones, obj.total_posts, obj.posts_total, obj.numero_publicaciones,
+        obj.totalPublicaciones, obj.totalPublicacionesCount
+      ];
+      for (const v of direct) {
+        if (typeof v === 'number') return v;
+        if (typeof v === 'string' && v.trim() !== '' && !Number.isNaN(Number(v))) return Number(v);
+      }
+
+      // arrays que representan publicaciones
+      if (Array.isArray(obj.publicaciones) && obj.publicaciones.length >= 0) return obj.publicaciones.length;
+      if (Array.isArray(obj.posts) && obj.posts.length >= 0) return obj.posts.length;
+
+      // revisar propiedades anidadas comunes y buscar recuentos de forma recursiva (profundidad limitada)
+      const pubNameRe = /publica|publicaciones|posts|post|cantidad|total|imagenes_publicaciones|imagenes|items|list/i;
+
+      const inspectCandidate = (o) => {
+        if (!o || typeof o !== 'object') return null;
+        // chequear campos directos conocidos
+        const directFields = [
+          'publicaciones_count', 'posts_count', 'pubs', 'publicacionesTotal', 'cantidad_publicaciones', 'total_posts', 'posts_total',
+          'publicaciones_total', 'total_publicaciones', 'totalPublicaciones', 'totalPublicacionesCount', 'numero_publicaciones', 'count_publicaciones'
+        ];
+        for (const f of directFields) {
+          if (Object.prototype.hasOwnProperty.call(o, f)) {
+            const v = o[f];
+            if (typeof v === 'number') return v;
+            if (typeof v === 'string' && v.trim() !== '' && !Number.isNaN(Number(v))) return Number(v);
+          }
+        }
+        // arrays que probablemente contengan publicaciones
+        for (const k of Object.keys(o)) {
+          const v = o[k];
+          if (Array.isArray(v) && pubNameRe.test(k)) return v.length;
+          if (typeof v === 'number' && pubNameRe.test(k)) return v;
+          if (typeof v === 'string' && v.trim() !== '' && !Number.isNaN(Number(v)) && pubNameRe.test(k)) return Number(v);
+        }
+        return null;
+      };
+
+      const seen = new Set();
+      const recurse = (o, depth = 0, maxDepth = 2) => {
+        if (!o || typeof o !== 'object' || depth > maxDepth) return null;
+        if (seen.has(o)) return null;
+        seen.add(o);
+        const direct = inspectCandidate(o);
+        if (direct !== null) return direct;
+        for (const k of Object.keys(o)) {
+          try {
+            const v = o[k];
+            if (v && typeof v === 'object') {
+              const r = recurse(v, depth + 1, maxDepth);
+              if (r !== null) return r;
+            }
+          } catch (e) { /* ignore */ }
+        }
+        return null;
+      };
+
+      const found = recurse(obj, 0, 2);
+      if (found !== null) return found;
+
+      // Último recurso: escanear todas las propiedades del objeto buscando números o arrays que parezcan publicaciones
+      for (const key of Object.keys(obj || {})) {
+        const val = obj[key];
+        if (typeof val === 'number') {
+          if (pubNameRe.test(key)) return val;
+        }
+        if (typeof val === 'string' && val.trim() !== '' && !Number.isNaN(Number(val))) {
+          if (pubNameRe.test(key)) return Number(val);
+        }
+        if (Array.isArray(val)) {
+          if (pubNameRe.test(key)) return val.length;
+        }
+      }
+
+      return 0;
+    } catch (e) { return 0; }
+  };
+
   const fetchUsers = async () => {
     try {
       const includeDeleted = stateFilter === 'eliminado';
@@ -164,14 +255,79 @@ const Usuarios = () => {
       ]);
       const uData = uRes.status === 'fulfilled' && uRes.value && uRes.value.data ? uRes.value.data : [];
       const cData = cRes.status === 'fulfilled' && cRes.value && cRes.value.data ? cRes.value.data : [];
+      // Intentar obtener recuentos de publicaciones en bloque para mapear a usuarios/clientes
+      let countsByUser = {};
+      let countsByClient = {};
+      try {
+        const pubsRes = await api.get('/publicaciones/listar?limit=500').catch(() => ({ data: [] }));
+        const pubs = pubsRes && pubsRes.data ? (Array.isArray(pubsRes.data) ? pubsRes.data : (Array.isArray(pubsRes.data.publicaciones) ? pubsRes.data.publicaciones : [])) : [];
+        const userAliases = ['userId','usuario_id','usuarioId','usuario','authorId','autor_id','autorId','autor','ownerId','owner_id','owner','created_by'];
+        const clientAliases = ['clienteId','cliente_id','cliente','clientId','client_id','client'];
+        const tryExtractId = (val) => {
+          if (!val && val !== 0) return null;
+          if (typeof val === 'number') return String(val);
+          if (typeof val === 'string' && val.trim() !== '') {
+            if (!Number.isNaN(Number(val))) return String(Number(val));
+            return val;
+          }
+          if (typeof val === 'object') {
+            if (val.id) return String(val.id);
+            if (val._id) return String(val._id);
+          }
+          return null;
+        };
+        for (const p of pubs) {
+          let foundClient = null;
+          for (const k of clientAliases) {
+            if (Object.prototype.hasOwnProperty.call(p, k)) {
+              const id = tryExtractId(p[k]);
+              if (id) { foundClient = id; break; }
+            }
+          }
+          if (foundClient) {
+            countsByClient[foundClient] = (countsByClient[foundClient] || 0) + 1;
+            continue;
+          }
+          let foundUser = null;
+          for (const k of userAliases) {
+            if (Object.prototype.hasOwnProperty.call(p, k)) {
+              const id = tryExtractId(p[k]);
+              if (id) { foundUser = id; break; }
+            }
+          }
+          if (foundUser) {
+            countsByUser[foundUser] = (countsByUser[foundUser] || 0) + 1;
+            continue;
+          }
+          try {
+            for (const key of Object.keys(p || {})) {
+              const v = p[key];
+              if (v && typeof v === 'object') {
+                const id = tryExtractId(v.id || v._id || v.usuario_id || v.cliente_id || v.userId || v.clientId);
+                if (id) {
+                  if (/cliente|client/i.test(key)) countsByClient[id] = (countsByClient[id] || 0) + 1;
+                  else countsByUser[id] = (countsByUser[id] || 0) + 1;
+                  break;
+                }
+              }
+            }
+          } catch (e) { /* ignore */ }
+        }
+      } catch (e) {
+        // no bloquear si falla el conteo adicional
+      }
+      // temporal debug removed: no imprimir JSON en producción
       if (!mountedRef.current) return;
+      // Depuración: mostrar muestras crudas antes de mapear para identificar aliases inesperados
+      // removed verbose raw-keys debug
+
       const mappedUsers = Array.isArray(uData) ? uData.map(u => ({
         id: u.id,
         name: u.fullname || u.nombre || u.name || u.email || u.correo_electronico,
         email: u.email || u.correo_electronico || '',
         role: deriveRole(u),
         state: normalizeState(u.estado || u.status),
-        pubs: u.publicaciones_count || 0,
+        pubs: getPublicationsCount(u) || (countsByUser[String(u.id)] || countsByUser[String(u._id)] || 0),
         createdAt: u.createdAt || u.created_at || u.fecha_registro || u.fecha_creacion || u.created || u.createdDate || null,
         isClient: false
       })) : [];
@@ -181,19 +337,143 @@ const Usuarios = () => {
         email: c.email || c.correo_electronico || c.contacto_email || '',
         role: 'Cliente',
         state: normalizeState(c.estado || c.status),
-        pubs: c.publicaciones_count || 0,
+        pubs: getPublicationsCount(c) || (countsByClient[String(c.id)] || countsByClient[String(c._id)] || 0),
+        __raw: c,
         createdAt: c.createdAt || c.created_at || c.fecha_registro || c.fecha_creacion || c.created || c.createdDate || null,
         isClient: true
       })) : [];
       setUsers([...mappedUsers, ...mappedClients]);
+      // removed mappedClients debug output
+      // removed mappedUsers debug output
     } catch (err) {
       console.debug('No se pudieron cargar usuarios/clientes desde backend', err?.message || err);
+    }
+  };
+
+  // Calcular contadores globales independientemente del filtro
+  const fetchGlobalUserCounts = async () => {
+    try {
+      const usuariosRes = await api.get('/usuarios/listar?limit=500&incluirEliminados=true').catch(() => ({ data: [] }));
+      const clientesRes = await api.get('/clientes/listar?limit=500&incluirEliminados=true').catch(() => ({ data: [] }));
+      const uData = usuariosRes && usuariosRes.data ? usuariosRes.data : [];
+      const cData = clientesRes && clientesRes.data ? clientesRes.data : [];
+
+      const allUsers = Array.isArray(uData) ? uData : (Array.isArray(uData.usuarios) ? uData.usuarios : []);
+      const allClients = Array.isArray(cData) ? cData : (Array.isArray(cData.clientes) ? cData.clientes : []);
+
+      // Normalizar como en fetchUsers para garantizar que el campo createdAt esté presente
+      const mappedUsers = Array.isArray(allUsers) ? allUsers.map(u => ({
+        id: u.id,
+        createdAt: u.createdAt || u.created_at || u.fecha_registro || u.fecha_creacion || u.created || u.createdDate || null,
+        state: normalizeState(u.estado || u.status || u.state)
+      })) : [];
+
+      const mappedClients = Array.isArray(allClients) ? allClients.map(c => ({
+        id: c.id,
+        createdAt: c.createdAt || c.created_at || c.fecha_registro || c.fecha_creacion || c.created || c.createdDate || null,
+        state: normalizeState(c.estado || c.status || c.state)
+      })) : [];
+
+      const usuariosActivos = mappedUsers.filter(u => String(u.state).toLowerCase() === 'activo').length;
+      const clientesActivos = mappedClients.filter(c => String(c.state).toLowerCase() === 'activo').length;
+      const clientesEliminados = mappedClients.filter(c => {
+        const s = String(c.state).toLowerCase();
+        return s.includes('elimin') || s.includes('delete') || s.includes('suspend');
+      }).length;
+
+      const now = Date.now();
+      const ms30 = 30 * 24 * 60 * 60 * 1000;
+
+      // Contar nuevos en los últimos 30 días entre usuarios y clientes combinados (evita duplicados por id)
+      const seen = new Set();
+      let nuevos30Count = 0;
+      for (const u of mappedUsers) {
+        if (!u || !u.id) continue;
+        const key = `u:${u.id}`;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        const ts = u.createdAt ? new Date(u.createdAt).getTime() : null;
+        if (ts && (now - ts) <= ms30) nuevos30Count += 1;
+      }
+      for (const c of mappedClients) {
+        if (!c || !c.id) continue;
+        const key = `c:${c.id}`;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        const ts = c.createdAt ? new Date(c.createdAt).getTime() : null;
+        if (ts && (now - ts) <= ms30) nuevos30Count += 1;
+      }
+
+      // Depuración: registrar detalles para entender por qué 'Nuevos (30 días)' queda en 2
+      try {
+        // contar cuántos tienen createdAt y cuántos cumplen 30d
+        const validUsers = mappedUsers.filter(u => u && u.createdAt);
+        const validClients = mappedClients.filter(c => c && c.createdAt);
+        const validUsersCount = validUsers.length;
+        const validClientsCount = validClients.length;
+        const usersNew = mappedUsers.filter(u => u && u.createdAt && ((now - new Date(u.createdAt).getTime()) <= ms30)).length;
+        const clientsNew = mappedClients.filter(c => c && c.createdAt && ((now - new Date(c.createdAt).getTime()) <= ms30)).length;
+        console.debug('[DEBUG] fetchGlobalUserCounts: totals -> usuarios:', mappedUsers.length, 'clientes:', mappedClients.length);
+        console.debug('[DEBUG] fetchGlobalUserCounts: con createdAt -> usuarios:', validUsersCount, 'clientes:', validClientsCount);
+        console.debug('[DEBUG] fetchGlobalUserCounts: nuevos30 -> usuarios:', usersNew, 'clientes:', clientsNew, 'combinedCount:', nuevos30Count);
+        // mostrar hasta 10 ejemplos de fechas (no PII sensible)
+        console.debug('[DEBUG] fetchGlobalUserCounts: muestras usuarios(createdAt):', validUsers.slice(0,10).map(u => ({ id: u.id, createdAt: u.createdAt })));
+        console.debug('[DEBUG] fetchGlobalUserCounts: muestras clientes(createdAt):', validClients.slice(0,10).map(c => ({ id: c.id, createdAt: c.createdAt })));
+      } catch (dbgErr) {
+        console.debug('DEBUG error:', dbgErr);
+      }
+
+      setTotalUsuariosActivos(usuariosActivos);
+      setTotalClientesActivos(clientesActivos);
+      setTotalClientesEliminados(clientesEliminados);
+      // Mantener extractor robusto de fecha y contar SOLO usuarios nuevos en 30 días
+      const getCreatedTsRobust = (obj) => {
+        if (!obj) return null;
+        const candidates = [
+          obj.createdAt, obj.created_at, obj.fecha_registro, obj.fecha_creacion, obj.created, obj.createdDate,
+        ];
+        const nested = ['data', 'cliente', 'detalle', 'user', 'usuario', 'profile', 'persona'];
+        for (const k of nested) {
+          if (obj[k]) {
+            const v = obj[k].createdAt || obj[k].created_at || obj[k].fecha_registro || obj[k].fecha_creacion || obj[k].created || obj[k].createdDate;
+            if (v) candidates.push(v);
+          }
+        }
+        for (const key of Object.keys(obj || {})) {
+          if (/fecha|created|createdat|created_at/i.test(key) && obj[key]) candidates.push(obj[key]);
+        }
+        for (const v of candidates) {
+          if (!v) continue;
+          const d = new Date(v);
+          if (!Number.isNaN(d.getTime())) return d.getTime();
+        }
+        return null;
+      };
+
+      let usersOnlyNew = 0;
+      const validUserDates = [];
+      for (const u of mappedUsers) {
+        const ts = getCreatedTsRobust(u);
+        if (ts) validUserDates.push({ id: u.id, ts });
+        if (ts && (now - ts) <= ms30) usersOnlyNew += 1;
+      }
+
+      console.debug('[DEBUG] fetchGlobalUserCounts: usuarios totales:', mappedUsers.length, 'con fecha válida:', validUserDates.length, 'nuevosUsuarios30:', usersOnlyNew);
+      if (validUserDates.length > 0) console.debug('[DEBUG] fetchGlobalUserCounts: muestra usuarios(createdAt):', validUserDates.slice(0,10).map(x => ({ id: x.id, createdAt: new Date(x.ts).toISOString() })));
+
+      setTotalNuevos30(usersOnlyNew);
+    } catch (err) {
+      // no bloquear UI por fallos en contadores
+      // eslint-disable-next-line no-console
+      console.warn('No se pudieron actualizar contadores globales de usuarios:', err);
     }
   };
 
   useEffect(() => {
     mountedRef.current = true;
     fetchUsers();
+    // inicializar contadores globales
+    fetchGlobalUserCounts();
     return () => { mountedRef.current = false; };
   }, []);
 
@@ -203,23 +483,12 @@ const Usuarios = () => {
   }, [stateFilter]);
   
   // Resumen calculado a partir de los datos cargados
-  const summary = useMemo(() => {
-    const now = Date.now();
-    const ms30 = 30 * 24 * 60 * 60 * 1000;
-    const usuariosActivos = users.filter(u => (u.role === 'Usuario' || (u.role && String(u.role).toLowerCase().includes('admin'))) && String(u.state) === 'Activo').length;
-    const clientesActivos = users.filter(u => u.role === 'Cliente' && String(u.state) === 'Activo').length;
-    const eliminados = users.filter(u => {
-      const s = String(u.state || '').toLowerCase();
-      return s.includes('elimin') || s.includes('delete');
-    }).length;
-    const nuevos30 = users.filter(u => {
-      if (u.role !== 'Cliente') return false;
-      const d = u.createdAt ? new Date(u.createdAt) : null;
-      if (!d || Number.isNaN(d.getTime())) return false;
-      return (now - d.getTime()) <= ms30;
-    }).length;
-    return { usuariosActivos, clientesActivos, eliminados, nuevos30 };
-  }, [users]);
+  const summary = useMemo(() => ({
+    usuariosActivos: totalUsuariosActivos,
+    clientesActivos: totalClientesActivos,
+    eliminados: totalClientesEliminados,
+    nuevos30: totalNuevos30
+  }), [totalUsuariosActivos, totalClientesActivos, totalClientesEliminados, totalNuevos30]);
   return (
     <div className="usuarios-page">
       <main className="usuarios-main">
@@ -331,14 +600,16 @@ const Usuarios = () => {
                                     setLoadingProfile(true);
                                     let resp;
                                     let normalized = null;
+                                    // si el filtro actual o el estado del usuario indican 'eliminado', pedir detalle incluyendo eliminados
+                                    const includeDeleted = stateFilter === 'eliminado' || (u && String(u.state || '').toLowerCase() === 'eliminado');
                                     if (u.isClient || (String(u.id).startsWith('c-'))) {
                                       const rawId = String(u.id).startsWith('c-') ? String(u.id).slice(2) : u.id;
                                       // El backend expone /clientes/detalle/:id
-                                      resp = await api.get(`/clientes/detalle/${rawId}`);
+                                      resp = await api.get(`/clientes/detalle/${rawId}${includeDeleted ? '?incluirEliminados=true' : ''}`);
                                       normalized = normalizeProfile(resp && resp.data ? resp.data : u, true);
                                     } else {
                                       // El backend expone /usuarios/detalle/:id
-                                      resp = await api.get(`/usuarios/detalle/${u.id}`);
+                                      resp = await api.get(`/usuarios/detalle/${u.id}${includeDeleted ? '?incluirEliminados=true' : ''}`);
                                       normalized = normalizeProfile(resp && resp.data ? resp.data : u, false);
                                     }
                                     if (normalized) {
@@ -352,33 +623,37 @@ const Usuarios = () => {
                                     setLoadingProfile(false);
                                   }
                                 }}>Ver perfil</button></li>
-                            <li className="action-item" role="menuitem"><button onClick={async () => {
-                                  setOpenMenuId(null);
-                                  const confirm = await Swal.fire({
-                                    title: `Eliminar a "${u.name}"?`,
-                                    text: 'Esta acción marcará al usuario como eliminado en el servidor. ¿Deseas continuar?',
-                                    icon: 'warning',
-                                    showCancelButton: true,
-                                    confirmButtonText: 'Sí, eliminar',
-                                    cancelButtonText: 'Cancelar'
-                                  });
-                                  if (!confirm.isConfirmed) return;
-                                  try {
-                                    // Llamar al backend según tipo (cliente/usuario)
-                                    if (u.isClient || (String(u.id).startsWith('c-'))) {
-                                      const rawId = String(u.id).startsWith('c-') ? String(u.id).slice(2) : u.id;
-                                      await api.delete(`/clientes/eliminar/${rawId}`);
-                                    } else {
-                                      await api.delete(`/usuarios/eliminar/${u.id}`);
+                                {stateFilter !== 'eliminado' && (
+                                  <li className="action-item" role="menuitem"><button onClick={async () => {
+                                    setOpenMenuId(null);
+                                    const confirm = await Swal.fire({
+                                      title: `Eliminar a "${u.name}"?`,
+                                      text: 'Esta acción marcará al usuario como eliminado en el servidor. ¿Deseas continuar?',
+                                      icon: 'warning',
+                                      showCancelButton: true,
+                                      confirmButtonText: 'Sí, eliminar',
+                                      cancelButtonText: 'Cancelar'
+                                    });
+                                    if (!confirm.isConfirmed) return;
+                                    try {
+                                      // Llamar al backend según tipo (cliente/usuario)
+                                      if (u.isClient || (String(u.id).startsWith('c-'))) {
+                                        const rawId = String(u.id).startsWith('c-') ? String(u.id).slice(2) : u.id;
+                                        await api.delete(`/clientes/eliminar/${rawId}`);
+                                      } else {
+                                        await api.delete(`/usuarios/eliminar/${u.id}`);
+                                      }
+                                      // Refrescar lista desde el servidor para mantener coherencia
+                                      await fetchUsers();
+                                      // actualizar contadores globales sin cambiar filtros
+                                      await fetchGlobalUserCounts();
+                                      try { await Swal.fire({ icon: 'success', title: 'Eliminado', timer: 1400, showConfirmButton: false }); } catch (e) {}
+                                    } catch (err) {
+                                      console.error('Error eliminando usuario/cliente', err);
+                                      try { Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo eliminar en el servidor.' }); } catch (e) { alert('No se pudo eliminar'); }
                                     }
-                                    // Refrescar lista desde el servidor para mantener coherencia
-                                    await fetchUsers();
-                                    try { await Swal.fire({ icon: 'success', title: 'Eliminado', timer: 1400, showConfirmButton: false }); } catch (e) {}
-                                  } catch (err) {
-                                    console.error('Error eliminando usuario/cliente', err);
-                                    try { Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo eliminar en el servidor.' }); } catch (e) { alert('No se pudo eliminar'); }
-                                  }
-                                }}>Eliminar</button></li>
+                                  }}>Eliminar</button></li>
+                                )}
                           </ul>
                         )}
                       </div>
@@ -408,6 +683,7 @@ const Usuarios = () => {
           <UsuariosCrearModal isOpen={showCreate} onClose={() => setShowCreate(false)} onCreated={async () => {
             try {
               await fetchUsers();
+              await fetchGlobalUserCounts();
             } catch (e) {
               console.debug('Error refrescando usuarios/clientes', e?.message || e);
             } finally {
@@ -421,3 +697,4 @@ const Usuarios = () => {
 };
 
 export default Usuarios;
+  

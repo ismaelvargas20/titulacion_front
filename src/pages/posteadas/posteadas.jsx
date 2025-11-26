@@ -19,6 +19,11 @@ export default function Posteadas() {
 
 	const [posts, setPosts] = useState(initialPosts);
 	const [loading, setLoading] = useState(false);
+	// Contadores globales (no deben cambiar al aplicar el filtro local)
+	const [totalMotos, setTotalMotos] = useState(0);
+	const [totalRepuestos, setTotalRepuestos] = useState(0);
+	const [totalEliminados, setTotalEliminados] = useState(0);
+	const [nuevos30Global, setNuevos30Global] = useState(0);
 	const [selected, setSelected] = useState(null);
 	// contact form state similar to other pages (used by the modals)
 	const [showContactForm, setShowContactForm] = useState(false);
@@ -56,17 +61,64 @@ export default function Posteadas() {
 	useEffect(() => {
 		// recargar cuando cambien filtros
 		fetchPosts();
+		// actualizar contadores globales (independientes del filtro)
+		try { fetchGlobalPublicationCounts(); } catch (e) { /* noop */ }
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [stateFilter, typeFilter]);
 
 
-	const totalMotos = posts.filter(p => p.type === 'Moto').length;
-	const totalRepuestos = posts.filter(p => p.type === 'Repuesto').length;
-	const nuevos30 = posts.filter(p => ((p.status || '').toLowerCase() === 'publicado')).length; // contar publicado según BD
-	const eliminados = posts.filter(p => {
-		const s = (p.status || '').toLowerCase();
-		return s === 'eliminado' || s === 'suspendido' || s.includes('elim') || s.includes('rechaz');
-	}).length;
+
+// Función para calcular contadores globales (pide listados con incluirEliminados)
+const fetchGlobalPublicationCounts = async () => {
+	try {
+		const includeParams = { includeDetails: 'true', limit: 500, incluirEliminados: 'true' };
+		const [motosRes, repuestosRes] = await Promise.all([
+			listarPublicaciones({ tipo: 'moto', ...includeParams }).catch(() => []),
+			listarRepuestos({ ...includeParams }).catch(() => [])
+		]);
+
+		const motosArr = Array.isArray(motosRes) ? motosRes : (Array.isArray(motosRes.publicaciones) ? motosRes.publicaciones : []);
+		const repuestosArr = Array.isArray(repuestosRes) ? repuestosRes : (Array.isArray(repuestosRes.publicaciones) ? repuestosRes.publicaciones : []);
+
+		const now = Date.now();
+		const ms30 = 30 * 24 * 60 * 60 * 1000;
+
+		const totalM = motosArr.length;
+		const totalR = repuestosArr.length;
+
+		const all = [...motosArr, ...repuestosArr];
+		const elimin = all.filter(p => {
+			const s = ((p.estado || p.status || (p.detalle && p.detalle.estado)) || '').toString().toLowerCase();
+			return s === 'eliminado' || s === 'suspendido' || s.includes('elim') || s.includes('rechaz') || s.includes('delete');
+		}).length;
+
+		const getCreated = (p) => {
+			if (!p) return null;
+			const cand = [p.createdAt, p.created_at, p.fecha_registro, p.fecha_creacion, p.created, p.createdDate, (p.detalle && (p.detalle.createdAt || p.detalle.created_at || p.detalle.fecha_registro || p.detalle.fecha_creacion))];
+			for (const v of cand) {
+				if (!v) continue;
+				const d = new Date(v);
+				if (!Number.isNaN(d.getTime())) return d.getTime();
+			}
+			return null;
+		};
+
+		let nuevos = 0;
+		for (const p of all) {
+			const ts = getCreated(p);
+			if (ts && (now - ts) <= ms30) nuevos += 1;
+		}
+
+		setTotalMotos(totalM);
+		setTotalRepuestos(totalR);
+		setTotalEliminados(elimin);
+		setNuevos30Global(nuevos);
+	} catch (err) {
+		// no bloquear UI por fallos en contadores
+		// eslint-disable-next-line no-console
+		console.warn('Error calculando contadores globales posteadas', err);
+	}
+};
 
 	async function fetchPosts() {
 		setLoading(true);
@@ -156,6 +208,8 @@ export default function Posteadas() {
 				await eliminarPublicacion(item.id);
 			}
 			await fetchPosts();
+			// refrescar contadores globales después de eliminar
+			try { await fetchGlobalPublicationCounts(); } catch (e) { /* noop */ }
 			try { Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Publicación eliminada', showConfirmButton: false, timer: 1500 }); } catch (e) {}
 		} catch (err) {
 			console.error('Error eliminando publicación', err);
@@ -200,12 +254,12 @@ export default function Posteadas() {
 					<div className="sum-card">
 						<div className="sum-icon sum-icon-suspended"><i className="fas fa-ban" aria-hidden="true"></i></div>
 						<h3>Eliminados</h3>
-						<p className="sum-value sum-orange">{eliminados}</p>
+						<p className="sum-value sum-orange">{totalEliminados}</p>
 					</div>
 					<div className="sum-card">
 						<div className="sum-icon sum-icon-new"><i className="fas fa-clock" aria-hidden="true"></i></div>
 						<h3>Nuevos (30 días)</h3>
-						<p className="sum-value sum-blue">{nuevos30}</p>
+						<p className="sum-value sum-blue">{nuevos30Global}</p>
 					</div>
 				</section>
 
@@ -286,7 +340,9 @@ export default function Posteadas() {
 													{openMenuId === p.id && (
 														<ul className="action-list" role="menu">
 															<li className="action-item" role="menuitem"><button onClick={() => { setOpenMenuId(null); setSelected(p); }}>Ver</button></li>
-															<li className="action-item" role="menuitem"><button onClick={() => deletePost(p)}>Eliminar</button></li>
+															{stateFilter !== 'eliminado' && (
+																<li className="action-item" role="menuitem"><button onClick={() => deletePost(p)}>Eliminar</button></li>
+															)}
 														</ul>
 													)}
 												</div>
