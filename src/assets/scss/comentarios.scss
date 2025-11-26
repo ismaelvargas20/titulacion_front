@@ -803,3 +803,54 @@ body.global-dark .comentarios-admin-page .usuarios-table-wrap .user-card .btn.da
 }
 
 /* Fin de ajustes */
+
+/* Responsive tweaks: evitar overflow de la barra de filtros y mejorar layout móvil */
+@media (max-width: 760px) {
+  .comentarios-admin-page .filters-top .filters-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    justify-content: flex-start;
+  }
+
+  .comentarios-admin-page .filters-top .filters-row .filter-btn {
+    flex: 1 1 auto;
+    min-width: 72px;
+    max-width: 100%;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+  }
+
+  .comentarios-admin-page .filters-top .filters-row .filter-btn.clear {
+    flex: 0 0 auto;
+  }
+
+  .comentarios-admin-page .filters-top {
+    padding: 8px 10px;
+  }
+
+  /* Apilar columnas: contenido principal arriba, aside debajo */
+  .comentarios-admin-page .page-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .comentarios-admin-page aside { order: 2; }
+  .comentarios-admin-page section { order: 1; }
+
+  /* Ajustes de resumen superior para móviles */
+  .comentarios-admin-page .usuarios-summary {
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+  }
+
+  /* Asegurar que las tarjetas no generen overflow lateral */
+  .comentarios-admin-page .usuarios-table-wrap,
+  .comentarios-admin-page .usuarios-table-wrap .user-card {
+    box-sizing: border-box;
+    width: 100%;
+    overflow: hidden;
+  }
+}

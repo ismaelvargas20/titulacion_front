@@ -23,20 +23,39 @@ const AppContent = () => {
   const hideHeaderPaths = ['/login', '/registro'];
   const adminHeaderPaths = ['/dashboard', '/usuarios', '/posteadas', '/comentarios'];
 
+  // Detectar si el usuario actualmente logueado actúa como administrador.
+  // En esta app 'usuario' representa cuentas administrativas y 'cliente' los clientes.
+  let cur = null;
+  let isAdminUser = false;
+  try {
+    cur = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
+    if (cur) {
+      const rolRaw = (cur.rol || cur.role || '').toString().toLowerCase();
+      isAdminUser = !!(
+        cur.isAdmin || cur.is_admin ||
+        rolRaw.includes('admin') || rolRaw.includes('usuario') || rolRaw.includes('usuarios')
+      );
+    }
+  } catch (e) { /* ignorar errores de parseo */ }
+
   const shouldShowHeader = !hideHeaderPaths.includes(location.pathname);
-  const isAdminHeader = adminHeaderPaths.includes(location.pathname);
+  // Mostrar header admin cuando la ruta es de admin o cuando el usuario autenticado
+  // es admin y está visualizando su perfil (/perfil).
+  const isAdminHeader = adminHeaderPaths.includes(location.pathname) || (isAdminUser && location.pathname === '/perfil');
 
   return (
     <>
       {shouldShowHeader && <Header adminMode={isAdminHeader} />}
       <main className="app-main">
         <Routes>
+          {/* Ruta explícita para /inicio */}
+          <Route path="/inicio" element={<Inicio />} />
           <Route path="/" element={
-            // si hay usuario en sessionStorage mostramos Inicio; si no, redirigimos a /login
+            // si hay usuario en sessionStorage redirigimos a /inicio; si no, redirigimos a /login
             (function(){
               try {
                 const cur = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
-                if (cur && (cur.id || cur.email)) return <Inicio />;
+                if (cur && (cur.id || cur.email)) return <Navigate to="/inicio" replace />;
               } catch (e) { /* ignore parse error */ }
               return <Navigate to="/login" replace />;
             })()

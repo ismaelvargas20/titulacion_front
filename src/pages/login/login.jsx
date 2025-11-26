@@ -69,7 +69,7 @@ const Login = () => {
 
         // Normalizar y redirigir
         if (role && role.toString().toLowerCase().includes('cliente')) {
-          navigate('/');
+          navigate('/inicio');
         } else {
           navigate('/dashboard');
         }

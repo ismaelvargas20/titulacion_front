@@ -123,7 +123,17 @@ const Header = ({ adminMode = false }) => {
         <header className="app-header">
             <div className="header-container">
                 
-                <NavLink to="/" className="logo">
+                <NavLink
+                    to="/"
+                    className="logo"
+                    onClick={(e) => {
+                        if (adminMode) {
+                            // En modo admin el logo no debe navegar a inicio
+                            e.preventDefault();
+                            e.stopPropagation();
+                        }
+                    }}
+                >
                     Motorbikers
                     <span className="logo-image" aria-hidden="true">
                         <img src={cascoImg} alt="Casco Motorbikers" />

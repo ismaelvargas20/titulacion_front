@@ -47,6 +47,38 @@ const Usuarios = () => {
     return 'Usuario';
   };
 
+  // Heurística para detectar si un usuario actúa como administrador
+  const detectIsAdmin = (u) => {
+    try {
+      if (!u) return false;
+      // bandera explícita
+      if (u.isAdmin === true || u.is_admin === true) return true;
+      // propiedades simples
+      const candidates = [];
+      if (u.role) candidates.push(u.role);
+      if (u.rol) candidates.push(u.rol);
+      if (u.roles) {
+        if (Array.isArray(u.roles)) candidates.push(...u.roles.map(r => (r && (r.name || r)) || ''));
+        else candidates.push(u.roles);
+      }
+      if (u.usuarios_roles) {
+        if (Array.isArray(u.usuarios_roles)) candidates.push(...u.usuarios_roles.map(r => (r && (r.name || r.role || r)) || ''));
+        else candidates.push(u.usuarios_roles);
+      }
+      if (u.__raw) {
+        candidates.push(JSON.stringify(u.__raw));
+      }
+      if (u.email) candidates.push(u.email);
+      const txt = candidates.join(' ').toLowerCase();
+      if (!txt) return false;
+      // Si aparece 'admin' consideramos admin
+      if (txt.includes('admin')) return true;
+      // algunos proyectos usan 'super' o 'root' para cuentas especiales
+      if (txt.includes('super') || txt.includes('root')) return true;
+      return false;
+    } catch (e) { return false; }
+  };
+
   const normalizeState = (s) => {
     if (!s) return 'Activo';
     const txt = String(s).toLowerCase();
@@ -111,6 +143,7 @@ const Usuarios = () => {
       pubs,
       state: normalizeState(rawState),
       role,
+      isAdmin: detectIsAdmin(merged),
       // mantengo referencia al objeto original por si se necesita
       __raw: src
     };
@@ -328,6 +361,8 @@ const Usuarios = () => {
         role: deriveRole(u),
         state: normalizeState(u.estado || u.status),
         pubs: getPublicationsCount(u) || (countsByUser[String(u.id)] || countsByUser[String(u._id)] || 0),
+        // Opción A: considerar todos los usuarios (no clientes) como admin para ocultar conteo
+        isAdmin: true,
         createdAt: u.createdAt || u.created_at || u.fecha_registro || u.fecha_creacion || u.created || u.createdDate || null,
         isClient: false
       })) : [];
@@ -338,6 +373,7 @@ const Usuarios = () => {
         role: 'Cliente',
         state: normalizeState(c.estado || c.status),
         pubs: getPublicationsCount(c) || (countsByClient[String(c.id)] || countsByClient[String(c._id)] || 0),
+        isAdmin: detectIsAdmin(c) || false,
         __raw: c,
         createdAt: c.createdAt || c.created_at || c.fecha_registro || c.fecha_creacion || c.created || c.createdDate || null,
         isClient: true
@@ -586,7 +622,7 @@ const Usuarios = () => {
                     </td>
                     <td className="td-email">{u.email}</td>
                     <td className="td-role"><span className={`role-badge ${u.role === 'Usuario' ? 'role-user' : (u.role === 'Cliente' ? 'role-client' : 'role-user')}`}>{u.role}</span></td>
-                    <td className="td-pubs">{u.pubs}</td>
+                    <td className="td-pubs">{u.isAdmin ? '#' : u.pubs}</td>
                     <td className="td-state"><span className={`state-badge ${u.state === 'Activo' ? 'state-active' : 'state-suspended'}`}>{u.state}</span></td>
                     <td className="td-actions">
                       <div className="actions-wrap">
