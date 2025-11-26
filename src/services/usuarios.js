@@ -3,6 +3,20 @@ import api from '../api/axios';
 // Llamada unificada al nuevo endpoint /auth/login
 // Normaliza la respuesta a { data: { user: { id, nombre, email, rol } } }
 export async function login(payload) {
+  // Asegurarnos de obtener un token CSRF si el servidor lo requiere.
+  try {
+    const tokenRes = await api.get('/csrf-token');
+    if (tokenRes && tokenRes.data && tokenRes.data.csrfToken) {
+      localStorage.setItem('csrfToken', tokenRes.data.csrfToken);
+    } else {
+      // Si el servidor devuelve null, eliminar token local por seguridad
+      localStorage.removeItem('csrfToken');
+    }
+  } catch (err) {
+    // Si falla la obtención del token, continuar y dejar que el servidor responda con el error.
+    console.warn('No se pudo obtener CSRF token previo al login:', err && err.message);
+  }
+
   const res = await api.post('/auth/login', payload);
   const data = res && res.data ? res.data : {};
 

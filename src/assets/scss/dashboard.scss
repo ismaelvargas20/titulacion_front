@@ -336,6 +336,12 @@ body.global-dark .usuarios-modal-avatar {
 	box-shadow: 0 8px 28px rgba(11,115,255,0.12);
 	opacity: 1;
 }
+
+/* Quitar ese círculo sólo en el contexto del Dashboard para evitar el fondo azul
+   detrás de las burbujas/iconos y dejar los iconos limpios. */
+.dashboard .summary-card::before {
+  display: none !important;
+}
 .summary-card .summary-icon {
 	position: absolute;
 	right: 18px;
@@ -1120,3 +1126,19 @@ body.global-dark .dashboard .pagination .page-btn.active {
 .dashboard .moto-modal .modal-actions .btn.btn-primary {
 	display: none !important;
 }
+
+/* Icon colors for dashboard summary cards: cada tarjeta tiene su burbuja de color
+	 distinto para mejorar el contraste visual. Sólo afecta al .summary-icon. */
+.summary-card.summary-clients .summary-icon {
+	background: linear-gradient(135deg,#8b5cf6,#6366f1) !important; /* púrpura -> azul oscuro */
+}
+.summary-card.summary-motos .summary-icon {
+	background: linear-gradient(135deg,#fb923c,#f97316) !important; /* naranja */
+}
+.summary-card.summary-repuestos .summary-icon {
+	background: linear-gradient(135deg,#10b981,#059669) !important; /* verde esmeralda */
+}
+.summary-card.summary-hilos .summary-icon {
+	background: linear-gradient(135deg,#06b6d4,#0891b2) !important; /* teal/cian */
+}
+.summary-card .summary-icon i { color: #ffffff !important; }

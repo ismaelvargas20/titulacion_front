@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import '../../assets/scss/publicaciones.scss';
 import { FaEdit, FaTimes, FaCheck } from 'react-icons/fa';
 import * as publicacionesService from '../../services/motos';
+import api from '../../api/axios';
 import Swal from 'sweetalert2';
 
 export default function Publicaciones() {
@@ -149,6 +150,13 @@ export default function Publicaciones() {
         const mapped = (Array.isArray(data) ? data : []).map((p) => {
           const detalle = p.detalle || {};
           const contactPhone = detalle.telefono_contacto || detalle.phone || p.telefono || p.phone || null;
+          // Resolver imagen preferida (puede venir en p.imagenes[*].url o en p.publicacion.imagenes)
+          let imgCandidate = (p.imagenes && p.imagenes[0] && (p.imagenes[0].url || p.imagenes[0].path)) || (p.publicacion && p.publicacion.imagenes && p.publicacion.imagenes[0] && (p.publicacion.imagenes[0].url || p.publicacion.imagenes[0].path)) || 'https://loremflickr.com/320/200/motorcycle';
+          try {
+            if (typeof imgCandidate === 'string' && imgCandidate.startsWith('/uploads')) {
+              imgCandidate = `${api.defaults.baseURL}${imgCandidate}`;
+            }
+          } catch (e) { /* noop */ }
           return {
             id: p.id || (p.publicacion && p.publicacion.id),
             type: p.tipo || detalle.tipo || 'publicacion',
@@ -156,7 +164,7 @@ export default function Publicaciones() {
             price: p.precio || (p.publicacion && p.publicacion.precio) || p.price || 0,
             stars: detalle.estrellas || p.estrellas || 0,
             status: p.estado || (p.publicacion && p.publicacion.estado) || 'Activa',
-            img: (p.imagenes && p.imagenes[0] && (p.imagenes[0].url || p.imagenes[0].path)) || (p.publicacion && p.publicacion.imagenes && p.publicacion.imagenes[0] && p.publicacion.imagenes[0].url) || 'https://loremflickr.com/320/200/motorcycle',
+            img: imgCandidate,
             // campos adicionales para edición
             model: detalle.modelo || p.modelo || null,
             revision: detalle.revision || p.revision || null,

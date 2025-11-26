@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, useLocation, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation, Navigate, Outlet } from 'react-router-dom';
 import './App.css';
 import Header from './components/header/header';
 import Footer from './components/footer/footer';
@@ -43,13 +43,40 @@ const AppContent = () => {
   // es admin y está visualizando su perfil (/perfil).
   const isAdminHeader = adminHeaderPaths.includes(location.pathname) || (isAdminUser && location.pathname === '/perfil');
 
+  // Guardia: requiere usuario autenticado
+  const RequireAuth = ({ children }) => {
+    const loc = useLocation();
+    try {
+      const cur = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
+      if (cur && (cur.id || cur.email)) {
+        return children ? children : <Outlet />;
+      }
+    } catch (e) { /* ignore */ }
+    return <Navigate to="/login" state={{ from: loc }} replace />;
+  };
+
+  // Guardia: requiere usuario administrador
+  const RequireAdmin = ({ children }) => {
+    const loc = useLocation();
+    try {
+      const cur = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
+      if (cur) {
+        const rolRaw = (cur.rol || cur.role || '').toString().toLowerCase();
+        const admin = !!(cur.isAdmin || cur.is_admin || rolRaw.includes('admin') || rolRaw.includes('usuario'));
+        if (admin) return children ? children : <Outlet />;
+      }
+    } catch (e) { /* ignore */ }
+    // si no es admin, redirigir a inicio o login si no autenticado
+    try { const cur2 = JSON.parse(sessionStorage.getItem('currentUser') || 'null'); if (!cur2) return <Navigate to="/login" state={{ from: loc }} replace />; } catch (e) { return <Navigate to="/login" state={{ from: loc }} replace />; }
+    return <Navigate to="/inicio" replace />;
+  };
+
   return (
     <>
       {shouldShowHeader && <Header adminMode={isAdminHeader} />}
       <main className="app-main">
         <Routes>
           {/* Ruta explícita para /inicio */}
-          <Route path="/inicio" element={<Inicio />} />
           <Route path="/" element={
             // si hay usuario en sessionStorage redirigimos a /inicio; si no, redirigimos a /login
             (function(){
@@ -62,17 +89,26 @@ const AppContent = () => {
           } />
           <Route path="/login" element={<Login />} />
           <Route path="/registro" element={<Registro />} />
-          <Route path="/motos" element={<Motos />} />
-          <Route path="/repuestos" element={<Repuestos />} />
-          <Route path="/posteadas" element={<Posteadas />} />
-          <Route path="/usuarios" element={<Usuarios />} />
-          <Route path="/comunidad" element={<Comunidad />} />
-          <Route path="/vender" element={<Vender />} />
-          <Route path="/chat" element={<Chat />} />
-          <Route path="/comentarios" element={<Comentarios />} />
-          <Route path="/perfil" element={<Perfil />} />
-          <Route path="/publicaciones" element={<Publicaciones />} />
-          <Route path="/dashboard" element={<Dashboard />} />
+
+          {/* Rutas que requieren estar autenticado */}
+          <Route element={<RequireAuth />}>
+            <Route path="/inicio" element={<Inicio />} />
+            <Route path="/motos" element={<Motos />} />
+            <Route path="/repuestos" element={<Repuestos />} />
+            <Route path="/comunidad" element={<Comunidad />} />
+            <Route path="/vender" element={<Vender />} />
+            <Route path="/chat" element={<Chat />} />
+            <Route path="/perfil" element={<Perfil />} />
+            <Route path="/publicaciones" element={<Publicaciones />} />
+          </Route>
+
+          {/* Rutas de administración (solo admins) */}
+          <Route element={<RequireAdmin />}>
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/usuarios" element={<Usuarios />} />
+            <Route path="/posteadas" element={<Posteadas />} />
+            <Route path="/comentarios" element={<Comentarios />} />
+          </Route>
         </Routes>
       </main>
       {/* Mostrar footer en páginas públicas/cliente: no mostrar en login/registro ni en rutas admin */}

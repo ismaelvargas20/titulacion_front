@@ -5,6 +5,7 @@ import RepuestosModal from '../repuestos/repuestos_modal';
 import Swal from 'sweetalert2';
 import cascosImg from '../../assets/img/cascos.jpg';
 import suzuImg from '../../assets/img/suzu.png';
+import api from '../../api/axios';
 import { listarPublicaciones, eliminarPublicacion } from '../../services/motos';
 import { listarRepuestos, eliminarRepuesto } from '../../services/repuestos';
 
@@ -140,7 +141,11 @@ const fetchGlobalPublicationCounts = async () => {
 				rawState: p.estado || p.status || (p.detalle && (p.detalle.status || p.detalle.estado)) || null,
 				status: p.estado || p.status || (p.detalle && (p.detalle.status || p.detalle.estado)) || 'Desconocido',
 				subtitle: p.descripcion || p.subtitle || '',
-				img: (p.imagenes && p.imagenes[0] && p.imagenes[0].url) ? p.imagenes[0].url : (p.detalle && p.detalle.imagenes && p.detalle.imagenes[0]) || suzuImg,
+				img: (() => {
+					let imgCandidate = (p.imagenes && p.imagenes[0] && (p.imagenes[0].url || p.imagenes[0].path)) || (p.detalle && p.detalle.imagenes && p.detalle.imagenes[0]) || suzuImg;
+					try { if (typeof imgCandidate === 'string' && imgCandidate.startsWith('/uploads')) imgCandidate = `${api.defaults.baseURL}${imgCandidate}`; } catch (e) { /* noop */ }
+					return imgCandidate;
+				})(),
 				price: p.precio || p.price || p.valor || '—',
 				location: (p.detalle && (p.detalle.ubicacion || p.detalle.ciudad)) || (p.cliente && (p.cliente.ciudad || p.cliente.ubicacion)) || p.ubicacion || p.location || '—',
 				stars: (p.detalle && p.detalle.estrellas) || p.estrellas || p.puntuacion || 0,
@@ -164,7 +169,11 @@ const fetchGlobalPublicationCounts = async () => {
 				rawState: p.estado || p.status || (p.detalle && (p.detalle.status || p.detalle.estado)) || null,
 				status: p.estado || p.status || (p.detalle && (p.detalle.status || p.detalle.estado)) || 'Desconocido',
 				subtitle: p.descripcion || p.subtitle || '',
-				img: (p.imagenes && p.imagenes[0] && p.imagenes[0].url) ? p.imagenes[0].url : (p.detalle && p.detalle.imagenes && p.detalle.imagenes[0]) || cascosImg,
+				img: (() => {
+					let imgCandidate = (p.imagenes && p.imagenes[0] && (p.imagenes[0].url || p.imagenes[0].path)) || (p.detalle && p.detalle.imagenes && p.detalle.imagenes[0]) || cascosImg;
+					try { if (typeof imgCandidate === 'string' && imgCandidate.startsWith('/uploads')) imgCandidate = `${api.defaults.baseURL}${imgCandidate}`; } catch (e) { /* noop */ }
+					return imgCandidate;
+				})(),
 				price: p.precio || p.price || '—',
 				location: (p.detalle && (p.detalle.ubicacion || p.detalle.ciudad)) || (p.cliente && (p.cliente.ciudad || p.cliente.ubicacion)) || p.ubicacion || p.location || '—',
 				stars: (p.detalle && p.detalle.estrellas) || p.estrellas || 0,

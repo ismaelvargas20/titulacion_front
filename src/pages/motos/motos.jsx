@@ -326,6 +326,15 @@ const Motos = () => {
             transmission: form.transmission || 'manual',
           };
           setRecentMotos((prev) => prev.map(m => (m.id === updatedMoto.id ? updatedMoto : m)));
+          try {
+            const curRaw = typeof window !== 'undefined' ? sessionStorage.getItem('currentUser') : null;
+            const cur = curRaw ? JSON.parse(curRaw) : null;
+            const key = cur && cur.id ? `removedPublicaciones_user_${cur.id}` : 'removedPublicaciones';
+            const raw = localStorage.getItem(key) || '[]';
+            const arr = Array.isArray(JSON.parse(raw)) ? JSON.parse(raw) : [];
+            const filtered = arr.filter(x => Number(x) !== Number(updatedMoto.id));
+            localStorage.setItem(key, JSON.stringify(filtered));
+          } catch (e) { /* noop */ }
           setPublishLoading(false);
           setPublishSuccess(true);
           try {
@@ -383,6 +392,17 @@ const Motos = () => {
           transmission: form.transmission || 'manual',
         };
         setRecentMotos((prev) => [newMoto, ...prev]);
+        try {
+          const curRaw = typeof window !== 'undefined' ? sessionStorage.getItem('currentUser') : null;
+          const cur = curRaw ? JSON.parse(curRaw) : null;
+          const key = cur && cur.id ? `removedPublicaciones_user_${cur.id}` : 'removedPublicaciones';
+          const raw = localStorage.getItem(key) || '[]';
+          const arr = Array.isArray(JSON.parse(raw)) ? JSON.parse(raw) : [];
+          const filtered = arr.filter(x => Number(x) !== Number(newMoto.id));
+          localStorage.setItem(key, JSON.stringify(filtered));
+          // limpieza realizada (debug removido)
+          try { window.dispatchEvent(new CustomEvent('publicacion:created', { detail: { id: newMoto.id } })); } catch (e) {}
+        } catch (e) { /* noop */ }
         setPublishLoading(false);
         setPublishSuccess(true);
         // Mostrar notificación bonita con SweetAlert2

@@ -119,7 +119,12 @@ const Dashboard = () => {
           // Fallback a propiedades en `p.detalle` si no existe en raíz.
           state: p.status || p.estado || (p.detalle && (p.detalle.status || p.detalle.estado)) || null,
           subtitle: p.descripcion || p.subtitle || '',
-          img: (p.imagenes && p.imagenes[0] && p.imagenes[0].url) ? p.imagenes[0].url : (p.detalle && p.detalle.imagenes && p.detalle.imagenes[0]) || suzuImg,
+          // Resolver imagen: preferir p.imagenes[0].url, luego detalle.imagenes, y si es ruta relativa (/uploads) anteponer baseURL
+          img: (() => {
+            let imgCandidate = (p.imagenes && p.imagenes[0] && (p.imagenes[0].url || p.imagenes[0].path)) || (p.detalle && p.detalle.imagenes && p.detalle.imagenes[0]) || suzuImg;
+            try { if (typeof imgCandidate === 'string' && imgCandidate.startsWith('/uploads')) imgCandidate = `${api.defaults.baseURL}${imgCandidate}`; } catch (e) { /* noop */ }
+            return imgCandidate;
+          })(),
           price: p.precio || p.price || p.valor || '—',
           // location: prefer detalle.ubicacion, then cliente.ciudad, then fields on publication
           location: (p.detalle && (p.detalle.ubicacion || p.detalle.ciudad)) || (p.cliente && (p.cliente.ciudad || p.cliente.ubicacion)) || p.ubicacion || p.location || '—',
@@ -145,7 +150,11 @@ const Dashboard = () => {
           clienteId: p.clienteId || p.usuarioId || (p.detalle && (p.detalle.clienteId || p.detalle.usuarioId)) || (p.cliente && (p.cliente.id || p.cliente.clienteId)) || null,
           state: p.status || p.estado || (p.detalle && (p.detalle.status || p.detalle.estado)) || null,
           subtitle: p.descripcion || p.subtitle || '',
-          img: (p.imagenes && p.imagenes[0] && p.imagenes[0].url) ? p.imagenes[0].url : (p.detalle && p.detalle.imagenes && p.detalle.imagenes[0]) || cascosImg,
+          img: (() => {
+            let imgCandidate = (p.imagenes && p.imagenes[0] && (p.imagenes[0].url || p.imagenes[0].path)) || (p.detalle && p.detalle.imagenes && p.detalle.imagenes[0]) || cascosImg;
+            try { if (typeof imgCandidate === 'string' && imgCandidate.startsWith('/uploads')) imgCandidate = `${api.defaults.baseURL}${imgCandidate}`; } catch (e) { /* noop */ }
+            return imgCandidate;
+          })(),
           price: p.precio || p.price || '—',
           location: (p.detalle && (p.detalle.ubicacion || p.detalle.ciudad)) || (p.cliente && (p.cliente.ciudad || p.cliente.ubicacion)) || p.ubicacion || p.location || '—',
           stars: (p.detalle && p.detalle.estrellas) || p.estrellas || 0,
@@ -236,22 +245,22 @@ const Dashboard = () => {
         <p className="dashboard-subtitle">Gestiona usuarios, anuncios y la comunidad de la plataforma</p>
 
         <section className="dashboard-summary">
-          <div className="summary-card">
+          <div className="summary-card summary-clients">
             <h2>Total Clientes</h2>
             <span className="summary-icon"><i className="fas fa-users" aria-hidden="true"></i></span>
             <p>{totalUsers}</p>
           </div>
-          <div className="summary-card">
+          <div className="summary-card summary-motos">
             <h2>Motos Publicadas</h2>
             <span className="summary-icon"><i className="fas fa-motorcycle" aria-hidden="true"></i></span>
             <p>{totalMotos}</p>
           </div>
-          <div className="summary-card">
+          <div className="summary-card summary-repuestos">
             <h2>Repuestos Publicados</h2>
             <span className="summary-icon"><i className="fas fa-wrench" aria-hidden="true"></i></span>
             <p>{totalRepuestos}</p>
           </div>
-          <div className="summary-card">
+          <div className="summary-card summary-hilos">
             <h2>Preguntas en el Foro</h2>
             <span className="summary-icon"><i className="fas fa-comments" aria-hidden="true"></i></span>
             <p>{totalHilos}</p>
