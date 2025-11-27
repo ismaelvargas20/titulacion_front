@@ -276,11 +276,17 @@ body, html {
 
   .forgot-password {
     display: block;
+    display: inline-block;
+    width: 100%;
     text-align: center;
     margin-top: 1rem;
     color: $primary-blue;
     text-decoration: none;
     font-size: 0.9rem;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
 
     &:hover {
       text-decoration: underline;

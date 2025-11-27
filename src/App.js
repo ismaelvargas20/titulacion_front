@@ -17,10 +17,23 @@ import Vender from './pages/vender/vender';
 import Chat from './pages/vender/chat';
 import Dashboard from './pages/dashboard/dashboard';
 import Comentarios from './pages/comentarios/comentarios';
+import RequestPassword, { ResetPassword } from './components/password/password';
+import { useNavigate } from 'react-router-dom';
+
+// Wrapper que muestra la pantalla de Login y, además, el modal de cambio de contraseña
+const LoginWithReset = () => {
+  const navigate = useNavigate();
+  return (
+    <>
+      <Login />
+      <ResetPassword onClose={() => navigate('/login')} />
+    </>
+  );
+};
 
 const AppContent = () => {
   const location = useLocation();
-  const hideHeaderPaths = ['/login', '/registro'];
+  const hideHeaderPaths = ['/login', '/registro', '/recuperar', '/reset-password'];
   const adminHeaderPaths = ['/dashboard', '/usuarios', '/posteadas', '/comentarios'];
 
   // Detectar si el usuario actualmente logueado actúa como administrador.
@@ -76,6 +89,12 @@ const AppContent = () => {
       {shouldShowHeader && <Header adminMode={isAdminHeader} />}
       <main className="app-main">
         <Routes>
+          {/* Rutas públicas para recuperación de contraseña */}
+          <Route path="/recuperar" element={<RequestPassword />} />
+          {/* Cuando la URL viene del email con token, queremos que el formulario de 'Cambiar contraseña' 
+              se muestre como modal SOBRE la pantalla de login. Aquí renderizamos Login + ResetPassword. */}
+          <Route path="/reset-password" element={<LoginWithReset />} />
+
           {/* Ruta explícita para /inicio */}
           <Route path="/" element={
             // si hay usuario en sessionStorage redirigimos a /inicio; si no, redirigimos a /login
@@ -116,6 +135,7 @@ const AppContent = () => {
     </>
   );
 };
+
 
 function App() {
   return (

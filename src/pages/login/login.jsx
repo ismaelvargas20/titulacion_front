@@ -5,12 +5,14 @@ import { FaStar, FaEye, FaEyeSlash } from 'react-icons/fa';
 import { MdEmail } from 'react-icons/md';
 import { RiLockPasswordFill } from 'react-icons/ri';
 import Registro from '../registro.jsx/registro.jsx';
+import { RequestPassword } from '../../components/password/password.jsx';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { login as loginUser } from '../../services/usuarios';
 
 const Login = () => {
   const [showRegister, setShowRegister] = useState(false);
+  const [showRecover, setShowRecover] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -145,14 +147,15 @@ const Login = () => {
           <button type="submit" className="login-btn">
             Ingresar
           </button>
-          <a href="#" className="forgot-password">
+          <button type="button" className="forgot-password" onClick={() => setShowRecover(true)} style={{ background: 'none', border: 'none', color: '#1e90ff', cursor: 'pointer', padding: 0 }}>
             ¿Olvidaste tu contraseña?
-          </a>
+          </button>
         </form>
       </div>
 
       {/* Renderizar modal de registro */}
       <Registro isOpen={showRegister} onClose={() => setShowRegister(false)} />
+      <RequestPassword isOpen={showRecover} onClose={() => setShowRecover(false)} />
     </div>
   );
 };
