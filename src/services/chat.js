@@ -11,7 +11,9 @@ export async function crearChat(payload) {
 
 export async function listarChats(params = {}) {
   try {
-    const res = await api.get('/chats', { params });
+    // Agregar parámetro timestamp para evitar respuestas 304 por cache del navegador
+    const finalParams = { ...(params || {}), t: Date.now() };
+    const res = await api.get('/chats', { params: finalParams });
     return res.data;
   } catch (err) {
     throw err;

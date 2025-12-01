@@ -25,6 +25,8 @@ export default function Chat() {
 
   const [activeId, setActiveId] = useState(null);
   const activeIdRef = useRef(null);
+  // identificador único de esta pestaña/instancia para evitar reaccionar a nuestros propios eventos storage
+  const instanceIdRef = useRef((Math.random().toString(36).slice(2) + Date.now()).slice(0, 24));
   const [input, setInput] = useState('');
   const listRef = useRef(null);
   const storageTimeoutRef = useRef(null);
@@ -505,6 +507,16 @@ function deriveChatSubtitle(c, current) {
         if (!e || !e.key) return;
         if (e.key === 'chats:updated') {
             console.debug('[chat] storage event received:', e.newValue);
+            // Ignorar eventos originados por esta misma pestaña (source === instanceId)
+            try {
+              const parsedCheck = typeof e.newValue === 'string' ? JSON.parse(e.newValue) : (e.newValue || {});
+              if (parsedCheck && parsedCheck.source && parsedCheck.source === instanceIdRef.current) {
+                console.debug('[chat] ignoring storage event from self (source match)', parsedCheck);
+                return;
+              }
+            } catch (ee) {
+              // si no podemos parsear, continuamos con el flujo normal
+            }
             // intentar actualizar localmente el contador de la conversación afectada
             try {
               const parsed = typeof e.newValue === 'string' ? JSON.parse(e.newValue) : (e.newValue || {});
@@ -556,15 +568,42 @@ function deriveChatSubtitle(c, current) {
   }, [conversations, location]);
 
   const openConversation = async (id) => {
-    setConversations((prev) => prev.map(c => c.id === id ? { ...c, unread: 0 } : c));
+    // obtener usuario actual antes de actualizar el estado local para poder reflejarlo en `raw`
+    const current = getCurrentUser();
+    setConversations((prev) => (Array.isArray(prev) ? prev.map(c => {
+      if (c.id !== id) return c;
+      const raw = c && c.raw ? c.raw : {};
+      const ultima = raw && raw.ultima ? raw.ultima : {};
+      const curId = current && current.id ? String(current.id) : null;
+      // construir nuevo campo leido_por asegurando que no duplicamos el id
+      let newLeido = ultima && ultima.leido_por ? String(ultima.leido_por) : '';
+      try {
+        const parts = String(newLeido || '').split(',').map(s => s.trim()).filter(Boolean);
+        if (curId && parts.indexOf(String(curId)) === -1) parts.push(String(curId));
+        newLeido = parts.join(',');
+      } catch (e) { /* ignore formatting errors */ }
+      return { ...c, unread: 0, raw: { ...raw, unreadCount: 0, ultima: { ...ultima, leido_por: newLeido } } };
+    }) : prev));
     setActiveId(id);
+    try {
+      // Persistir en sessionStorage para mantener la conversación abierta tras recargar
+      sessionStorage.setItem('chat_open_id', String(id));
+    } catch (e) {}
     setActiveRelated(null);
     try {
-      const current = getCurrentUser();
       // Intentar marcar como leídos en el backend para que el conteo persista
       try {
         if (current && current.id) {
-          await chatService.marcarLeidos(id, { clienteId: current.id });
+          const markResp = await chatService.marcarLeidos(id, { clienteId: current.id });
+          console.debug('[chat] marcarLeidos response:', markResp);
+          // Retrasar ligeramente el re-fetch para reducir condiciones de carrera / 304
+          try {
+            setTimeout(() => {
+              try { loadChats(); } catch (evErr) { try { window.dispatchEvent(new Event('chats:updated')); } catch (e2) {} }
+            }, 300);
+          } catch (evErr) {
+            try { window.dispatchEvent(new Event('chats:updated')); } catch (e2) { /* ignore */ }
+          }
         }
       } catch (e) { console.warn('[chat] marcarLeidos error', e); }
 
@@ -590,10 +629,21 @@ function deriveChatSubtitle(c, current) {
       } catch (e) { console.warn('[chat] limpiar notificaciones error', e); }
 
       const msgs = await chatService.listarMensajes(id);
+      // intentar obtener id del otro participante para calcular si un mensaje enviado por "you" fue leído
+      const convForMsgs = conversations.find(c => c.id === id) || {};
+      const otherParticipantId = convForMsgs.otherParticipantId || convForMsgs.ownerDetailId || convForMsgs.otherParticipantId || null;
       const mapped = (Array.isArray(msgs) ? msgs : []).map(m => {
         const isYou = current && ((m.remitenteId && String(m.remitenteId) === String(current.id)) || (m.clienteId && String(m.clienteId) === String(current.id)));
         const rawTime = m.fecha_creacion || m.createdAt || m.created_at || '';
-        return { id: m.id, sender: isYou ? 'you' : 'them', text: m.cuerpo || m.texto || '', time: formatDateTime(rawTime) };
+        const leidoRaw = m.leido_por || m.leidoPor || m.leido_por || '';
+        let readByOther = false;
+        try {
+          if (leidoRaw && otherParticipantId) {
+            const parts = String(leidoRaw).split(',').map(s => s.trim()).filter(Boolean);
+            readByOther = parts.indexOf(String(otherParticipantId)) !== -1;
+          }
+        } catch (e) { /* ignore parse errors */ }
+        return { id: m.id, sender: isYou ? 'you' : 'them', text: m.cuerpo || m.texto || '', time: formatDateTime(rawTime), leido_por: leidoRaw, read: Boolean(isYou && readByOther) };
       });
       setMessages(mapped);
       // Si la conversación refiere a una publicación, solicitar su detalle (moto o repuesto) para mostrar la tarjeta relacionada
@@ -789,7 +839,23 @@ function deriveChatSubtitle(c, current) {
 
   const closeProfilePeek = () => setProfilePeek(null);
 
-  const goBack = () => { setActiveId(null); setMessages([]); };
+  const goBack = () => { setActiveId(null); setMessages([]); try { sessionStorage.removeItem('chat_open_id'); } catch (e) {} };
+
+  // Restaurar conversación abierta desde sessionStorage si había una al recargar.
+  // Esperamos a que `conversations` esté cargado para poder abrirla.
+  useEffect(() => {
+    try {
+      const stored = sessionStorage.getItem('chat_open_id');
+      if (!stored) return;
+      const cid = Number(stored);
+      if (!cid) return;
+      if (!activeId) {
+        if (Array.isArray(conversations) && conversations.find(c => Number(c.id) === cid)) {
+          openConversation(cid);
+        }
+      }
+    } catch (e) {}
+  }, [conversations]);
 
   const handleSend = async (e) => {
     e.preventDefault();
@@ -816,7 +882,8 @@ function deriveChatSubtitle(c, current) {
       try { window.dispatchEvent(new CustomEvent('chats:updated', { detail: { chatId: activeId } })); } catch (e) {}
       try {
         // también escribir a localStorage para notificar otras pestañas (evento 'storage')
-        localStorage.setItem('chats:updated', JSON.stringify({ chatId: activeId, t: Date.now() }));
+        const payload = { chatId: activeId, t: Date.now(), source: instanceIdRef.current };
+        localStorage.setItem('chats:updated', JSON.stringify(payload));
       } catch (e) { /* ignore */ }
     } catch (err) {
       console.error('Error enviando mensaje', err);
@@ -1104,7 +1171,12 @@ function deriveChatSubtitle(c, current) {
                 {messages.map(m => (
                   <div key={m.id} className={`chat-msg ${m.sender === 'you' ? 'me' : 'them'}`}>
                     <div className="chat-msg-text">{m.text}</div>
-                    <div className="chat-msg-time muted">{m.time}</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <div className="chat-msg-time muted">{m.time}</div>
+                      {m.sender === 'you' && m.read ? (
+                        <div className="chat-msg-status" style={{ fontSize: 12, color: '#5b6bff' }}>Leído</div>
+                      ) : null}
+                    </div>
                   </div>
                 ))}
               </div>
