@@ -577,10 +577,17 @@ const Repuestos = () => {
                     <span className="card-price"><FaTag /> ${part.price}</span>
                   </div>
                   <div className="card-content">
+                    {/* Categoría como chip encima del título */}
+                    {part.category ? (
+                      <div className="card-category">
+                        <span className="chip">{String(part.category).toUpperCase()}</span>
+                      </div>
+                    ) : null}
+
                     <h3 className="card-title">{part.title}</h3>
+
                     <div className="card-meta">
-                      <span><FaMapMarkerAlt /> {part.location}</span>
-                      <span className="muted">{part.category}</span>
+                      <span className="location"><FaMapMarkerAlt /> {part.location}</span>
                       <span className="stars">{part.stars || 0} <FaStar className="star-icon" /></span>
                     </div>
                   </div>
