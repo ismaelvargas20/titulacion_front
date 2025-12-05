@@ -1,10 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { FaArrowLeft, FaEnvelope, FaTimes, FaRegCalendarAlt, FaMapMarkerAlt } from 'react-icons/fa';
+import { FaArrowLeft, FaEnvelope, FaTimes, FaRegCalendarAlt, FaMapMarkerAlt, FaFlag, FaEllipsisH } from 'react-icons/fa';
 import { MdPhone } from 'react-icons/md';
 import { useNavigate, useLocation } from 'react-router-dom';
 import '../../assets/scss/chat.scss';
 import chatService from '../../services/chat';
+import reportsService from '../../services/reports';
 import MotosModal from '../motos/motos_modal';
 import RepuestosModal from '../repuestos/repuestos_modal';
 import Swal from 'sweetalert2';
@@ -38,6 +39,27 @@ export default function Chat() {
   // Estado para vista previa de perfil (peek)
   const [profilePeek, setProfilePeek] = useState(null);
   const [messages, setMessages] = useState([]);
+  // Report message UI
+  const [reportModalOpen, setReportModalOpen] = useState(false);
+  const [reportSelected, setReportSelected] = useState(null); // { id, text }
+  const [reportReason, setReportReason] = useState('');
+  const [reportSending, setReportSending] = useState(false);
+  // menú de opciones (puntos) para cada mensaje
+  const [openMenuId, setOpenMenuId] = useState(null);
+  const menuRef = useRef(null);
+
+  useEffect(() => {
+    const onDocClick = (e) => {
+      try {
+        if (!openMenuId) return;
+        if (menuRef.current && !menuRef.current.contains(e.target)) {
+          setOpenMenuId(null);
+        }
+      } catch (err) { /* ignore */ }
+    };
+    document.addEventListener('click', onDocClick);
+    return () => document.removeEventListener('click', onDocClick);
+  }, [openMenuId]);
 
   const getCurrentUser = () => {
     try {
@@ -643,7 +665,10 @@ function deriveChatSubtitle(c, current) {
             readByOther = parts.indexOf(String(otherParticipantId)) !== -1;
           }
         } catch (e) { /* ignore parse errors */ }
-        return { id: m.id, sender: isYou ? 'you' : 'them', text: m.cuerpo || m.texto || '', time: formatDateTime(rawTime), leido_por: leidoRaw, read: Boolean(isYou && readByOther) };
+        // Detectar borrado lógico y normalizar texto como en la vista de mensajes
+        const isDeletedMsg = (m.estado && String(m.estado).toLowerCase() === 'eliminado') || (m.cuerpo && String(m.cuerpo).includes('[Mensaje eliminado'));
+        const textContent = isDeletedMsg ? '[Mensaje eliminado]' : (m.cuerpo || m.texto || m.body || '');
+        return { id: m.id, sender: isYou ? 'you' : 'them', text: textContent, time: formatDateTime(rawTime), leido_por: leidoRaw, read: Boolean(isYou && readByOther), isDeleted: !!isDeletedMsg };
       });
       setMessages(mapped);
       // Si la conversación refiere a una publicación, solicitar su detalle (moto o repuesto) para mostrar la tarjeta relacionada
@@ -1170,16 +1195,79 @@ function deriveChatSubtitle(c, current) {
               <div className="chat-messages" ref={listRef}>
                 {messages.map(m => (
                   <div key={m.id} className={`chat-msg ${m.sender === 'you' ? 'me' : 'them'}`}>
-                    <div className="chat-msg-text">{m.text}</div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <div className="chat-msg-time muted">{m.time}</div>
-                      {m.sender === 'you' && m.read ? (
-                        <div className="chat-msg-status" style={{ fontSize: 12, color: '#5b6bff' }}>Leído</div>
-                      ) : null}
+                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+                          <div style={{ flex: 1 }}>
+                            <div className={`chat-msg-text conv-text ${m.isDeleted ? 'deleted' : ''}`}>{m.text}</div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                          <div className="chat-msg-time muted">{m.time}</div>
+                          {m.sender === 'you' && m.read ? (
+                            <div className="chat-msg-status" style={{ fontSize: 12, color: '#5b6bff' }}>Leído</div>
+                          ) : null}
+                        </div>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center' }}>
+                        {/* Mostrar opción de reportar (solo para mensajes de la otra persona) */}
+                        {m.sender !== 'you' && !m.isDeleted ? (
+                          <div style={{ position: 'relative' }} ref={openMenuId === m.id ? menuRef : null}>
+                            <button type="button" className="chat-link-ad" onClick={(e) => { e.stopPropagation(); setOpenMenuId(openMenuId === m.id ? null : m.id); }} aria-label="Abrir opciones del mensaje">
+                              <FaEllipsisH />
+                            </button>
+                            {openMenuId === m.id ? (
+                              <div style={{ position: 'absolute', left: 'calc(100% + 8px)', top: 4, background: '#fff', borderRadius: 10, boxShadow: '0 12px 40px rgba(2,6,23,0.12)', padding: 8, minWidth: 170, zIndex: 1000, whiteSpace: 'nowrap' }}>
+                                <button type="button" className="chat-link-ad" onClick={(e) => { e.stopPropagation(); setReportSelected({ id: m.id, text: m.text }); setReportReason(''); setReportModalOpen(true); setOpenMenuId(null); }} style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'transparent', border: 'none', color: '#e04b4b', padding: '8px 10px', borderRadius: 8 }}>
+                                  <FaFlag /> Reportar mensaje
+                                </button>
+                              </div>
+                            ) : null}
+                          </div>
+                        ) : (
+                          <button type="button" className="chat-link-ad" style={{ opacity: 0.0, pointerEvents: 'none' }} aria-hidden />
+                        )}
+                      </div>
                     </div>
                   </div>
                 ))}
               </div>
+
+              {/* Report modal */}
+              {reportModalOpen && reportSelected && createPortal(
+                <div className="report-modal" role="dialog" aria-modal="true" aria-label="Reportar mensaje">
+                  <div className="report-card" role="document">
+                    <button className="chat-profile-close" onClick={() => setReportModalOpen(false)} aria-label="Cerrar reporte"><FaTimes /></button>
+                    <div className="report-body">
+                      <h3 className="report-title"><FaFlag className="report-flag" /> Reportar mensaje</h3>
+                      <p className="report-desc">¿Por qué quieres reportar este mensaje? Tu reporte será revisado por nuestro equipo.</p>
+
+                      <div className="report-quote">&quot;{reportSelected.text}&quot;</div>
+
+                      <textarea className="report-textarea" value={reportReason} onChange={(e) => setReportReason(e.target.value)} placeholder="Describe el motivo del reporte..." />
+
+                      <div className="report-actions">
+                        <button type="button" className="chat-link-ad" onClick={() => { setReportModalOpen(false); setReportSelected(null); setReportReason(''); }}>Cancelar</button>
+                        <button type="button" className="btn btn-danger" disabled={!String(reportReason || '').trim() || reportSending} onClick={async () => {
+                          try {
+                            const reason = String(reportReason || '').trim();
+                            if (!reason) { try { Swal.fire({ icon: 'warning', title: 'Escribe un motivo', text: 'Por favor describe por qué reportas este mensaje.' }); } catch (e) {} return; }
+                            if (!activeId) { try { Swal.fire({ icon: 'warning', title: 'Chat no seleccionado', text: 'No se pudo determinar el chat asociado.' }); } catch (e) {} return; }
+                            setReportSending(true);
+                            try {
+                                // Enviar motivo en español como 'motivo'
+                                await reportsService.reportMessage(activeId, reportSelected.id, { motivo: reason });
+                            } finally {
+                              setReportSending(false);
+                            }
+                            try { Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Mensaje reportado', text: 'Tu reporte ha sido enviado. Revisaremos el mensaje pronto.', showConfirmButton: false, timer: 3000 }); } catch (e) { alert('Reporte enviado'); }
+                            setReportModalOpen(false); setReportSelected(null); setReportReason('');
+                          } catch (err) { console.error('report send error', err);
+                            const msg = err && err.response && err.response.data && (err.response.data.message || err.response.data.error) ? (err.response.data.message || err.response.data.error) : 'No se pudo enviar el reporte';
+                            try { Swal.fire({ icon: 'error', title: 'Error', text: msg }); } catch (e) { alert(msg); }
+                          }
+                        }}>{reportSending ? 'Enviando...' : 'Enviar reporte'}</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>, document.body
+              )}
 
               <form className="chat-send" onSubmit={handleSend}>
                 <input type="text" value={input} onChange={(e) => setInput(e.target.value)} placeholder="Escribe un mensaje..." />

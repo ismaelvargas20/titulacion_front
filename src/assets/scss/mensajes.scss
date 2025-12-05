@@ -1,0 +1,884 @@
+
+.mensajes-page {
+	padding: 28px 28px;
+	color: #0f1724;
+	font-family: Inter, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+}
+
+/* Centrar el contenido principal verticalmente (similar al dashboard) */
+.mensajes-page { min-height: calc(100vh - 120px); }
+
+.mensajes-header { max-width: 1100px; margin: 6px auto 0; padding: 0 12px; }
+.mensajes-header h2 { margin: 0; font-size: 1.75rem; color: #0b1220; font-weight: 800; text-align: left; }
+.mensajes-header p.muted { color: #6b7280; text-align: left; max-width: 900px; margin-top: 8px; font-size: 1.1rem; display:flex; align-items:center; gap:8px; }
+
+.mensajes-page .mensajes-grid {
+	display: flex;
+	gap: 22px;
+	margin-top: 18px;
+	justify-content: center; /* centrar horizontalmente el bloque */
+	width: 100%;
+	max-width: 1100px;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.mensajes-list {
+	width: 360px;
+	background: linear-gradient(180deg,#ffffff 0%, #fbfcff 100%);
+	border: 1px solid #e6eef8;
+	border-radius: 12px;
+	box-shadow: 0 8px 30px rgba(11,35,80,0.06);
+	overflow: hidden;
+	display:flex;
+	flex-direction:column;
+}
+.mensajes-list { align-self:flex-start; }
+
+/* Hacer que la lista no quede pegada a la izquierda del viewport */
+.mensajes-list { margin-left: 8px; margin-right: 8px; }
+
+.mensajes-list-header {
+	padding: 14px 16px;
+	border-bottom: 1px solid rgba(239,246,249,0.7);
+	display:flex;
+	flex-direction:column;
+	position: sticky;
+	top: 0;
+	z-index: 2;
+	background: linear-gradient(180deg,#ffffff 0%, #fbfcff 90%);
+}
+
+.mensajes-list-header strong { font-size: 15px; color: #0b3a66; }
+
+.mensajes-items {
+	max-height: 640px;
+	overflow:auto;
+	padding: 10px;
+	display:flex;
+	flex-direction:column;
+}
+
+/* Custom scrollbar */
+.mensajes-items::-webkit-scrollbar { height: 8px; width: 8px; }
+.mensajes-items::-webkit-scrollbar-thumb { background: rgba(11,35,102,0.12); border-radius: 8px; }
+.mensajes-items::-webkit-scrollbar-track { background: transparent; }
+
+.report-item {
+	width:100%;
+	text-align:left;
+	border:0;
+	background:transparent;
+	padding:12px;
+	border-radius:10px;
+	margin-bottom:10px;
+	cursor:pointer;
+	transition: background-color .22s cubic-bezier(.2,.8,.2,1), transform .18s cubic-bezier(.2,.9,.3,1), box-shadow .22s cubic-bezier(.2,.9,.3,1);
+	box-shadow: 0 1px 0 rgba(11,35,80,0.02) inset;
+	display:flex;
+	align-items:flex-start;
+	gap:12px;
+}
+.report-item:hover { background: #f6fbff; transform: translateY(-1px); box-shadow: 0 6px 18px rgba(11,35,80,0.06); }
+.report-item.active { background: #eef7ff; box-shadow: inset 4px 0 0 #2673f0; }
+
+.ri-top { display:flex; justify-content:space-between; align-items:center; gap:8px }
+.ri-left { display:flex; align-items:center; gap:10px }
+.ri-title { font-weight:700; font-size:14px; color:#042a4a }
+.ri-body { margin-top:8px; color:#475569; font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis }
+.ri-meta { margin-top:8px; display:flex; gap:8px; align-items:center; font-size:12px }
+
+.estado-badge { padding:6px 10px; border-radius:16px; font-size:12px; font-weight:600; min-width:74px; text-align:center }
+.badge-pending { background:#fff7e6; color:#b45309; border:1px solid #ffecd1 }
+		.reported-block {
+			margin: 14px 18px;
+			position: relative;
+			background: #fff;
+			border: 1px solid rgba(239,68,68,0.12);
+			border-radius: 12px;
+			/* reducir un poco el padding superior para que la badge quede pegada */
+			padding: 12px 16px 14px 18px;
+			box-shadow: 0 8px 24px rgba(11,35,80,0.04);
+		}
+
+		/* .detail-quote acts as a simple wrapper; .report-banner is the visual card */
+		.detail-quote { margin: 12px 18px; padding: 0; background: transparent; border: none; box-sizing: border-box; }
+
+		/* Compact pill-style banner: label + message inline */
+		.report-banner {
+			display: flex;
+			align-items: center;
+			gap: 6px;
+			width: 100%;
+			/* ultra-compact: minimal vertical padding while preserving readability */
+			/* mantener padding-left razonable para separar el icono del borde izquierdo */
+			padding: 1px 6px 1px 12px; /* mantener espacio para que el icono no quede pegado al borde */
+			border-radius: 8px;
+			background: rgba(254,242,242,0.95);
+			border: 1px solid rgba(239,68,68,0.14);
+			color: #b91c1c;
+			font-weight: 800; /* más peso para destacar */
+			font-size: 0.92rem; /* algo más visible */
+			box-shadow: none;
+			box-sizing: border-box;
+			line-height: 1;
+		}
+
+		/* remove left accent bar used previously */
+		.report-banner::before { display: none; }
+
+		/* keep icon size reasonable (do not reduce it further) */
+		.report-banner svg { width: 14px; height: 14px; flex-shrink:0; margin-left:14px; }
+		/* acercar el texto hacia la izquierda sin mover el icono: reducir gap y tirar ligeramente del bloque de texto */
+		.report-body { display:flex; align-items:center; gap:0; margin-left:-4px; }
+		.report-body strong { margin-right:4px; }
+		.report-text { margin:0; font-weight:800; color:#6b0f0f; font-size:0.92rem; line-height:1 }
+.badge-review { background:#eef6ff; color:#1e3a8a; border:1px solid #dbeafe }
+.badge-resolved { background:#ecfdf5; color:#065f46; border:1px solid #bbf7d0 }
+.badge-rejected { background:#fff1f2; color:#7f1d1d; border:1px solid #fecaca }
+
+.mensajes-detail {
+	flex:1;
+	background:#ffffff;
+	border:1px solid #e8f0fb;
+	border-radius:12px;
+	padding:0; /* we'll style inner areas */
+	box-shadow: 0 8px 30px rgba(11,35,80,0.04);
+	display:flex;
+	flex-direction:column;
+}
+.mensajes-detail { min-height: 360px; }
+
+/* Cuando la pantalla sea amplia, mantener el contenedor centrado con espacio alrededor */
+@media (min-width: 1200px) {
+	.mensajes-page { padding-left: 40px; padding-right: 40px }
+	.mensajes-grid { max-width: 1200px }
+}
+
+.detail-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 12px;
+	padding: 18px 20px;
+	border-bottom: 1px solid rgba(14,30,37,0.04);
+	background: linear-gradient(180deg, #f8fbff, #ffffff);
+	border-top-left-radius: 12px;
+	border-top-right-radius: 12px;
+	box-shadow: 0 6px 20px rgba(11,35,80,0.04);
+}
+.detail-header h3 { margin: 0; color: #000; font-size: 1rem; font-weight: 800; letter-spacing: -0.2px }
+.detail-header .detail-sub { color: #5b6b78; font-size: 0.96rem; margin-top: 6px; display: block }
+
+/* make avatar inside header a bit larger and lift it visually */
+.detail-header .ri-avatar { width: 48px; height: 48px; border-radius: 50%; box-shadow: 0 8px 22px rgba(11,35,80,0.06); display: flex; align-items: center; justify-content: center }
+.detail-header .ri-avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover }
+
+/* subtle meta row styling: timestamp smaller and muted */
+.detail-header .muted.small { color: #6b7280; font-size: 0.92rem }
+
+@media (max-width: 900px) {
+	.detail-header { padding: 14px 12px }
+	.detail-header .ri-avatar { width: 40px; height: 40px }
+	.detail-header h3 { font-size: 1rem }
+}
+.detail-actions { display:flex; gap:12px; align-items:center }
+/* Uniform button sizing in the detail header */
+.detail-actions .btn {
+	display: inline-flex;
+ 	align-items: center;
+ 	justify-content: center;
+ 	gap: 10px;
+ 	padding: 12px 20px;
+ 	min-height: 44px;
+ 	min-width: 140px; /* uniform width for visual balance */
+ 	font-size: 0.95rem;
+ 	font-weight: 700;
+ 	border-radius: 14px;
+ 	cursor: pointer;
+ 	line-height: 1;
+	transition: transform .18s cubic-bezier(.2,.8,.2,1), opacity .18s ease, background-color .20s cubic-bezier(.2,.8,.2,1), box-shadow .20s cubic-bezier(.2,.8,.2,1), border-color .18s ease, color .18s ease;
+ 	box-shadow: none; /* flat modern look */
+}
+.detail-actions .btn:hover { transform: translateY(-2px); opacity: .98 }
+
+/* Specific variants using palette; kept accessible contrast */
+.detail-actions .btn.btn-success {
+	background: linear-gradient(90deg,#0b7cff,#2fa8ff);
+	color: #fff;
+	border: none;
+}
+.detail-actions .btn.btn-success:hover { filter: brightness(.98) }
+
+/* Opción B: colores armónicos pero semánticos */
+.detail-actions .btn.btn-warning {
+	background: linear-gradient(90deg,#ffb87a,#ff9a3c);
+	color: #fff;
+	border: none;
+	box-shadow: 0 10px 30px rgba(255,154,60,0.12);
+}
+.detail-actions .btn.btn-warning:hover { filter: brightness(.98); box-shadow: 0 14px 36px rgba(255,154,60,0.16); }
+
+.detail-actions .btn.btn-danger {
+	background: linear-gradient(90deg,#f78b80,#ef6b63);
+	color: #fff;
+	border: none;
+	box-shadow: 0 10px 30px rgba(239,107,99,0.12);
+}
+.detail-actions .btn.btn-danger:hover { filter: brightness(.98); box-shadow: 0 14px 36px rgba(239,107,99,0.16); }
+
+.detail-actions .btn.btn-secondary {
+	background: transparent;
+	color: #0b1220;
+	border: 1px solid rgba(11,35,80,0.14);
+	box-shadow: 0 1px 0 rgba(11,35,80,0.04);
+}
+.detail-actions .btn.btn-secondary:hover { background: rgba(11,35,80,0.03) }
+
+.detail-actions .btn.btn-danger {
+	background: linear-gradient(90deg,#ef4444,#f87171);
+	color: #fff;
+	border: none;
+}
+.detail-actions .btn.btn-danger:hover { filter: brightness(.98) }
+
+/* Iconografía: tamaño y separación coherentes, icono a la izquierda */
+.detail-actions .btn, .mensajes-detail .detail-footer .btn, .mensajes-page .btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 10px;
+}
+.detail-actions .btn svg, .mensajes-detail .detail-footer .btn svg, .mensajes-page .btn svg {
+	width: 20px;
+	height: 20px;
+	flex-shrink: 0;
+	margin-right: 6px;
+}
+/* botones pequeños usan iconos ligeramente más pequeños */
+.mensajes-page .btn.small svg { width:16px; height:16px; margin-right:6px }
+
+/* Make the secondary button visually lighter (no heavy shadow) */
+.detail-actions .btn.btn-secondary { box-shadow: none }
+
+/* Botones locales, no globales */
+.mensajes-page .btn { border:1px solid rgba(11,35,80,0.06); background:#fff; padding:8px 10px; border-radius:8px; cursor:pointer }
+.mensajes-page .btn.small { padding:6px 8px; font-size:13px }
+.mensajes-page .btn.btn-success { background: #0b7cff; color:#fff; border-color: #0b7cff }
+.mensajes-page .btn.btn-secondary { background:#f3f4f6 }
+.mensajes-page .btn.btn-danger { background:#ef4444; color:#fff; }
+
+
+/* Reported message styles consolidated above. */
+
+/* Reported quote styles are defined in the consolidated block above. */
+
+.conversation {
+	flex: 1;
+	overflow-y: auto;
+	padding: 18px 18px 28px 18px;
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	max-height: 520px;
+	background: transparent;
+	/* stack messages from the top so the container scrolls downward */
+	justify-content: flex-start;
+}
+
+/* WebKit (Chrome, Edge, Safari) custom scrollbar */
+.conversation::-webkit-scrollbar { width: 10px; height: 10px }
+.conversation::-webkit-scrollbar-track { background: rgba(11,35,80,0.02); border-radius: 10px }
+.conversation::-webkit-scrollbar-thumb {
+	background: linear-gradient(180deg, rgba(11,35,80,0.14), rgba(11,35,80,0.22));
+	border-radius: 10px;
+	border: 2px solid rgba(255,255,255,0.9);
+	box-shadow: inset 0 0 0 1px rgba(255,255,255,0.02);
+}
+.conversation::-webkit-scrollbar-thumb:hover { background: linear-gradient(180deg, rgba(11,35,80,0.22), rgba(11,35,80,0.32)); }
+
+/* Firefox scrollbar styling */
+.conversation { scrollbar-width: thin; scrollbar-color: rgba(11,35,80,0.22) rgba(11,35,80,0.02); }
+
+/* breathing room at the bottom so last message isn't flush against the edge */
+.conversation::after { content: ''; display: block; height: 8px }
+
+.conv-row { display:flex; align-items:flex-end; gap:12px }
+.conv-row.row-me { justify-content:flex-end }
+.conv-row.row-them { justify-content:flex-start }
+
+.conv-avatar { width:40px; height:40px; border-radius:50%; background: linear-gradient(135deg,#2b9cf4,#5ab0ff); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; box-shadow: 0 6px 18px rgba(11,35,80,0.06); flex-shrink:0 }
+
+.conv-msg { display:inline-block; max-width:72%; padding:12px 16px; border-radius:14px; margin:8px 0; box-shadow: 0 6px 20px rgba(9,38,71,0.02); word-break:break-word; line-height:1.35; position:relative }
+.conv-msg { transition: background-color .20s cubic-bezier(.25,.8,.25,1), transform .18s cubic-bezier(.2,.9,.3,1), box-shadow .18s cubic-bezier(.2,.9,.3,1); }
+.conv-msg.them { align-self:flex-start; background:#f8fafc; color:#0b1220; border:1px solid rgba(11,35,80,0.03); border-top-left-radius:6px; border-top-right-radius:14px; border-bottom-right-radius:14px; }
+.conv-msg.me { align-self:flex-end; background:linear-gradient(90deg,#0b7cff,#2fa8ff); color:#fff; border-radius:14px; border-top-right-radius:6px; border-bottom-left-radius:14px; }
+
+/* bubble tails removed for a cleaner, modern look */
+/* Previously used ::before/::after rotated squares to form a diamond tail. Disabled to simplify the bubbles. */
+.conv-msg.them::before,
+.conv-msg.me::after { display: none; content: none; }
+
+.conv-time, .conv-msg .time { font-size:11px; color:#94a3b8; margin-top:8px }
+.conv-msg.me .time { color: rgba(255,255,255,0.9) }
+
+/* author label inside bubble */
+.conv-author { font-weight:700; font-size:0.9rem; margin-bottom:6px }
+.conv-msg.them .conv-author { color:#0b1220 }
+.conv-msg.me .conv-author { color: rgba(255,255,255,0.95) }
+
+/* Deleted message placeholder styles */
+.conv-text.deleted { font-style: italic; opacity: 0.9; }
+.conv-msg.me .conv-text.deleted { color: #ffffff; }
+.conv-msg.them .conv-text.deleted { color: #6c757d; opacity: 0.75; }
+
+.detail-actions .btn { padding:12px 20px; border-radius:14px; }
+.detail-actions .btn.btn-success { background:#0b7cff; color:#fff; border:none }
+.detail-actions .btn.btn-danger { background:#ef4444; color:#fff; border:none }
+
+/* Footer area for moderator actions placed at bottom of mensajes-detail */
+.mensajes-detail .detail-footer {
+	padding: 14px 18px;
+	border-top: 1px solid rgba(14,30,37,0.04);
+	background: linear-gradient(180deg,#ffffff,#fbfcff);
+	border-bottom-left-radius: 12px;
+	border-bottom-right-radius: 12px;
+	display: flex;
+	align-items: center;
+	justify-content: flex-start;
+	gap: 12px;
+}
+.mensajes-detail .detail-footer .detail-actions { padding: 0; gap: 12px }
+.mensajes-detail .detail-footer .btn { min-width: 140px; padding: 12px 20px; border-radius: 14px }
+/* Footer-specific button colors to match reference: green / white / red */
+.mensajes-detail .detail-footer .btn.btn-success {
+	background: linear-gradient(90deg,#16a34a,#10b981); /* green */
+	color: #fff;
+	border: none;
+	box-shadow: 0 6px 14px rgba(16,185,129,0.12);
+}
+.mensajes-detail .detail-footer .btn.btn-success:hover { filter: brightness(.98) }
+.mensajes-detail .detail-footer .btn.btn-secondary {
+	background: #ffffff;
+	color: #0b1220;
+	border: 1px solid rgba(11,35,80,0.18);
+	box-shadow: 0 2px 6px rgba(11,35,80,0.04);
+}
+.mensajes-detail .detail-footer .btn.btn-secondary:hover { background: rgba(11,35,80,0.03) }
+.mensajes-detail .detail-footer .btn.btn-danger {
+	background: linear-gradient(90deg,#ef4444,#f87171);
+	color: #fff;
+	border: none;
+}
+
+/* Nuevo: botón de advertencia naranja usado para "Eliminar Mensaje" */
+.mensajes-detail .detail-footer .btn.btn-warning {
+		background: linear-gradient(90deg,#ff6b35,#ff923c); /* naranja más fuerte/saturado */
+    color: #fff;
+    border: none;
+		box-shadow: 0 8px 22px rgba(255,107,53,0.16);
+}
+.mensajes-detail .detail-footer .btn.btn-warning:hover { filter: brightness(.98) }
+
+/* Global small variant for warning if used elsewhere */
+.mensajes-page .btn.btn-warning { background: linear-gradient(90deg,#f97316,#fb923c); color:#fff; border-color: #f97316 }
+
+/* make mensajes-detail content area visually separated */
+.mensajes-detail .content-wrap { padding:0 0 18px 0; display:flex; flex-direction:column; }
+
+.empty-state { padding:56px; text-align:center; color:#94a3b8 }
+.mensajes-detail .empty-state { display:flex; align-items:center; justify-content:center; height:100%; padding:40px }
+
+/* Avatar inside list */
+.ri-avatar {
+	width:44px;
+	height:44px;
+	border-radius:50%;
+	background: linear-gradient(135deg,#2b9cf4,#5ab0ff);
+	color:#fff;
+	display:flex;
+	align-items:center;
+	justify-content:center;
+	font-weight:700;
+	box-shadow: 0 4px 12px rgba(11,35,80,0.08);
+	flex-shrink:0;
+}
+.ri-avatar img { width:100%; height:100%; border-radius:50%; object-fit:cover; display:block }
+
+/* Skeleton placeholders for detail loading */
+.skeleton { background: linear-gradient(90deg, #eee, #f5f7fa, #eee); background-size:200% 100%; animation: shine 1.2s linear infinite; border-radius:8px }
+.skeleton-line { height:12px; margin:6px 0; width:100% }
+.skeleton-line.short { width:48% }
+
+@keyframes shine { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+.ri-meta { margin-top:8px; display:flex; gap:8px; align-items:center; font-size:12px }
+
+/* Improve small buttons */
+.mensajes-page .btn { border:1px solid rgba(11,35,80,0.06); background:#fff; padding:8px 10px; border-radius:8px; cursor:pointer }
+.mensajes-page .btn.small { padding:6px 8px; font-size:13px }
+.mensajes-page .btn.btn-success { background: #0b7cff; color:#fff; border-color: #0b7cff; box-shadow: 0 6px 18px rgba(11,123,255,0.12) }
+
+/* Smooth hover/transitions override to ensure consistent feel */
+.mensajes-page .btn,
+.detail-actions .btn,
+.mensajes-detail .detail-footer .btn,
+.report-item,
+.conv-msg {
+	transition: background-color .20s cubic-bezier(.25,.8,.25,1), color .18s ease, transform .18s cubic-bezier(.25,.8,.25,1), box-shadow .20s cubic-bezier(.25,.8,.25,1), border-color .18s ease, opacity .18s ease;
+	will-change: transform, background-color, box-shadow;
+}
+.mensajes-page .btn.btn-secondary { background:#f3f4f6 }
+.mensajes-page .btn.btn-danger { background:#ef4444; color:#fff; }
+
+@media (max-width: 900px) {
+	.mensajes-grid { flex-direction:column }
+	.mensajes-list { width:100% }
+	.conversation { max-height:360px }
+}
+
+@media (max-width: 900px) {
+	.mensajes-grid { flex-direction:column }
+	.mensajes-list { width:100% }
+}
+
+/* Strong overrides placed at the end to ensure footer buttons use the "Opción A" palette
+	 (specific selector to avoid affecting other places). All actions use blues coherent with the header. */
+.mensajes-detail .detail-footer .detail-actions .btn.btn-success {
+	background: linear-gradient(90deg,#0b7cff,#2fa8ff) !important;
+	color: #fff !important;
+	border: none !important;
+	box-shadow: 0 10px 30px rgba(11,123,255,0.12) !important;
+}
+.mensajes-detail .detail-footer .detail-actions .btn.btn-warning {
+	/* lighter blue accent for 'Eliminar Mensaje' to de-emphasize danger */
+	background: linear-gradient(90deg,#6fc2ff,#9be6ff) !important;
+	color: #ffffff !important; /* texto blanco solicitado */
+	border: none !important;
+	box-shadow: 0 10px 30px rgba(47,150,255,0.06) !important;
+}
+.mensajes-detail .detail-footer .detail-actions .btn.btn-danger {
+	/* muted/darker blue for 'Eliminar Cliente' (serio pero no rojo) */
+	/* cambiar a rojo-rosa suave según petición */
+	background: linear-gradient(90deg,#ff9aa3,#ff6b81) !important;
+	color: #ffffff !important;
+	border: none !important;
+	box-shadow: 0 10px 30px rgba(255,106,129,0.12) !important;
+}
+
+/* Responsive: reduce min-width on small screens */
+@media (max-width: 720px) {
+	.mensajes-detail .detail-footer .detail-actions .btn { min-width: 110px; padding: 10px 12px; }
+}
+
+/* Dark mode: adaptar la página de Mensajes al mismo esquema que Usuarios */
+body.global-dark {
+	--m-bg: #0b0f14;
+	--m-surface: #0f1418;
+	--m-surface-2: #15181b;
+	--m-text: var(--u-text, #e6eef8);
+	--m-muted: #9aa3ab;
+}
+
+body.global-dark .mensajes-page { color: var(--m-text); }
+body.global-dark .mensajes-list {
+	background: linear-gradient(180deg,#2f3133,#262728);
+	border: 1px solid rgba(255,255,255,0.03);
+	box-shadow: 0 12px 36px -18px rgba(2,6,23,0.5);
+	color: var(--m-text);
+}
+
+body.global-dark .mensajes-list-header { background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.00)); border-bottom: 1px solid rgba(255,255,255,0.03); }
+/* Encabezado de la lista: título visible en dark */
+body.global-dark .mensajes-list-header strong { color: var(--m-text); font-weight: 800; }
+
+body.global-dark .mensajes-items { background: transparent; }
+
+body.global-dark .mensajes-detail {
+	background: linear-gradient(180deg,#2b2c2e,#212224);
+	border: 1px solid rgba(255,255,255,0.03);
+	color: var(--m-text);
+}
+
+body.global-dark .detail-header { background: linear-gradient(180deg,#2b2f32,#232426); border-bottom: 1px solid rgba(255,255,255,0.03); }
+body.global-dark .detail-header h3 { color: var(--m-text); }
+body.global-dark .detail-header .muted.small { color: var(--m-muted); }
+
+/* Header principal (título y subtítulo) en modo oscuro */
+body.global-dark .mensajes-header h2 { color: var(--m-text); }
+body.global-dark .mensajes-header p.muted { color: var(--m-muted); }
+
+/* Conversation surface */
+body.global-dark .conversation { background: transparent; }
+
+/* Bubbles */
+body.global-dark .conv-msg.them { background: linear-gradient(180deg,#333537,#2b2c2e); color: var(--m-text); border: 1px solid rgba(255,255,255,0.03); }
+body.global-dark .conv-msg.me { background: linear-gradient(90deg,#0b73ff,#4fb8ff); color: #fff; }
+
+/* Forzar nombre/autores dentro de las burbujas a color claro en modo oscuro */
+body.global-dark .conv-msg .conv-author { color: var(--m-text); font-weight:700; }
+/* Mensajes propios mantienen texto blanco para contraste en burbuja azul */
+body.global-dark .conv-msg.me .conv-author { color: rgba(255,255,255,0.95); }
+
+/* Avatares en modo oscuro: avatares claros para contraste */
+body.global-dark .conv-avatar, body.global-dark .ri-avatar { background: linear-gradient(180deg,#eef0f2,#e2e4e6); color:#1f2937; box-shadow: 0 6px 18px rgba(2,6,23,0.15); }
+
+/* Report banner: mantener visible pero con superficie más oscura */
+/* Dark mode: soportar dos convenciones de clase raíz usadas en la app
+	 - `body.global-dark` (antes usado)
+	 - `.app-main.dark-theme` (también común en otros módulos)
+	 Aseguramos contraste y legibilidad del banner de reporte. */
+.app-main.dark-theme .report-banner,
+body.global-dark .report-banner {
+	/* fondo gris suave y neutro en dark-mode */
+	background: linear-gradient(180deg, #2b2f31 0%, #202325 100%);
+	border: 1px solid rgba(255,255,255,0.03);
+	color: #e6eef0; /* texto claro neutro */
+	box-shadow: 0 6px 18px rgba(2,6,23,0.28);
+}
+.app-main.dark-theme .report-banner svg,
+body.global-dark .report-banner svg { color: rgba(255,255,255,0.55); /* icono atenuado */ }
+.app-main.dark-theme .report-text,
+body.global-dark .report-text,
+.app-main.dark-theme .report-body strong,
+body.global-dark .report-body strong {
+	color: #e6eef0; /* texto más neutro para el cuadro */
+}
+
+/* Additional fallbacks for different dark-mode class conventions and to ensure
+	 the banner is neutral in dark mode even if other styles load after this file. */
+body.dark .report-banner,
+.dark .report-banner,
+[data-theme="dark"] .report-banner {
+	background: linear-gradient(180deg, #2b2f31 0%, #202325 100%) !important;
+	border-color: rgba(255,255,255,0.03) !important;
+	color: #e6eef0 !important;
+}
+body.dark .report-banner svg,
+.dark .report-banner svg,
+[data-theme="dark"] .report-banner svg {
+	color: rgba(255,255,255,0.55) !important;
+}
+body.dark .report-text,
+.dark .report-text,
+[data-theme="dark"] .report-text,
+body.dark .report-body strong,
+.dark .report-body strong,
+[data-theme="dark"] .report-body strong {
+	color: #e6eef0 !important;
+}
+
+/* Footer actions: adaptar contrastes */
+body.global-dark .mensajes-detail .detail-footer { background: linear-gradient(180deg,#232426,#171819); border-top: 1px solid rgba(255,255,255,0.03); }
+body.global-dark .mensajes-detail .detail-footer .btn.btn-secondary { background: transparent; color: var(--m-text); border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 1px 0 rgba(255,255,255,0.02); }
+
+/* Make scrollbars subtle on dark */
+body.global-dark .conversation::-webkit-scrollbar-thumb { background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.09)); }
+
+/* Lista de reportes: usar superficies tipo usuarios (cards oscuras) */
+body.global-dark .report-item {
+	background: linear-gradient(180deg,#333537,#2e2f31);
+	border: 1px solid rgba(255,255,255,0.03);
+	box-shadow: 0 8px 18px -12px rgba(2,6,23,0.45);
+	padding: 12px;
+	border-radius: 10px;
+}
+body.global-dark .report-item:hover {
+	background: linear-gradient(180deg,#3a3b3d,#2f3032);
+	transform: translateY(0);
+	box-shadow: 0 12px 30px rgba(2,6,23,0.5);
+}
+body.global-dark .report-item.active { background: linear-gradient(180deg,#2a3134,#1f2426); box-shadow: inset 4px 0 0 rgba(11,115,255,0.08); }
+
+body.global-dark .ri-title { color: var(--m-text); }
+/* Asegurar que los nombres dentro de los items sean claros y legibles */
+body.global-dark .report-item .ri-title { color: var(--m-text); font-weight: 700; }
+body.global-dark .report-item .ri-title:hover { color: #fff; }
+body.global-dark .ri-body { color: var(--m-muted); }
+body.global-dark .ri-meta, body.global-dark .ri-meta .muted, body.global-dark .ri-meta span { color: var(--m-muted); }
+
+/* Badges: mantener visibilidad pero con tonos más suaves en dark */
+body.global-dark .estado-badge { background: rgba(255,255,255,0.04); color: var(--m-text); border: 1px solid rgba(255,255,255,0.03); }
+body.global-dark .badge-pending { background: rgba(255,255,255,0.03); color: #ffd7b0; border-color: rgba(255,255,255,0.02); }
+body.global-dark .badge-review { background: rgba(11,115,255,0.08); color: #cfe0ff; border-color: rgba(11,115,255,0.12); }
+body.global-dark .badge-resolved { background: rgba(16,185,129,0.06); color: #dff7ea; border-color: rgba(16,185,129,0.06); }
+body.global-dark .badge-rejected { background: rgba(239,68,68,0.06); color: #ffd6d6; border-color: rgba(239,68,68,0.06); }
+
+/* Alinear la tarjeta detalle al look de Usuarios: sombras y bordes más sutiles */
+body.global-dark .mensajes-detail { box-shadow: 0 12px 36px -18px rgba(2,6,23,0.5); border-radius: 12px; }
+body.global-dark .detail-header { box-shadow: 0 8px 24px -12px rgba(2,6,23,0.5); }
+
+/* Ajustes de botones en footer para modo oscuro (contraste) */
+body.global-dark .mensajes-detail .detail-footer .btn.btn-success { box-shadow: 0 8px 24px rgba(16,185,129,0.08); }
+body.global-dark .mensajes-detail .detail-footer .btn.btn-danger { box-shadow: 0 8px 24px rgba(239,68,68,0.06); }
+
+/* Separadores y líneas más suaves en dark */
+body.global-dark .mensajes-list-header { border-color: rgba(255,255,255,0.03); }
+body.global-dark .mensajes-items { background: transparent; }
+
+
+/* === Forzar paleta únicamente en azules (override final) === */
+/* Botones: asegurar que variantes warning/danger/secondary usen tonos azules coherentes */
+.mensajes-page .btn.btn-warning,
+.mensajes-page .btn.btn-danger,
+.mensajes-detail .detail-footer .btn.btn-warning,
+.mensajes-detail .detail-footer .btn.btn-danger,
+.detail-actions .btn.btn-warning,
+.detail-actions .btn.btn-danger {
+	background: linear-gradient(90deg,#0b7cff,#2fa8ff) !important;
+	color: #fff !important;
+	border: none !important;
+	box-shadow: 0 10px 28px rgba(11,123,255,0.12) !important;
+}
+
+/* Mantener una variante más seria para acciones de eliminación (azul oscuro) */
+.mensajes-detail .detail-footer .detail-actions .btn.btn-danger {
+	background: linear-gradient(90deg,#063a66,#0a4fb2) !important;
+	box-shadow: 0 10px 28px rgba(6,58,102,0.12) !important;
+}
+
+/* Report banner: usar tono rojito-rosado suave manteniendo contraste y visibilidad */
+.report-banner {
+	background: #fff1f2 !important; /* rosa muy suave */
+	border: 1px solid rgba(255,107,129,0.12) !important; /* borde rosado suave */
+	color: #b91c1c !important; /* texto en rojo legible */
+}
+.report-banner svg { color: #ff6b81 !important; /* icono rosado-rojizo */ }
+.report-text, .report-body strong { color: #b91c1c !important; }
+
+/* Badges: unificar a tonos azules (pendiente / revisado / resuelto / rechazado) */
+.badge-pending { background: #e6f4ff !important; color: #0b66b3 !important; border: 1px solid #d0eaff !important; }
+.badge-review { background: #eef6ff !important; color: #0b66b3 !important; border: 1px solid #dbeafe !important; }
+.badge-resolved { background: #ecfdf5 !important; color: #065f46 !important; border: 1px solid #bbf7d0 !important; }
+.badge-rejected { background: #f0f7ff !important; color: #0b4a80 !important; border: 1px solid #d9edff !important; }
+
+/* Asegurar que los badges en modo oscuro sigan tonos azules */
+body.global-dark .badge-review, body.global-dark .estado-badge { background: rgba(11,115,255,0.08) !important; color: #cfe0ff !important; border-color: rgba(11,115,255,0.12) !important; }
+
+/* Forzar pequeños botones locales a paleta azul */
+.mensajes-page .btn.btn-danger, .mensajes-page .btn.btn-warning { background: linear-gradient(90deg,#0b7cff,#2fa8ff) !important; color:#fff !important; border-color: transparent !important; }
+
+/* Ajuste final: evitar colores diferentes heredados en elementos puntuales */
+.mensajes-detail .detail-footer .btn { color: #fff !important; }
+
+/* Override definitivo para 'Eliminar Mensaje' (btn-warning) — fondo sólido y texto blanco sin transparencia */
+.mensajes-detail .detail-footer .detail-actions .btn.btn-warning {
+	background-image: none !important;
+	background-color: #2fa8ff !important; /* color sólido, sin degradado ni brillo */
+	color: #ffffff !important;
+	opacity: 1 !important;
+	border: none !important;
+	box-shadow: 0 8px 20px rgba(47,150,255,0.12) !important;
+}
+.mensajes-detail .detail-footer .detail-actions .btn.btn-warning svg { color: #ffffff !important; fill: #ffffff !important; }
+
+/* Asegurar hover consistente (no hacer texto transparente) */
+.mensajes-detail .detail-footer .detail-actions .btn.btn-warning:hover { filter: brightness(.95) !important; opacity: 1 !important; }
+
+/* Override final: asegurar que 'Eliminar Cliente' sea rojo-rosado más intenso y sin degradado (color sólido) */
+.mensajes-detail .detail-footer .detail-actions .btn.btn-danger {
+	background-image: none !important;
+	background-color: #ff4f6a !important; /* color sólido, más intenso */
+	background-repeat: no-repeat !important;
+	background-size: cover !important;
+	color: #ffffff !important;
+	opacity: 1 !important;
+	border: none !important;
+	box-shadow: 0 8px 24px rgba(255,79,106,0.14) !important;
+	appearance: none !important; /* propiedad estándar para compatibilidad */
+	-webkit-appearance: none !important; /* vendor prefix para Safari/Chrome */
+	filter: none !important;
+	mix-blend-mode: normal !important;
+}
+.mensajes-detail .detail-footer .detail-actions .btn.btn-danger svg { color: #ffffff !important; fill: #ffffff !important; }
+.mensajes-detail .detail-footer .detail-actions .btn.btn-danger:hover { filter: brightness(.95) !important; opacity: 1 !important; }
+
+/* Asegurar que el texto del botón 'Retirar Conversación' sea oscuro (no blanco) */
+.mensajes-detail .detail-footer .detail-actions .btn.btn-secondary,
+.mensajes-detail .detail-footer .btn.btn-secondary {
+	color: #0b1220 !important;
+}
+
+/* Final override definitivo: forzar 'Eliminar Mensaje' a naranja fuerte y saturado */
+.mensajes-detail .detail-footer .detail-actions .btn.btn-warning {
+	background-image: none !important;
+	background-color: #f37d60 !important; /* naranja fuerte */
+	color: #ffffff !important;
+	opacity: 1 !important;
+	border: none !important;
+	box-shadow: 0 10px 28px rgba(255,87,34,0.22) !important;
+	filter: none !important;
+	mix-blend-mode: normal !important;
+	appearance: none !important;
+	-webkit-appearance: none !important;
+}
+.mensajes-detail .detail-footer .detail-actions .btn.btn-warning svg { color: #ffffff !important; fill: #ffffff !important; }
+.mensajes-detail .detail-footer .detail-actions .btn.btn-warning:hover { filter: brightness(.92) !important; opacity: 1 !important; }
+
+/* Override específico: forzar 'Marcar Resuelto' a azul suave sólido (igual que la imagen) */
+.mensajes-detail .detail-footer .detail-actions .btn.btn-success {
+	background-image: none !important;
+	background-color: #3089c4 !important; /* azul suave sólido */
+	color: #ffffff !important;
+	opacity: 1 !important;
+	border: none !important;
+	box-shadow: 0 8px 20px rgba(11,123,255,0.14) !important;
+	filter: none !important;
+	mix-blend-mode: normal !important;
+	appearance: none !important;
+	-webkit-appearance: none !important;
+}
+.mensajes-detail .detail-footer .detail-actions .btn.btn-success svg { color: #ffffff !important; fill: #ffffff !important; }
+.mensajes-detail .detail-footer .detail-actions .btn.btn-success:hover { filter: brightness(.95) !important; opacity: 1 !important; }
+
+
+/* Estilos añadidos: encabezado mejorado para Reporte */
+.report-header {
+	padding: 14px 16px;
+	border-radius: 12px;
+	background: linear-gradient(180deg, #ffffff, #fbfdff);
+	box-shadow: 0 8px 24px rgba(11,35,80,0.04);
+	margin-bottom: 12px;
+}
+
+.report-avatar {
+	width:48px;
+	height:48px;
+	border-radius:50%;
+	overflow:hidden;
+	display:flex;
+	align-items:center;
+	justify-content:center;
+	background: linear-gradient(135deg,#eef2ff,#e6f0ff);
+	color:#123;
+	font-weight:700;
+	box-shadow: 0 6px 18px rgba(11,35,80,0.04);
+	flex-shrink:0;
+	position: relative; /* asegurar que quede por encima de la barra */
+	z-index: 2;
+	margin-left: 6px; /* separar ligeramente del acento izquierdo */
+}
+.report-avatar img { width:100%; height:100%; object-fit:cover; display:block; }
+
+.report-title { font-size:1.05rem; font-weight:800; color:#042a4a; margin-right:8px; }
+.report-sub { margin-top:6px; }
+.report-motive { color:#475569; font-size:0.95rem; display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:48ch; }
+
+.report-meta { display:flex; align-items:center; gap:8px; color:#6b7280; font-size:0.92rem; white-space:nowrap; }
+.report-time { font-weight:600; color:#475569; }
+
+@media (max-width:900px) {
+	.report-motive { max-width:28ch; font-size:0.92rem; }
+	.report-header { padding:12px; }
+}
+
+/* Refinamientos adicionales: wrap a 2 líneas, barra de acento, hover y reporter */
+.report-motive {
+	display: -webkit-box;
+	/* Estándar y prefijos: permitir compatibilidad con navegadores que implementen
+	   la propiedad no prefijada `line-clamp`. No tocar otras reglas. */
+	line-clamp: 2;
+	-webkit-line-clamp: 2; /* mostrar hasta 2 líneas */
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+	white-space: normal; /* permitir wrap */
+	text-overflow: ellipsis;
+	max-width: 100%;
+	line-height: 1.25;
+}
+
+.report-header {
+	position: relative;
+	transition: transform .16s ease, box-shadow .16s ease;
+}
+.report-header::before {
+	content: '';
+	position: absolute;
+    left: 8px; /* ajustar para separarlo del avatar */
+    top: 10px;
+    bottom: 10px;
+	width: 4px;
+	border-radius: 6px;
+	background: linear-gradient(180deg,#2b9cf4,#0b7cff);
+	opacity: 0.12;
+	z-index: 1;
+}
+.report-header:hover {
+	transform: translateY(-4px);
+	box-shadow: 0 18px 40px rgba(11,35,80,0.06);
+}
+
+/* Badge compacto */
+.estado-badge {
+	padding: 4px 8px;
+	border-radius: 999px;
+	font-size: 12px;
+	min-width: auto;
+	height: 28px;
+	display:inline-flex;
+	align-items:center;
+	justify-content:center;
+	box-shadow: none;
+}
+
+.report-sub {
+	margin-top: 6px;
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+.report-reporter {
+	color: #6b7280;
+	font-size: 0.90rem;
+	font-weight: 600;
+	display:inline-flex;
+	align-items:center;
+	gap:8px;
+}
+
+@media (max-width:720px) {
+	.report-header { padding:10px 14px 10px 18px; border-radius:10px; }
+	.report-avatar { width:40px; height:40px; margin-left:4px; z-index:3; }
+	.report-title { font-size: 1rem; }
+	/* añadir la propiedad estándar para compatibilidad y mantener el prefijo WebKit */
+	.report-motive { line-clamp: 2; -webkit-line-clamp:2; font-size:0.92rem; }
+	.report-meta { font-size:0.86rem; gap:6px; }
+	/* ajustar posición de la barra de acento para móviles para dejar espacio al avatar */
+	.report-header::before { left: 4px; top: 12px; bottom: 12px; }
+}
+
+/* Responsive refinements: keep header tidy and footer buttons readable on small screens */
+.report-header > div {
+	display:flex;
+	align-items:center;
+	justify-content:space-between;
+	gap:12px;
+	flex-wrap:wrap;
+	width:100%;
+}
+.report-header > div > div:first-child {
+	flex: 1 1 auto;
+	min-width: 0;
+}
+.report-header .report-meta {
+	flex: 0 0 auto;
+	margin-left: 12px;
+	white-space: nowrap;
+}
+
+@media (max-width:720px) {
+	.report-header > div { align-items:flex-start; }
+	.report-header .report-meta { order: 2; width:100%; margin-top:8px; padding-left: 56px; text-align:left; font-size:0.92rem; }
+	.report-sub { padding-left: 56px; }
+	.report-avatar { margin-left:0; margin-right:8px; }
+
+	/* Footer actions: flexible distribution and stacking on very small screens */
+	.mensajes-detail .detail-footer .detail-actions { display:flex; gap:10px; flex-wrap:wrap; }
+	.mensajes-detail .detail-footer .detail-actions .btn { flex: 1 1 calc(33.333% - 10px); min-width: 0; }
+	@media (max-width:420px) {
+		.mensajes-detail .detail-footer .detail-actions .btn { flex: 1 1 100%; }
+	}
+
+}
+
+
+
+

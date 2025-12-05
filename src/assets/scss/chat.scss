@@ -180,6 +180,11 @@
 .chat-msg-text { margin-bottom:8px; font-size:0.98rem; }
 .chat-msg-time { font-size:0.78rem; color:var(--muted); text-align:right; }
 
+/* Deleted message placeholder: use same visual treatment as mensajes page */
+.chat-msg .conv-text.deleted { font-style: italic; opacity: 0.9; }
+.chat-msg.me .conv-text.deleted { color: #ffffff; }
+.chat-msg.them .conv-text.deleted { color: #6c757d; opacity: 0.75; }
+
 .chat-send { display:flex; gap:10px; align-items:center; padding-top:10px; border-top:1px solid rgba(0,0,0,0.04); }
 .chat-send input[type="text"] { flex:1; padding:12px 14px; border-radius:12px; border:1px solid rgba(0,0,0,0.06); background:#fff; transition: box-shadow 180ms ease, border-color 180ms ease, transform 180ms ease; }
 .chat-send input[type="text"]:focus { outline: none; box-shadow: 0 12px 36px rgba(11,115,255,0.10); border-color: rgba(11,115,255,0.22); transform: translateY(-2px); }
@@ -544,4 +549,113 @@
 .app-main.dark-theme .pf-icon { background: linear-gradient(180deg,#0b335b,#08314a); color:#bfe9ff; box-shadow:none; }
 .app-main.dark-theme .pf-label { color: rgba(255,255,255,0.6); }
 .app-main.dark-theme .pf-text { color: var(--text, #e6eef8); }
+
+/* Report modal styles (estética tipo bandera + botón rojo/rosado) */
+.report-modal {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(2,6,23,0.48);
+  z-index: 2147483650;
+  padding: 28px;
+}
+.report-card {
+  width: min(640px, 92vw);
+  background: var(--card-bg, #fff);
+  border-radius: 14px;
+  box-shadow: 0 48px 140px rgba(2,6,23,0.38);
+  position: relative;
+  color: var(--text, #0b2030);
+  overflow: visible;
+  border: 1px solid rgba(11,35,80,0.04);
+}
+.report-body { padding: 20px 22px 18px 22px; }
+.report-title { margin: 0 0 8px 0; display:flex; align-items:center; gap:10px; font-size:1.05rem; font-weight:800; }
+.report-flag { color: #d32f2f; font-size:1.15rem; }
+.report-desc { margin: 6px 0 12px 0; color: rgba(0,0,0,0.66); line-height:1.28; font-size:0.98rem; }
+
+/* Cita compacta (pill) encima del textarea, como en la imagen */
+.report-quote {
+  display: block;
+  width: 100%;
+  background: linear-gradient(180deg,#fbfdff,#f3f8ff);
+  border-radius: 12px;
+  padding: 8px 12px;
+  margin: 6px 0 8px 0;
+  color: #2b3948;
+  font-style: normal;
+  border: 1px solid rgba(11,35,80,0.06);
+  box-shadow: 0 10px 30px rgba(11,35,80,0.04);
+  white-space: normal;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Área de texto más grande y con borde marcado como en la segunda imagen */
+.report-textarea {
+  width: 100%;
+  min-height: 120px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 2px solid rgba(11,35,80,0.14);
+  resize: vertical;
+  margin-top: 8px;
+  font-size: 1rem;
+  background: #ffffff;
+  color: var(--text, #0b2030);
+  box-shadow: inset 0 4px 10px rgba(11,35,80,0.02);
+}
+
+.report-textarea:focus { outline: none; box-shadow: 0 12px 36px rgba(11,115,255,0.06); border-color: rgba(11,115,255,0.18); }
+
+.report-actions { display:flex; gap:12px; justify-content:flex-end; margin-top: 12px; }
+.btn-danger {
+  background-color: #ef6b63;
+  color: #ffffff;
+  padding: 10px 18px;
+  border-radius: 12px;
+  border: none;
+  box-shadow: 0 16px 40px rgba(239,107,99,0.12);
+  cursor: pointer;
+  font-weight: 800;
+  transition: transform 160ms ease, box-shadow 160ms ease, filter 160ms ease, background-color 120ms ease;
+}
+.btn-danger:hover { transform: translateY(-2px); box-shadow: 0 18px 46px rgba(239,107,99,0.18); background-color: #e3554d; }
+
+/* Small adjustments to ensure modal close button inherits existing style */
+.report-card .chat-profile-close { right: 14px; top: 10px; }
+
+/* Dark theme overrides for report modal */
+.app-main.dark-theme .report-card { background: var(--card-bg, #141516); color: var(--text, #e6eef8); border: 1px solid var(--muted-border, rgba(255,255,255,0.04)); box-shadow: 0 40px 120px rgba(2,6,23,0.6); }
+.app-main.dark-theme .report-desc { color: rgba(255,255,255,0.7); }
+.app-main.dark-theme .report-quote { background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.04); color: var(--text, #dfe6ee); box-shadow: none; }
+.app-main.dark-theme .report-textarea { background: var(--card-bg); border-color: var(--muted-border); color: var(--text); }
+
+/* Disabled state for danger button: opaco cuando no hay texto */
+.btn-danger:disabled {
+  opacity: 0.48;
+  box-shadow: none;
+  cursor: not-allowed;
+  transform: none;
+  filter: grayscale(6%);
+}
+.btn-danger:not(:disabled) { opacity: 1; }
+
+/* Override global .report-body rule from mensajes.scss which sets it inline.
+   Ensure modal report layout is vertical inside chat modal. */
+.report-modal .report-card .report-body {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 12px;
+  margin-left: 0;
+}
+
+/* Make the quote pill use full available width inside modal */
+.report-modal .report-card .report-quote { max-width: 100%; white-space: normal; }
+
+/* Ensure actions stay at the end of modal */
+.report-modal .report-card .report-actions { justify-content: flex-end; }
 

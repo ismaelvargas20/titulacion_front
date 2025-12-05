@@ -8,6 +8,7 @@ import {
     FaMotorcycle,
     FaTools,
     FaComments,
+    FaEnvelope,
     FaUser,
     FaSun,
     FaMoon,
@@ -110,6 +111,7 @@ const Header = ({ adminMode = false }) => {
                         { to: '/usuarios', label: 'Clientes', icon: FaUser },
                         { to: '/posteadas', label: 'Publicaciones', icon: FaFileAlt },
                         { to: '/comentarios', label: 'Comentarios', icon: FaComments },
+                        { to: '/mensajes', label: 'Mensajes', icon: FaEnvelope },
           ]
         : [
             { to: '/motos', label: 'Motos', icon: FaMotorcycle },

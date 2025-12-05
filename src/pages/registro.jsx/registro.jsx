@@ -16,6 +16,8 @@ const Registro = ({ isOpen = false, onClose = () => {} }) => {
 	const [phone, setPhone] = useState('');
 	const [city, setCity] = useState('');
 	const [password, setPassword] = useState('');
+	const [isAdmin, setIsAdmin] = useState(false);
+	const [adminCode, setAdminCode] = useState('');
 	const [showPassword, setShowPassword] = useState(false);
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState(null);
@@ -52,6 +54,23 @@ const Registro = ({ isOpen = false, onClose = () => {} }) => {
 				ciudad: city,
 				password
 			};
+
+			// Si el usuario marca que quiere registrarse como admin, validar que haya ingresado un código
+			if (isAdmin) {
+				if (!adminCode || !adminCode.trim()) {
+					setError('Si desea registrarse como administrador debe ingresar el código de invitación');
+					setLoading(false);
+					await Swal.fire({ icon: 'warning', title: 'Código requerido', text: 'Por favor ingresa el código de invitación para registrarte como administrador' });
+					return;
+				}
+				const codeTrim = adminCode.trim();
+				// Enviar el código con varios alias por compatibilidad con el backend
+				payload.adminCode = codeTrim;
+				payload.codigo_admin = codeTrim;
+				payload.admin_code = codeTrim;
+			}
+			// Log temporal para depuración (quita en producción)
+			console.log('Registro payload:', payload);
 			const result = await registerClient(payload);
 			// Cerrar modal primero para evitar que su overlay o z-index esconda la alerta
 			handleClose();
@@ -137,6 +156,51 @@ const Registro = ({ isOpen = false, onClose = () => {} }) => {
 									{showPassword ? <FaEyeSlash /> : <FaEye />}
 								</button>
 							</div>
+					</label>
+
+					{/* --- Opciones de administrador --- */}
+					{/* --- Opciones de administrador (estilizado) --- */}
+					<label
+						className="reg-admin-row"
+						htmlFor="adminCheck"
+						style={{ marginTop: 10, display: 'flex', justifyContent: 'flex-start', alignItems: 'center' }}
+						role="switch"
+						aria-checked={isAdmin}
+						tabIndex={0}
+						onKeyDown={(e) => {
+							if (e.key === ' ' || e.key === 'Enter') {
+								e.preventDefault();
+								setIsAdmin(s => !s);
+							}
+						}}
+						onClick={() => setIsAdmin(s => !s)}
+						>
+						<input
+							id="adminCheck"
+							type="checkbox"
+							checked={isAdmin}
+							onChange={e => setIsAdmin(e.target.checked)}
+							style={{ margin: 0, zIndex: 3 }}
+						/>
+						<span className={`admin-icon ${isAdmin ? 'active' : ''}`} aria-hidden="true">
+							<svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+								<path d="M12 2l7 3v5c0 5-3.5 9.7-7 11-3.5-1.3-7-6-7-11V5l7-3z" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+							</svg>
+						</span>
+						<span className="admin-label">Registrarme como Administrador</span>
+					</label>
+
+					<label className={`reg-admin-code ${isAdmin ? 'visible' : 'hidden'}`} style={{ gridColumn: '1 / -1', marginTop: 8 }}>
+						<span>Código de Administrador</span>
+						<div className="reg-input">
+							<span className="admin-input-icon" aria-hidden="true">
+								<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+									<path d="M12 2l7 3v5c0 5-3.5 9.7-7 11-3.5-1.3-7-6-7-11V5l7-3z" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+								</svg>
+							</span>
+							<input name="adminCode" value={adminCode} onChange={e => setAdminCode(e.target.value)} type="text" placeholder="Ingresa el código de invitación" />
+						</div>
+						<div className="reg-admin-note">Se requiere un código válido para registrarse como administrador</div>
 					</label>
 
 				</form>

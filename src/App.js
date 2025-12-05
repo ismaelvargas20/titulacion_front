@@ -17,6 +17,7 @@ import Vender from './pages/vender/vender';
 import Chat from './pages/vender/chat';
 import Dashboard from './pages/dashboard/dashboard';
 import Comentarios from './pages/comentarios/comentarios';
+import Mensajes from './pages/mensajes/mensajes';
 import RequestPassword, { ResetPassword } from './components/password/password';
 import { useNavigate } from 'react-router-dom';
 
@@ -34,7 +35,7 @@ const LoginWithReset = () => {
 const AppContent = () => {
   const location = useLocation();
   const hideHeaderPaths = ['/login', '/registro', '/recuperar', '/reset-password'];
-  const adminHeaderPaths = ['/dashboard', '/usuarios', '/posteadas', '/comentarios'];
+  const adminHeaderPaths = ['/dashboard', '/usuarios', '/posteadas', '/comentarios', '/mensajes'];
 
   // Detectar si el usuario actualmente logueado actúa como administrador.
   // En esta app 'usuario' representa cuentas administrativas y 'cliente' los clientes.
@@ -127,6 +128,7 @@ const AppContent = () => {
             <Route path="/usuarios" element={<Usuarios />} />
             <Route path="/posteadas" element={<Posteadas />} />
             <Route path="/comentarios" element={<Comentarios />} />
+            <Route path="/mensajes" element={<Mensajes />} />
           </Route>
         </Routes>
       </main>

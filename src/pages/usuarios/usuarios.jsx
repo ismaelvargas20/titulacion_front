@@ -518,6 +518,167 @@ const Usuarios = () => {
     if (stateFilter === 'eliminado') fetchUsers();
   }, [stateFilter]);
   
+  // Estados locales para la pestaña de Invitaciones y helpers mínimos
+  const [activeTab, setActiveTab] = useState('list');
+  const [inviteEmail, setInviteEmail] = useState('');
+  const [invites, setInvites] = useState([]);
+  // Persistencia local simple: cargar invites previos generados
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('invites_v1');
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) setInvites(parsed);
+      }
+    } catch (e) { /* ignore malformed data */ }
+  }, []);
+
+  // Intentar cargar invites existentes desde el backend y mezclarlos con lo local
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const res = await api.get('/admin/invite/list');
+        if (!mounted) return;
+        const server = Array.isArray(res && res.data) ? res.data.map(it => ({
+          id: it.id,
+          code: it.code || null,
+          email: it.email || null,
+          createdAt: it.createdAt || it.createdAt || it.created_at || it.createdAt || (it.createdAt ? it.createdAt : null) || it.createdAt || it.createdAt,
+          active: !it.consumed,
+          createdBy: it.createdBy || null
+        })) : [];
+        // Combinar: priorizar invites locales (tienen código en claro)
+        try {
+          const raw = localStorage.getItem('invites_v1');
+          const local = raw ? JSON.parse(raw) : [];
+          const mergedMap = new Map();
+          // local first
+          if (Array.isArray(local)) for (const l of local) mergedMap.set(String(l.id), l);
+          for (const s of server) if (!mergedMap.has(String(s.id))) mergedMap.set(String(s.id), s);
+          const merged = Array.from(mergedMap.values()).sort((a,b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
+          setInvites(merged);
+          try { localStorage.setItem('invites_v1', JSON.stringify(merged)); } catch (e) {}
+        } catch (e) {
+          setInvites(server);
+        }
+      } catch (e) {
+        // si falla, mantener lo que haya en local
+        console.debug('No se pudieron cargar invites desde el servidor:', e && e.message ? e.message : e);
+      }
+    })();
+    return () => { mounted = false; };
+  }, []);
+  // Paginación para invitaciones (independiente de la tabla de usuarios)
+  const [invitePage, setInvitePage] = useState(1);
+  const invitePageSize = 4;
+  // Solo mostrar invites activos (ocultar consumidos) y filtrar seeds/fechas futuras
+  const visibleInvites = useMemo(() => {
+    try {
+      if (!Array.isArray(invites)) return [];
+      const now = Date.now();
+      const futureTolerance = 60 * 1000; // 1 minute tolerance for clock skew
+      return invites.filter(i => {
+        if (!i) return false;
+        // Solo mostrar invites activos (no consumidos)
+        let isActive = true;
+        if (typeof i.active === 'boolean') isActive = i.active === true;
+        else if (typeof i.consumed === 'boolean') isActive = i.consumed === false;
+        // Evitar mostrar entradas "vacías" que no tienen código, fecha ni creador
+        const hasMeaningfulData = Boolean(i.code || i.createdAt || i.createdBy || i.email);
+        if (!hasMeaningfulData) return false;
+
+        // Excluir invites con fecha de creación en el futuro (probables datos quemados/seed)
+        if (i.createdAt) {
+          const ts = Date.parse(i.createdAt);
+          if (!Number.isNaN(ts) && ts > (now + futureTolerance)) return false;
+        }
+
+        return isActive;
+      });
+    } catch (e) { return []; }
+  }, [invites]);
+
+  const inviteTotalPages = Math.max(1, Math.ceil(visibleInvites.length / invitePageSize));
+  const paginatedInvites = useMemo(() => {
+    const start = (invitePage - 1) * invitePageSize;
+    return visibleInvites.slice(start, start + invitePageSize);
+  }, [visibleInvites, invitePage]);
+
+  useEffect(() => {
+    // Si la lista de invites visibles cambia, asegurarnos que la página actual sigue en rango
+    setInvitePage(p => Math.min(p, Math.max(1, Math.ceil(visibleInvites.length / invitePageSize) || 1)));
+  }, [visibleInvites]);
+
+  const generateInvite = async () => {
+    try {
+      const payload = { email: inviteEmail || null, role: 'admin' };
+      console.debug('[Invite] Generando invite, payload:', payload);
+      const res = await api.post('/admin/invite/create', payload);
+      console.debug('[Invite] Respuesta create:', res && res.data ? res.data : res);
+      const code = res && res.data && res.data.code ? res.data.code : null;
+      const id = res && res.data && res.data.id ? res.data.id : null;
+      if (code) {
+        const nowIso = new Date().toISOString();
+        // intentar leer el usuario actualmente logueado desde sessionStorage
+        let authorName = null;
+        try {
+          const raw = sessionStorage.getItem('currentUser');
+          if (raw) {
+            const cu = JSON.parse(raw);
+            authorName = cu && (cu.nombre || cu.name || cu.fullname || cu.email) ? (cu.nombre || cu.name || cu.fullname || cu.email) : null;
+          }
+        } catch (e) {
+          // silent
+        }
+        const newInvite = { id: id || (`local-${Date.now()}`), code, email: inviteEmail || null, createdAt: nowIso, active: true, createdBy: authorName };
+        setInvites(prev => {
+          const next = [newInvite, ...prev];
+          try { localStorage.setItem('invites_v1', JSON.stringify(next)); } catch (e) { /* ignore */ }
+          return next;
+        });
+        setInviteEmail('');
+        try { await navigator.clipboard.writeText(code); } catch (e) { /* fallback silently */ }
+        try { await Swal.fire({ icon: 'success', title: 'Código generado', text: 'Código copiado al portapapeles', showConfirmButton: false, timer: 1200 }); } catch (e) { /* ignore */ }
+      } else {
+        try { await Swal.fire({ icon: 'success', title: 'Código generado', timer: 900, showConfirmButton: false }); } catch (e) {}
+      }
+    } catch (err) {
+      console.error('Error generando invite', err);
+      try { await Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo generar el código' }); } catch (e) { /* ignore */ }
+    }
+  };
+
+  const copyToClipboard = async (text) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      try { await Swal.fire({ icon: 'success', title: 'Copiado', showConfirmButton: false, timer: 900 }); } catch (e) {}
+    } catch (e) {
+      console.debug('No se pudo copiar', e);
+      alert(text);
+    }
+  };
+
+  const revokeInvite = async (idx) => {
+    const target = invites[idx];
+    // Si el invite viene del servidor (id numérico), intentar borrarlo en backend
+    if (target && target.id && String(target.id).match(/^\d+$/)) {
+      try {
+        await api.delete(`/admin/invite/${target.id}`);
+      } catch (e) {
+        console.debug('No se pudo eliminar invite en servidor:', e && e.message ? e.message : e);
+        // continuar limpiando local para evitar duplicados visibles
+      }
+    }
+    setInvites(prev => {
+      const next = prev.filter((_, i) => i !== idx);
+      try { localStorage.setItem('invites_v1', JSON.stringify(next)); } catch (e) { /* ignore */ }
+      return next;
+    });
+  };
+
+  // Nota: la función para limpiar invites locales fue retirada por petición del usuario
+  
   // Resumen calculado a partir de los datos cargados
   const summary = useMemo(() => ({
     usuariosActivos: totalUsuariosActivos,
@@ -530,6 +691,7 @@ const Usuarios = () => {
       <main className="usuarios-main">
         <h1 className="usuarios-title">Gestión de Usuarios</h1>
         <p className="usuarios-subtitle">Administra todos los usuarios de la plataforma</p>
+        {/* (Tabs movidas al encabezado de la lista según diseño solicitado) */}
         {/* Tarjetas resumen (Total, Activos, Suspendidos, Nuevos) */}
         <section className="usuarios-summary">
           <div className="sum-card">
@@ -588,16 +750,34 @@ const Usuarios = () => {
           </div>
         </section>
 
-        {/* Encabezado de lista */}
-        <section className="usuarios-list-header">
-          <div className="usuarios-list-card">
-            <h2 className="list-title">Lista de Usuarios</h2>
+        {/* Pestañas inline siempre visibles (Lista / Códigos) */}
+        <section className="usuarios-tabs-wrap usuarios-tabs-inline" style={{ marginTop: 8, marginBottom: 12 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <button type="button" className={`tab-item ${activeTab === 'list' ? 'active' : ''}`} onClick={() => setActiveTab('list')}>
+              <i className="fas fa-user-friends" aria-hidden="true" style={{ color: activeTab === 'list' ? '#0b73ff' : '#6b7280' }}></i>
+              <span>Lista de Usuarios</span>
+            </button>
+            <span className="tab-sep">/</span>
+            <button type="button" className={`tab-item ${activeTab === 'invites' ? 'active' : ''}`} onClick={() => setActiveTab('invites')}>
+              <i className="fas fa-user-plus" aria-hidden="true" style={{ marginRight: 8 }}></i>
+              <span>Códigos de Invitación</span>
+            </button>
           </div>
         </section>
-        {/* Lista de usuarios en formato tabla estilo BD */}
-        <section className="usuarios-table-section">
-          <div className="usuarios-table-wrap">
-            <table className="usuarios-table">
+
+        {/* Encabezado de lista y tabla (contenido) */}
+        {activeTab === 'list' && (
+          <>
+            <section className="usuarios-list-header">
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                </div>
+              </div>
+            </section>
+            {/* Lista de usuarios en formato tabla estilo BD */}
+            <section className="usuarios-table-section">
+              <div className="usuarios-table-wrap">
+                <table className="usuarios-table">
               <thead>
                 <tr>
                   <th>Usuario</th>
@@ -700,8 +880,72 @@ const Usuarios = () => {
             </table>
           </div>
         </section>
-        {/* Paginación */}
-        {totalPages > 1 && (
+          </>
+        )}
+
+        {/* Panel de Códigos de Invitación (UI inicial) */}
+        {activeTab === 'invites' && (
+          <section className="usuarios-invites-panel">
+            <div className="um-card" style={{ marginBottom: 12, display: 'flex', gap: 8, alignItems: 'center' }}>
+              <button className="filter-btn active" onClick={generateInvite} style={{ whiteSpace: 'nowrap' }}>+ Generar Código</button>
+              <div style={{ flex: 1 }} />
+            </div>
+            <div className="invites-list">
+              {visibleInvites.length === 0 && (
+                <div className="um-card invites-empty">No hay códigos activos. Usa "Generar Código" para crear uno.</div>
+              )}
+              {paginatedInvites.map((it, idx) => {
+                const globalIdx = (invitePage - 1) * invitePageSize + idx;
+                return (
+                  <div className="um-card" key={globalIdx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                    <div>
+                      <div style={{ fontWeight: 800, color: '#0b73ff' }}>
+                        {it.code} <span className={`state-badge ${it.active ? 'state-active' : 'state-used-invite'}`} style={{ marginLeft: 8 }}>{it.active ? 'Activo' : 'Usado'}</span>
+                      </div>
+                      <div style={{ color: '#6b7280', fontSize: '0.9rem' }}>Creado: {it.createdAt}{it.createdBy && <span> por {it.createdBy}</span>}</div>
+                      {it.email && <div style={{ color: '#6b7280', fontSize: '0.9rem' }}>Para: {it.email}</div>}
+                    </div>
+                    <div style={{ display: 'flex', gap: 8 }}>
+                      <button className="icon-btn copy" onClick={() => copyToClipboard(it.code)} title="Copiar código" aria-label="Copiar código">
+                        <i className="fas fa-clipboard" aria-hidden="true"></i>
+                      </button>
+                      <button className="icon-btn danger" onClick={async () => {
+                        const result = await Swal.fire({
+                          title: 'Eliminar código?',
+                          text: '¿Deseas eliminar este código de invitación? Esta acción no se puede deshacer.',
+                          icon: 'warning',
+                          showCancelButton: true,
+                          confirmButtonText: 'Sí, eliminar',
+                          cancelButtonText: 'Cancelar'
+                        });
+                        if (result && result.isConfirmed) {
+                          revokeInvite(globalIdx);
+                          try { await Swal.fire({ icon: 'success', title: 'Eliminado', showConfirmButton: false, timer: 1100 }); } catch (e) {}
+                        }
+                      }} title="Eliminar" aria-label="Eliminar">
+                        <i className="fas fa-trash-alt" aria-hidden="true"></i>
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            {/* Paginación de invitaciones (solo en la pestaña 'invites') */}
+            {activeTab === 'invites' && inviteTotalPages > 1 && (
+              <div className="pagination-wrap" style={{ marginTop: 14 }}>
+                <div className="pagination">
+                  <button className="page-btn" onClick={() => setInvitePage(p => Math.max(1, p - 1))} disabled={invitePage === 1}>Anterior</button>
+                  {Array.from({ length: inviteTotalPages }).map((_, i) => (
+                    <button key={i} className={`page-btn ${invitePage === i + 1 ? 'active' : ''}`} onClick={() => setInvitePage(i + 1)} aria-current={invitePage === i + 1 ? 'page' : undefined}>{i + 1}</button>
+                  ))}
+                  <button className="page-btn" onClick={() => setInvitePage(p => Math.min(inviteTotalPages, p + 1))} disabled={invitePage === inviteTotalPages}>Siguiente</button>
+                </div>
+              </div>
+            )}
+          </section>
+        )}
+        {/* Paginación de usuarios (solo en la pestaña 'Lista') */}
+        {activeTab === 'list' && totalPages > 1 && (
           <div className="pagination-wrap" style={{ marginTop: 14 }}>
             <div className="pagination">
               <button className="page-btn" onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}>Anterior</button>

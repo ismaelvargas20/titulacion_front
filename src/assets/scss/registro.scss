@@ -3,6 +3,16 @@ $reg-bg: var(--card-bg, #ffffff);
 $overlay: rgba(12, 18, 26, 0.6);
 $primary: var(--primary, #007bff);
 $darker: #0056b3;
+.reg-admin-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: linear-gradient(180deg, rgba(242,246,250,0.8), rgba(255,255,255,0.7));
+  border: 1px solid rgba(11,115,255,0.08);
+  box-shadow: 0 6px 18px rgba(11,115,255,0.04);
+}
 
 .reg-modal-overlay {
   position: fixed;
@@ -78,6 +88,114 @@ $darker: #0056b3;
   /* Usar flex child para permitir que el formulario ocupe el espacio
      disponible y sea el área scrollable. min-height:0 es necesario para
      que overflow funcione correctamente en flexbox en algunos navegadores. */
+/* Esconder visualmente el checkbox nativo pero dejarlo accesible */
+.reg-admin-row input[type="checkbox"] {
+  position: absolute;
+  left: -9999px;
+}
+
+/* Icono central con dos círculos apilados (mejor estética) */
+.reg-admin-row .admin-icon {
+  width: 22px;
+  height: 22px;
+  min-width: 22px;
+  border-radius: 6px;
+  background: transparent; /* dejar transparente para que el checkbox sea la señal primaria */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  box-shadow: none;
+  border: none;
+  margin-right: 10px;
+}
+
+/* (Removed decorative pseudo-elements; only SVG shield remains) */
+
+/* SVG color and transition */
+.reg-admin-row .admin-icon svg {
+  width: 18px;
+  height: 18px;
+  display: block;
+  fill: transparent;
+  stroke: var(--primary, #007bff);
+  stroke-width: 1.4;
+  transition: transform 180ms ease, fill 180ms ease, stroke 180ms ease;
+}
+
+.reg-admin-row input[type="checkbox"]:checked + .admin-icon svg,
+.reg-admin-row .admin-icon.active svg {
+  /* keep the svg as an outline (no fill) and keep stroke in primary color */
+  fill: transparent !important;
+  stroke: var(--primary, #007bff) !important;
+  transform: scale(1.02);
+}
+
+/* (placeholder removed) no default transparent background here so active styles
+   defined later can take precedence */
+.reg-admin-row .admin-icon.active { /* placeholder - active handled by checked rule */ box-sizing: border-box; }
+
+.reg-admin-row .admin-label {
+  font-weight: 600;
+  color: #273043;
+  text-align: left;
+  font-size: 0.95rem;
+}
+
+/* Estilo para el bloque del código cuando aparece (centrado y más pequeño) */
+
+/* Animated code block: hidden by default, visible when .visible */
+.reg-admin-code { grid-column: 1 / -1; overflow: hidden; max-height: 0; opacity: 0; transform: translateY(-8px); transition: all 260ms cubic-bezier(.2,.9,.3,1); }
+.reg-admin-code span { display:block; margin-bottom: 0.5rem; color: #344054; text-align: left; margin-left: 6px; }
+.reg-admin-code .reg-input {
+  /* Make the input+icon a single visual control: flex layout so the icon
+     and input align nicely and share the same rounded background. */
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid rgba(16,24,40,0.06);
+  box-shadow: 0 6px 18px rgba(11,115,255,0.03);
+  /* Ensure a consistent minimum height so icon and text sit vertically centered */
+  min-height: 48px;
+  /* Allow the control to grow wider so long codes/placeholder text fit */
+  max-width: 760px;
+  width: 100%;
+  margin: 0 auto;
+}
+.reg-admin-code .reg-input input {
+  flex: 1 1 auto;
+  min-width: 220px;
+  max-width: 720px; /* permitir campo más ancho dentro del wrapper */
+  width: 100%;
+  height: 40px; /* explicit height to vertically center text */
+  line-height: 40px;
+  padding: 0 0.75rem;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  box-shadow: none;
+  font-size: 1rem;
+  color: var(--text, #222);
+  align-self: center;
+}
+.reg-admin-code.visible { max-height: 220px; opacity: 1; transform: translateY(0); }
+.reg-admin-code.hidden { max-height: 0; opacity: 0; transform: translateY(-8px); }
+
+.reg-admin-note {
+  text-align: center;
+  font-size: 12px;
+  color: #708090;
+  margin-top: 10px;
+}
+
+@media (max-width: 720px) {
+  .reg-admin-row { padding: 12px; }
+  .reg-admin-row .admin-icon { width: 48px; height: 48px; }
+  .reg-admin-code .reg-input input { width: 86%; min-width: 180px; }
+}
   flex: 1 1 auto;
   min-height: 0;
   overflow: auto;
@@ -348,3 +466,269 @@ $darker: #0056b3;
   .reg-input .reg-icon { width: 44px; height: 44px; left: 14px; svg { width: 16px; height: 16px; } }
   .reg-input.reg-input--date .reg-icon { border-radius: 12px; }
 }
+
+/* Estilos para la opción administrador */
+.reg-admin-row {
+  grid-column: 1 / -1; /* ocupar todo el ancho */
+}
+
+.reg-input input[disabled] {
+  background: #f6f8fa;
+  color: #9aa4ad;
+  cursor: not-allowed;
+  border-style: dashed;
+}
+
+.reg-admin-note {
+  font-size: 12px;
+  color: #6b7280;
+  margin-top: 6px;
+}
+
+/* Mejor apariencia para la fila 'Registrarme como Administrador' */
+.reg-admin-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: linear-gradient(180deg, rgba(242,246,250,0.8), rgba(255,255,255,0.7));
+  border: 1px solid rgba(11,115,255,0.08);
+  box-shadow: 0 6px 18px rgba(11,115,255,0.04);
+}
+
+.reg-admin-row input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  appearance: none;
+  -webkit-appearance: none;
+  border: 1.6px solid var(--primary, #007bff);
+  border-radius: 50%;
+  display: inline-block;
+  position: relative;
+  margin: 0;
+  cursor: pointer;
+  flex: 0 0 auto;
+  background: #fff;
+}
+
+.reg-admin-row input[type="checkbox"]:checked {
+  /* Force the small checkbox to appear fully blue when checked. Use !important
+     to override later rules that set background/white via !important. */
+  background: linear-gradient(180deg, var(--primary, #007bff), #0a66d6) !important;
+  border-color: var(--primary, #007bff) !important;
+}
+
+/* Previously used to draw a white dot over the admin icon; disabled so the
+   SVG shield remains visible (we keep the rule as `content: none` to avoid
+   removing code structure). */
+.reg-admin-row input[type="checkbox"]:checked + .admin-icon::after {
+  content: none;
+}
+
+/* Asegurar que la etiqueta completa sea clicable */
+.reg-admin-row { cursor: pointer; }
+
+/* Colocar el input por encima para captura de eventos y accesibilidad */
+.reg-admin-row input[type="checkbox"] { z-index: 4; }
+
+/* Ajuste: .admin-icon debe ser posición relativa para que ::after funcione */
+.reg-admin-row .admin-icon { position: relative; }
+
+.reg-admin-row .admin-icon svg {
+  width: 22px;
+  height: 22px;
+  display: block;
+  fill: transparent;
+  stroke: var(--primary, #007bff);
+  stroke-width: 1.4;
+  transition: transform 180ms ease, fill 180ms ease, stroke 180ms ease;
+}
+
+/* When checked, show a filled circular background and white shield */
+.reg-admin-row input[type="checkbox"]:checked + .admin-icon {
+  /* Keep the admin icon visually as the shield (outline). Do NOT fill
+     the icon background — keep it white so the SVG shield remains visible. */
+  background: #ffffff !important;
+  border-radius: 50%;
+  padding: 4px;
+  box-shadow: 0 6px 16px rgba(11,115,255,0.04) !important;
+}
+.reg-admin-row input[type="checkbox"]:checked + .admin-icon svg,
+.reg-admin-row .admin-icon.active svg {
+  /* Ensure the SVG remains an outline in primary color when checked. */
+  fill: transparent !important;
+  stroke: var(--primary, #007bff) !important;
+  transform: scale(1.02);
+}
+.reg-admin-row .admin-label {
+  font-weight: 600;
+  color: var(--text, #222);
+}
+
+/* Estilo para el bloque del código cuando aparece */
+.reg-admin-code span { display:block; margin-bottom: 0.5rem; color: #344054; }
+.reg-admin-code .reg-input input {
+  /* fallback: ensure input remains readable if previous rules didn't apply */
+  flex: 1 1 auto;
+  padding: 0.95rem 1rem 0.95rem 0.5rem;
+  border: none;
+  background: transparent;
+}
+
+/* Icono dentro del input del código de administrador */
+.reg-admin-code .reg-input { position: relative; }
+.reg-admin-code .admin-input-icon {
+  /* inline flex child (no absolute) so it stays perfectly centered inside
+     the rounded wrapper and aligns with the input text */
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: #ffffff;
+  border: 1px solid rgba(11,115,255,0.08);
+  box-shadow: 0 6px 14px rgba(11,115,255,0.03);
+  flex: 0 0 40px;
+  margin-left: 2px;
+  align-self: center;
+  /* Keep the icon perfectly centered inside its square - no vertical nudge */
+  transform: none;
+}
+.reg-admin-code .admin-input-icon svg { width: 18px; height: 18px; fill: transparent; stroke: var(--primary, #007bff); stroke-width: 1.4; display: block; margin: auto; transform: translateY(11px); }
+
+/* Focus: resaltar input y icono */
+.reg-admin-code .reg-input input:focus {
+  outline: none;
+  box-shadow: 0 8px 20px rgba(0,123,255,0.06);
+}
+.reg-admin-code .reg-input input:focus ~ .admin-input-icon,
+.reg-admin-code .reg-input input:focus + .admin-input-icon {
+  border-color: var(--primary, #007bff);
+}
+
+/* Ajustes responsivos: hacer la fila admin más compacta en móvil */
+@media (max-width: 720px) {
+  .reg-admin-row { padding: 10px; gap: 10px; }
+  .reg-admin-row .admin-icon { width: 30px; height: 30px; }
+}
+
+/* Override final: forzar alineación a la izquierda y ocupación completa */
+.reg-admin-row {
+  justify-content: flex-start !important; /* asegurar alineación izquierda */
+  justify-self: stretch !important; /* forzar que el item de grid ocupe todo el ancho */
+  width: 100% !important; /* ocupar todo el ancho de la celda */
+  max-width: none !important; /* evitar restricciones por otras reglas */
+  margin: 0 !important;
+  padding-left: 12px; /* conservar separación interna desde la izquierda */
+  box-sizing: border-box;
+}
+
+.reg-admin-row .admin-label {
+  text-align: left !important;
+  margin-left: 8px !important; /* separación entre icono y texto */
+}
+
+/* Refuerzo adicional: asegurar que los elementos directos queden a la izquierda */
+.reg-admin-row > .admin-icon { margin-left: 0 !important; margin-right: 12px !important; }
+.reg-admin-row > .admin-label { margin-left: 8px !important; margin-right: auto !important; width: auto !important; }
+.reg-admin-row > input[type="checkbox"] { margin-right: 8px !important; }
+
+/* Override previous hiding of checkbox: make it visible and in-flow */
+.reg-admin-row input[type="checkbox"] {
+  position: relative !important;
+  left: 0 !important;
+  z-index: 4 !important;
+  width: 18px !important;
+  height: 18px !important;
+  margin-right: 10px !important;
+  border: 1.6px solid var(--primary, #007bff) !important;
+  background: #fff !important;
+}
+
+/* Make shield icon a bit larger and style inactive/active states
+   - Inactive: white circle with blue border so it is visible
+   - Active: blue circle with white shield
+   Also disable pointer events on the icon itself so it doesn't act like a button */
+.reg-admin-row .admin-icon {
+  width: 34px !important;
+  height: 34px !important;
+  min-width: 34px !important;
+  margin-right: 12px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 50% !important;
+  background: #ffffff !important;
+  border: 2px solid transparent !important;
+  box-shadow: 0 6px 16px rgba(11,115,255,0.03) !important;
+  pointer-events: none !important;
+  user-select: none !important;
+}
+
+.reg-admin-row .admin-icon svg {
+  width: 20px !important;
+  height: 20px !important;
+  display: block !important;
+  fill: transparent !important;
+  stroke: var(--primary, #007bff) !important;
+  stroke-width: 1.3 !important;
+  transition: transform 160ms ease, fill 160ms ease, stroke 160ms ease !important;
+}
+
+/* Asegurar que el bloque de código del admin esté alineado a la izquierda */
+.reg-admin-code { text-align: left; }
+
+/* DEBUG: marcar visualmente el área de la fila admin para depuración
+   (remover una vez confirmemos dónde está el problema) */
+.reg-admin-row.debug-outline {
+  outline: 2px dashed rgba(220, 38, 38, 0.9) !important;
+  background-color: rgba(220,38,38,0.03) !important;
+}
+
+/* FINAL OVERRIDES: asegurar que la fila admin sea una fila horizontal
+   y que los hijos aparezcan en el orden correcto: checkbox, icono, etiqueta. */
+form.reg-form > label.reg-admin-row,
+.reg-form > .reg-admin-row {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 12px !important;
+  padding: 12px 14px !important;
+  box-sizing: border-box !important;
+  text-align: left !important;
+}
+
+/* Forzar orden y visibilidad de los hijos directos */
+.reg-form > label.reg-admin-row > input[type="checkbox"] {
+  order: 0 !important;
+  position: relative !important;
+  left: 0 !important;
+  margin: 0 10px 0 6px !important;
+  width: 18px !important;
+  height: 18px !important;
+  align-self: center !important;
+}
+
+.reg-form > label.reg-admin-row > .admin-icon {
+  order: 1 !important;
+  margin: 0 10px 0 0 !important;
+  align-self: center !important;
+}
+
+.reg-form > label.reg-admin-row > .admin-label {
+  order: 2 !important;
+  margin: 0 !important;
+  flex: 1 1 auto !important;
+  align-self: center !important;
+}
+
+/* Ensure the admin icon sizing is clear and centered vertically */
+.reg-admin-row .admin-icon { width: 30px !important; height: 30px !important; }
+.reg-admin-row .admin-icon svg { width: 22px !important; height: 22px !important; }
+
+/* Prevent any ancestor centering from stacking children vertically */
+.reg-form { align-items: start !important; }
+
