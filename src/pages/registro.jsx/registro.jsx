@@ -34,6 +34,7 @@ const Registro = ({ isOpen = false, onClose = () => {} }) => {
 			setPhone('');
 			setCity('');
 			setPassword('');
+			setAdminCode('');
 			setError(null);
 			onClose();
 		}, 200); // 200ms = duración de la animación
@@ -72,6 +73,8 @@ const Registro = ({ isOpen = false, onClose = () => {} }) => {
 			// Log temporal para depuración (quita en producción)
 			console.log('Registro payload:', payload);
 			const result = await registerClient(payload);
+			// Limpiar el código de administrador tras envío exitoso
+			setAdminCode('');
 			// Cerrar modal primero para evitar que su overlay o z-index esconda la alerta
 			handleClose();
 			// Muestra una alerta bonita con SweetAlert2

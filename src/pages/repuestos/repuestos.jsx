@@ -542,7 +542,7 @@ const Repuestos = () => {
                       </div>
                       <div className="preview-body">
                         <h4>{form.title || 'Título del repuesto'}</h4>
-                        <div className="preview-meta">{form.category ? <span className="chip">{form.category}</span> : <span className="chip">Hermoso</span>} <span className="muted">{form.location}</span> <span className="stars">{form.stars} <FaStar className="star-icon" /></span></div>
+                        <div className="preview-meta">{form.category ? <span className="chip">{form.category}</span> : <span className="chip">—</span>} <span className="muted">{form.location}</span> <span className="stars">{form.stars} <FaStar className="star-icon" /></span></div>
                         <p className="preview-desc">{form.description ? form.description.slice(0, 140) + (form.description.length > 140 ? '…' : '') : 'Aquí verás una vista previa antes de publicar.'}</p>
                         <div className="preview-contact">Teléfono: {form.contactPhone || '—'}</div>
                       </div>

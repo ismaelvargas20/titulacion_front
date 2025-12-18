@@ -522,6 +522,7 @@ const Usuarios = () => {
   const [activeTab, setActiveTab] = useState('list');
   const [inviteEmail, setInviteEmail] = useState('');
   const [invites, setInvites] = useState([]);
+  const [inviteLoading, setInviteLoading] = useState(false);
   // Persistencia local simple: cargar invites previos generados
   useEffect(() => {
     try {
@@ -533,42 +534,72 @@ const Usuarios = () => {
     } catch (e) { /* ignore malformed data */ }
   }, []);
 
-  // Intentar cargar invites existentes desde el backend y mezclarlos con lo local
+  const fetchInvitesFromServer = async () => {
+    try {
+      const res = await api.get('/admin/invite/list');
+      const server = Array.isArray(res && res.data) ? res.data.map(it => ({
+        id: it.id,
+        code: it.code || null,
+        email: it.email || null,
+        createdAt: it.createdAt || it.created_at || null,
+        active: !it.consumed,
+        createdBy: it.createdBy || null
+      })) : [];
+      // Combinar: priorizar invites locales (tienen código en claro)
+      try {
+        const raw = localStorage.getItem('invites_v1');
+        const local = raw ? JSON.parse(raw) : [];
+        const mergedMap = new Map();
+        if (Array.isArray(local)) for (const l of local) mergedMap.set(String(l.id), l);
+        for (const s of server) if (!mergedMap.has(String(s.id))) mergedMap.set(String(s.id), s);
+        const merged = Array.from(mergedMap.values()).sort((a,b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
+        setInvites(merged);
+        try { localStorage.setItem('invites_v1', JSON.stringify(merged)); } catch (e) {}
+      } catch (e) {
+        setInvites(server);
+      }
+    } catch (e) {
+      console.debug('No se pudieron cargar invites desde el servidor:', e && e.message ? e.message : e);
+    }
+  };
+
   useEffect(() => {
     let mounted = true;
     (async () => {
+      if (!mounted) return;
+      await fetchInvitesFromServer();
+    })();
+    return () => { mounted = false; };
+  }, []);
+
+  const reloadInvites = async () => {
+    try {
+      setInviteLoading(true);
+      // Forzar limpieza: tomar sólo lo que devuelve el servidor y sobreescribir localStorage
       try {
         const res = await api.get('/admin/invite/list');
-        if (!mounted) return;
         const server = Array.isArray(res && res.data) ? res.data.map(it => ({
           id: it.id,
           code: it.code || null,
           email: it.email || null,
-          createdAt: it.createdAt || it.createdAt || it.created_at || it.createdAt || (it.createdAt ? it.createdAt : null) || it.createdAt || it.createdAt,
+          createdAt: it.createdAt || it.created_at || null,
           active: !it.consumed,
           createdBy: it.createdBy || null
         })) : [];
-        // Combinar: priorizar invites locales (tienen código en claro)
-        try {
-          const raw = localStorage.getItem('invites_v1');
-          const local = raw ? JSON.parse(raw) : [];
-          const mergedMap = new Map();
-          // local first
-          if (Array.isArray(local)) for (const l of local) mergedMap.set(String(l.id), l);
-          for (const s of server) if (!mergedMap.has(String(s.id))) mergedMap.set(String(s.id), s);
-          const merged = Array.from(mergedMap.values()).sort((a,b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
-          setInvites(merged);
-          try { localStorage.setItem('invites_v1', JSON.stringify(merged)); } catch (e) {}
-        } catch (e) {
-          setInvites(server);
-        }
+        // Sobrescribir localStorage con la versión del servidor
+        try { localStorage.setItem('invites_v1', JSON.stringify(server)); } catch (e) {}
+        setInvites(server);
       } catch (e) {
-        // si falla, mantener lo que haya en local
-        console.debug('No se pudieron cargar invites desde el servidor:', e && e.message ? e.message : e);
+        // si falla la carga desde servidor, intentar fallback a la función existente
+        await fetchInvitesFromServer();
       }
-    })();
-    return () => { mounted = false; };
-  }, []);
+    } catch (e) {
+      console.debug('Error recargando invites:', e);
+      // silent fail - no modal
+    } finally {
+      setInviteLoading(false);
+    }
+  };
   // Paginación para invitaciones (independiente de la tabla de usuarios)
   const [invitePage, setInvitePage] = useState(1);
   const invitePageSize = 4;
@@ -888,6 +919,16 @@ const Usuarios = () => {
           <section className="usuarios-invites-panel">
             <div className="um-card" style={{ marginBottom: 12, display: 'flex', gap: 8, alignItems: 'center' }}>
               <button className="filter-btn active" onClick={generateInvite} style={{ whiteSpace: 'nowrap' }}>+ Generar Código</button>
+              <button
+                className={`icon-btn reload ${inviteLoading ? 'disabled' : ''}`}
+                onClick={reloadInvites}
+                title="Recargar códigos"
+                aria-label="Recargar códigos"
+                disabled={inviteLoading}
+                style={{ marginLeft: 6 }}
+              >
+                <i className={`fas fa-sync-alt ${inviteLoading ? 'spin' : ''}`} aria-hidden="true"></i>
+              </button>
               <div style={{ flex: 1 }} />
             </div>
             <div className="invites-list">
@@ -909,19 +950,9 @@ const Usuarios = () => {
                       <button className="icon-btn copy" onClick={() => copyToClipboard(it.code)} title="Copiar código" aria-label="Copiar código">
                         <i className="fas fa-clipboard" aria-hidden="true"></i>
                       </button>
-                      <button className="icon-btn danger" onClick={async () => {
-                        const result = await Swal.fire({
-                          title: 'Eliminar código?',
-                          text: '¿Deseas eliminar este código de invitación? Esta acción no se puede deshacer.',
-                          icon: 'warning',
-                          showCancelButton: true,
-                          confirmButtonText: 'Sí, eliminar',
-                          cancelButtonText: 'Cancelar'
-                        });
-                        if (result && result.isConfirmed) {
-                          revokeInvite(globalIdx);
-                          try { await Swal.fire({ icon: 'success', title: 'Eliminado', showConfirmButton: false, timer: 1100 }); } catch (e) {}
-                        }
+                      <button className="icon-btn danger" onClick={() => {
+                        // eliminar sin modal de confirmación
+                        revokeInvite(globalIdx);
                       }} title="Eliminar" aria-label="Eliminar">
                         <i className="fas fa-trash-alt" aria-hidden="true"></i>
                       </button>

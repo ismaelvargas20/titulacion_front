@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaTag, FaMotorcycle, FaTools, FaEnvelope, FaTimes, FaRegCommentDots, FaCommentAlt, FaBell, FaTrash, FaSyncAlt } from 'react-icons/fa';
+import { FaTag, FaMotorcycle, FaTools, FaEnvelope, FaTimes, FaRegCommentDots, FaCommentAlt, FaBell, FaTrash, FaSyncAlt, FaStar } from 'react-icons/fa';
 import '../../assets/scss/vender.scss';
 import Swal from 'sweetalert2';
 import { crearPublicacion } from '../../services/motos';
@@ -17,7 +17,7 @@ export default function Vender() {
   // messages are now a dedicated page (/chat)
   // Form states (complete version mirroring Motos/Repuestos)
   const [motoForm, setMotoForm] = useState({ title: '', model: '', revision: 'Al día', condition: 'Excelente', price: '', location: '', stars: 5, img: '', description: '', contactPhone: '', kilometraje: '', year: '', transmission: 'manual' });
-  const [partForm, setPartForm] = useState({ title: '', category: '', condition: 'Nuevo', price: '', location: '', img: '', description: '', contactPhone: '' });
+  const [partForm, setPartForm] = useState({ title: '', category: '', condition: 'Nuevo', price: '', location: '', img: '', description: '', contactPhone: '', stars: 5 });
   const [motoPreview, setMotoPreview] = useState(null);
   const [partPreview, setPartPreview] = useState(null);
   const [publishLoadingMoto, setPublishLoadingMoto] = useState(false);
@@ -221,6 +221,7 @@ export default function Vender() {
         const cur = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
         if (cur && cur.id) payload.append('clienteId', String(cur.id));
       } catch (err) {}
+      // Añadir estrellas/valoración (usamos `motoForm.stars` arriba; no reescribir aquí)
 
       // convertir dataURL a Blob si existe
       if (motoForm.img && String(motoForm.img).startsWith('data:')) {
@@ -249,7 +250,16 @@ export default function Vender() {
           setPublishLoadingMoto(false);
           setPublishSuccessMoto(true);
           try {
-            Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Anuncio publicado', showConfirmButton: false, timer: 2500 });
+            Swal.fire({
+              toast: true,
+              position: 'top-end',
+              icon: 'success',
+              title: 'Anuncio publicado',
+              text: 'Tu moto se publicó correctamente.',
+              showConfirmButton: false,
+              timer: 3000,
+              timerProgressBar: true
+            });
           } catch (e) {}
           setTimeout(() => setPublishSuccessMoto(false), 1800);
           setShowMotoForm(false);
@@ -280,6 +290,8 @@ export default function Vender() {
       payload.append('description', partForm.description || '');
       payload.append('contactPhone', partForm.contactPhone || '');
       payload.append('tipo', 'repuesto');
+      // Añadir estrellas/valoración del repuesto
+      try { payload.append('stars', String(partForm.stars || 0)); payload.append('estrellas', String(partForm.stars || 0)); } catch (e) {}
       try {
         const cur = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
         if (cur && cur.id) payload.append('clienteId', String(cur.id));
@@ -308,10 +320,21 @@ export default function Vender() {
         .then((res) => {
           setPublishLoadingPart(false);
           setPublishSuccessPart(true);
-          try { Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Repuesto publicado', showConfirmButton: false, timer: 2500 }); } catch (e) {}
+          try {
+            Swal.fire({
+              toast: true,
+              position: 'top-end',
+              icon: 'success',
+              title: 'Repuesto publicado',
+              text: 'Tu repuesto se publicó correctamente.',
+              showConfirmButton: false,
+              timer: 3000,
+              timerProgressBar: true
+            });
+          } catch (e) {}
           setTimeout(() => setPublishSuccessPart(false), 1800);
           setShowPartForm(false);
-          setPartForm({ title: '', category: '', condition: 'Nuevo', price: '', location: '', img: '', description: '', contactPhone: '' });
+          setPartForm({ title: '', category: '', condition: 'Nuevo', price: '', location: '', img: '', description: '', contactPhone: '', stars: 5 });
           setPartPreview(null);
           navigate('/repuestos');
         })
@@ -674,6 +697,17 @@ export default function Vender() {
                   </label>
 
                   <label>
+                    Valora este repuesto
+                    <select name="stars" value={partForm.stars} onChange={handlePartChange}>
+                      <option value={5}>5 - Excelente</option>
+                      <option value={4}>4 - Muy bueno</option>
+                      <option value={3}>3 - Bueno</option>
+                      <option value={2}>2 - Regular</option>
+                      <option value={1}>1 - Malo</option>
+                    </select>
+                  </label>
+
+                  <label>
                     Precio
                     <input name="price" value={partForm.price} onChange={handlePartChange} placeholder="Ej: 120" required />
                   </label>
@@ -712,6 +746,11 @@ export default function Vender() {
                     </div>
                     <div className="preview-body">
                       <h4>{partForm.title || 'Título del repuesto'}</h4>
+                      <div className="preview-meta">
+                        {partForm.category ? <span className="chip">{partForm.category}</span> : <span className="chip">—</span>}
+                        <span className="muted">{partForm.location}</span>
+                        <span className="stars">{partForm.stars || 0} <FaStar className="star-icon" /></span>
+                      </div>
                       <p className="preview-desc">{partForm.description ? partForm.description.slice(0, 140) : 'Aquí verás una vista previa antes de publicar.'}</p>
                       <div className="preview-contact">Teléfono: {partForm.contactPhone || '—'}</div>
                     </div>

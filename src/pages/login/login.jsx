@@ -138,10 +138,12 @@ const Login = () => {
             <label htmlFor="password">Contraseña</label>
             <div className="input-with-icon" style={{ position: 'relative' }}>
               <RiLockPasswordFill className="input-icon" aria-hidden="true" />
-              <input type={showPassword ? 'text' : 'password'} id="password" name="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} />
-              <button type="button" className="password-toggle" onClick={() => setShowPassword(s => !s)} aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'} style={{ background: 'none', border: 'none', position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', padding: 4, cursor: 'pointer' }}>
-                {showPassword ? <FaEyeSlash /> : <FaEye />}
-              </button>
+              <input type={showPassword ? 'text' : 'password'} id="password" name="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} style={{ paddingRight: 48 }} />
+              {password && password.toString().trim().length > 0 && (
+                <button type="button" className="password-toggle" onClick={() => setShowPassword(s => !s)} aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'} style={{ background: 'none', border: 'none', position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', padding: 4, cursor: 'pointer', zIndex: 2, color: '#1e90ff', fontSize: 18 }}>
+                  {showPassword ? <FaEyeSlash /> : <FaEye />}
+                </button>
+              )}
             </div>
           </div>
           <button type="submit" className="login-btn">

@@ -629,11 +629,35 @@ body.global-dark .icon-btn:hover { background: rgba(11,115,255,0.08); color: #cf
 }
 .usuarios-invites-panel .icon-btn:hover {
   transform: translateY(-3px);
-  box-shadow: 0 18px 40px -18px rgba(11,115,255,0.12);
-  background: linear-gradient(90deg,#0b73ff,#4fb8ff);
-  color: #fff;
+  box-shadow: 0 14px 34px -16px rgba(11,115,255,0.08);
+  /* Evitar fondo blanco/oscuro fuerte al pasar el ratón: mantener variación sutil */
+  background: linear-gradient(180deg,#f3f6fb,#eef8ff);
+  color: #0b73ff;
 }
 .usuarios-invites-panel .icon-btn:focus { outline: none; box-shadow: 0 6px 24px rgba(11,115,255,0.12); }
+
+/* Botón recargar específico: tamaño ligeramente mayor y variante visual */
+.icon-btn.reload {
+  width: 44px;
+  height: 44px;
+  font-size: 16px;
+  border-radius: 10px;
+  background: linear-gradient(180deg,#ffffff,#f7fbff);
+  color: #0b73ff;
+  border: 1px solid rgba(11,115,255,0.08);
+}
+.icon-btn.reload:hover { transform: translateY(-3px); box-shadow: 0 14px 34px -16px rgba(11,115,255,0.08); background: linear-gradient(180deg,#f3f6fb,#eef8ff); color:#0b73ff; }
+.icon-btn.reload[disabled], .icon-btn.reload.disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+/* Animación de giro para el icono de recarga */
+.spin {
+  display: inline-block;
+  animation: spin 900ms linear infinite;
+}
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
 
 /* Variante para acciones peligrosas (eliminar) */
 .usuarios-invites-panel .icon-btn.danger {
@@ -653,7 +677,7 @@ body.global-dark .usuarios-invites-panel .icon-btn {
   color: #cfe0ff;
   box-shadow: none;
 }
-body.global-dark .usuarios-invites-panel .icon-btn:hover { background: rgba(11,115,255,0.08); color: #fff; }
+body.global-dark .usuarios-invites-panel .icon-btn:hover { background: rgba(255,255,255,0.02); color: #cfe0ff; }
 body.global-dark .usuarios-invites-panel .icon-btn.danger:hover { background: rgba(239,68,68,0.12); }
 
 /* Botón principal Crear usuario: estilo más vistoso y prominente dentro del panel de filtros */

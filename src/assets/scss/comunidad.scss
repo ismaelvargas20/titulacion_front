@@ -223,7 +223,9 @@ $accent: #00b4ff;
 .post-header .edit-icon:hover {
   transform: translateY(-3px) scale(1.03);
   box-shadow: 0 14px 36px rgba(11,115,255,0.12);
-  background: #f6fbff;
+  /* Mantener el fondo y color igual que el estado normal para que el lápiz siga azul */
+  background: #fff;
+  color: $primary;
 }
 
 /* Alinear y hacer el botón de eliminar igual que el de editar */
@@ -247,6 +249,15 @@ $accent: #00b4ff;
 .post-header .icon-btn:hover { transform: translateY(-3px) scale(1.03); box-shadow: 0 14px 36px rgba(11,115,255,0.12); background: #f6fbff; }
 .post-header .icon-btn.danger { color: #c94b4b; border-color: rgba(201,75,75,0.12); background: #fff; }
 .post-header .icon-btn svg, .post-header .icon-btn > svg, .post-header .icon-btn > i { width: 58%; height: 58%; }
+
+/* Mantener colores del botón eliminar pero aplicar mismo zoom que los demás en hover */
+.post-header .icon-btn.danger:hover {
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 14px 36px rgba(2,6,23,0.06) !important;
+  background: #fff !important;
+  color: #c94b4b !important;
+  border-color: rgba(201,75,75,0.12) !important;
+}
 
 .input-edit-title { width:100%; padding:8px 10px; border-radius:10px; border:1px solid rgba(0,0,0,0.08); font-weight:700; }
 .edit-box { display:flex; flex-direction:column; gap:8px; }
@@ -328,9 +339,19 @@ $accent: #00b4ff;
 
 /* Actions inside a response (edit/delete) */
 .response-actions { display:flex; gap:8px; align-items:center; }
-.response-actions .icon-btn { width:36px; height:36px; display:inline-flex; align-items:center; justify-content:center; border-radius:8px; background: transparent; border: 1px solid rgba(0,0,0,0.04); color: #6b7280; cursor: pointer; }
+.response-actions .icon-btn { width:36px; height:36px; display:inline-flex; align-items:center; justify-content:center; border-radius:8px; background: transparent; border: 1px solid rgba(0,0,0,0.04); color: #6b7280; cursor: pointer; transition: transform 160ms ease, box-shadow 160ms ease, background 120ms ease; }
 .response-actions .icon-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(2,6,23,0.06); }
 .response-actions .icon-btn.danger { color: #c94b4b; border-color: rgba(201,75,75,0.08); }
+
+/* Mantener colores pero aplicar el mismo zoom/sombra que otros botones */
+.response-actions .icon-btn.danger:hover,
+.response-actions .icon-btn.danger:focus {
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 14px 36px rgba(2,6,23,0.06) !important;
+  background: #fff !important;
+  color: #c94b4b !important;
+  border-color: rgba(201,75,75,0.12) !important;
+}
 
 .response-edit-form .input-response { width:100%; padding:10px; border-radius:8px; border:1px solid rgba(0,0,0,0.06); background:#fff; }
 .response-edit-form .btn { padding:8px 12px; border-radius:8px; }

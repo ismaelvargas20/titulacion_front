@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import '../../assets/scss/usuarios.scss';
 import '../../assets/scss/comentarios.scss';
-import { listarHilos, detalleHilo, eliminarHilo } from '../../services/comunidad';
+import { listarHilos, detalleHilo, eliminarHilo, eliminarRespuesta } from '../../services/comunidad';
 import { FaSyncAlt } from 'react-icons/fa';
 import Swal from 'sweetalert2';
 
@@ -230,6 +230,39 @@ export default function Comentarios() {
     }
   }
 
+  async function deleteComment(responseId) {
+    const resp = await Swal.fire({
+      title: '¿Eliminar respuesta?',
+      text: 'La respuesta será marcada como eliminada.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar',
+      reverseButtons: true
+    });
+    if (!(resp && resp.isConfirmed)) return;
+
+    try {
+      await eliminarRespuesta(responseId);
+      setModalComments(prev => prev.filter(c => c.id !== responseId));
+      setPosts(prev => prev.map(p => {
+        if (!selectedPost) return p;
+        if (p.id === selectedPost.id) {
+          const newCount = Math.max(0, (p.comments || 0) - 1);
+          return { ...p, comments: newCount };
+        }
+        return p;
+      }));
+      setSelectedPost(s => s ? { ...s, comments: Math.max(0, (s.comments || 0) - 1) } : s);
+      fetchGlobalCounts();
+      Swal.fire({ title: 'Se ha eliminado la respuesta con éxito.', icon: 'success', timer: 1200, showConfirmButton: false });
+    } catch (err) {
+      console.error('Error eliminando respuesta:', err);
+      const msg = (err && err.response && err.response.data && (err.response.data.error || err.response.data.message)) || err.message || 'Error en servidor';
+      Swal.fire({ title: 'Error', text: String(msg), icon: 'error' });
+    }
+  }
+
   function closeModal() {
     setSelectedPost(null);
     setModalComments([]);
@@ -376,6 +409,13 @@ export default function Comentarios() {
                                 <span className="cm-date">{c.date}</span>
                               </div>
                               <div className="cm-text">{c.text}</div>
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'center', marginLeft: 12 }}>
+                              {filter !== 'deleted' && (
+                                <button type="button" className="btn danger small" onClick={() => deleteComment(c.id)} title="Eliminar respuesta">
+                                  <i className="fas fa-trash" />
+                                </button>
+                              )}
                             </div>
                           </div>
                         </li>

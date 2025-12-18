@@ -324,6 +324,7 @@ const Motos = () => {
             kilometraje: form.kilometraje || '',
             year: form.year || '',
             transmission: form.transmission || 'manual',
+            ownerId: (current && current.id) || (updated && (updated.clienteId || updated.usuarioId)) || null,
           };
           setRecentMotos((prev) => prev.map(m => (m.id === updatedMoto.id ? updatedMoto : m)));
           try {
@@ -390,6 +391,7 @@ const Motos = () => {
           kilometraje: form.kilometraje || '',
           year: form.year || '',
           transmission: form.transmission || 'manual',
+          ownerId: (current && current.id) || (nueva && (nueva.clienteId || nueva.usuarioId)) || null,
         };
         setRecentMotos((prev) => [newMoto, ...prev]);
         try {

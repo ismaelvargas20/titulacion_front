@@ -296,6 +296,23 @@
 /* Small tweak: ensure preview-card inner text uses muted color like other cards */
 .app-main:not(.dark-theme) .vender-page .sell-modal .preview-card .preview-body { color: var(--muted); }
 
+/* Asegurar separación y alineación consistente de meta en la previsualización
+   (evita que "Cascos4 ★" quede pegado). Reusa las reglas de motos pero aumenta
+   la especificidad para esta página. */
+.vender-page .sell-modal .preview-meta,
+.vender-page .sell-modal .preview-meta.small {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+.vender-page .sell-modal .preview-meta .chip { display: inline-block; margin-right: 6px; }
+.vender-page .sell-modal .preview-meta .muted { margin-left: 2px; color: var(--muted); }
+.vender-page .sell-modal .preview-meta .stars { display: inline-flex; align-items: center; gap: 6px; margin-left: 6px; color: var(--muted); font-weight:700; }
+.vender-page .sell-modal .star-icon { color: inherit; margin-left: 4px; }
+
 /* Make preview-card in dark theme match activity cards */
 .app-main.dark-theme .sell-modal .preview-card {
   /* Use theme token so preview matches other cards in dark theme */
