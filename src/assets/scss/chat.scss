@@ -146,6 +146,8 @@
 .chat-item:hover .chat-avatar { transform: translateY(-4px) scale(1.03); box-shadow: 0 20px 48px rgba(11,115,255,0.12); }
 .chat-item-title { display:flex; align-items:center; gap:8px; font-weight:700; color:var(--text, #0b2030); }
 .chat-item-sub { color:var(--muted); font-size:0.95rem; margin-top:6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+/* Mostrar el texto de mensaje eliminado en cursiva dentro de la lista */
+.chat-item-sub .deleted { font-style: italic; opacity: 0.9; color: var(--muted, #6b7280); }
 .chat-unread {
   background: var(--primary);
   color: #fff;
@@ -182,7 +184,7 @@
 
 /* Deleted message placeholder: use same visual treatment as mensajes page */
 .chat-msg .conv-text.deleted { font-style: italic; opacity: 0.9; }
-.chat-msg.me .conv-text.deleted { color: #ffffff; }
+.chat-msg.me .conv-text.deleted { color: var(--text, #6c757d); }
 .chat-msg.them .conv-text.deleted { color: #6c757d; opacity: 0.75; }
 
 .chat-send { display:flex; gap:10px; align-items:center; padding-top:10px; border-top:1px solid rgba(0,0,0,0.04); }

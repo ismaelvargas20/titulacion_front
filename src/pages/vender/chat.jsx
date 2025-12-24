@@ -79,7 +79,8 @@ function excerpt(text, max = 140) {
 
 function deriveChatSubtitle(c, current) {
   const last = c && c.ultima ? c.ultima : null;
-  const lastText = last && (last.cuerpo || '') ? last.cuerpo : '';
+  const isDeletedMsg = (last && last.estado && String(last.estado).toLowerCase() === 'eliminado') || (last && last.cuerpo && String(last.cuerpo).includes('[Mensaje eliminado'));
+  const lastText = isDeletedMsg ? '[Mensaje eliminado por administrador]' : (last && (last.cuerpo || '') ? last.cuerpo : '');
   const ownerId = (c && (c.clienteId || (c.raw && (c.raw.clienteId || (c.raw.publicacion && (c.raw.publicacion.clienteId || c.raw.publicacion.ownerId)))))) || null;
   const isOwner = current && ownerId && Number(current.id) === Number(ownerId);
   const title = String(c.titulo || '');
@@ -667,7 +668,7 @@ function deriveChatSubtitle(c, current) {
         } catch (e) { /* ignore parse errors */ }
         // Detectar borrado lógico y normalizar texto como en la vista de mensajes
         const isDeletedMsg = (m.estado && String(m.estado).toLowerCase() === 'eliminado') || (m.cuerpo && String(m.cuerpo).includes('[Mensaje eliminado'));
-        const textContent = isDeletedMsg ? '[Mensaje eliminado]' : (m.cuerpo || m.texto || m.body || '');
+        const textContent = isDeletedMsg ? '[Mensaje eliminado por administrador]' : (m.cuerpo || m.texto || m.body || '');
         return { id: m.id, sender: isYou ? 'you' : 'them', text: textContent, time: formatDateTime(rawTime), leido_por: leidoRaw, read: Boolean(isYou && readByOther), isDeleted: !!isDeletedMsg };
       });
       setMessages(mapped);
@@ -1000,7 +1001,16 @@ function deriveChatSubtitle(c, current) {
                 // mostramos <Nombre> como título y "Nuevo mensaje" como subtítulo.
                 const rawTitle = conv && conv.title ? String(conv.title) : '';
                 const rawSub = conv && conv.subtitle ? String(conv.subtitle) : '';
-                const lastMsg = conv && conv.lastMessage ? String(conv.lastMessage) : '';
+                let lastMsg = conv && conv.lastMessage ? String(conv.lastMessage) : '';
+                let lastIsDeleted = false;
+                try {
+                  const ultimaRaw = conv && conv.raw && conv.raw.ultima ? conv.raw.ultima : null;
+                  const isDeletedLast = ultimaRaw && ((ultimaRaw.estado && String(ultimaRaw.estado).toLowerCase() === 'eliminado') || (ultimaRaw.cuerpo && String(ultimaRaw.cuerpo).includes('[Mensaje eliminado')));
+                  if (isDeletedLast) {
+                    lastMsg = '[Mensaje eliminado por administrador]';
+                    lastIsDeleted = true;
+                  }
+                } catch (e) { /* ignore */ }
                 let displayTitle = rawTitle;
                 let displaySub = rawSub;
                 try {
@@ -1047,7 +1057,7 @@ function deriveChatSubtitle(c, current) {
                     </div>
                     <div className="chat-item-body">
                       <div className="chat-item-title">{displayTitle}</div>
-                      <div className="chat-item-sub">{displaySub}{lastMsg ? ' — ' : ''}<span className="muted">{lastMsg}</span></div>
+                      <div className="chat-item-sub">{displaySub}{lastMsg ? ' — ' : ''}<span className={`muted ${lastIsDeleted ? 'deleted' : ''}`}>{lastMsg}</span></div>
                     </div>
                     {conv.relatedId ? (
                       <div className="chat-item-actions">

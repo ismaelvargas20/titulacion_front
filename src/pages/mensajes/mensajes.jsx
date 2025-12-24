@@ -166,7 +166,7 @@ const Mensajes = () => {
 
           // Detectar borrado lógico en el mensaje y normalizar la presentación
           const isDeletedMsg = (m.estado && String(m.estado).toLowerCase() === 'eliminado') || (m.cuerpo && String(m.cuerpo).includes('[Mensaje eliminado'));
-          const textContent = isDeletedMsg ? '[Mensaje eliminado]' : (m.cuerpo || m.texto || m.body || '');
+          const textContent = isDeletedMsg ? '[Mensaje eliminado por administrador]' : (m.cuerpo || m.texto || m.body || '');
 
           return {
             id: m.id,
@@ -478,7 +478,7 @@ const Mensajes = () => {
                 }
 
                 const isDeletedMsg = (m.estado && String(m.estado).toLowerCase() === 'eliminado') || (m.cuerpo && String(m.cuerpo).includes('[Mensaje eliminado'));
-                const textContent = isDeletedMsg ? '[Mensaje eliminado]' : (m.cuerpo || m.texto || m.body || '');
+                const textContent = isDeletedMsg ? '[Mensaje eliminado por administrador]' : (m.cuerpo || m.texto || m.body || '');
 
                 return {
                   id: m.id,
@@ -724,7 +724,8 @@ const Mensajes = () => {
                           text: 'Quitar la conversación de TU vista de reportes (acción reversible).',
                           icon: 'question',
                           showCancelButton: true,
-                          confirmButtonText: 'Sí, retirar'
+                          confirmButtonText: 'Sí, retirar',
+                          cancelButtonText: 'Cancelar'
                         }).then(result => { if (result.isConfirmed) hideReportLocally(selected.id); });
                       }}><FaTimesCircle /> Retirar Conversación</button>
                     ) : (
@@ -744,7 +745,8 @@ const Mensajes = () => {
                               text: 'Marcar el reporte como revisado sin tomar medidas.',
                               icon: 'question',
                               showCancelButton: true,
-                              confirmButtonText: 'Sí, marcar resuelto'
+                              confirmButtonText: 'Sí, marcar resuelto',
+                              cancelButtonText: 'Cancelar'
                             }).then(result => { if (result.isConfirmed) updateEstado(selected.id, 'resuelto'); });
                           }}><FaCheck /> Marcar Resuelto</button>
                         )}
@@ -764,7 +766,8 @@ const Mensajes = () => {
                               text: 'Esta acción eliminará el mensaje reportado.',
                               icon: 'warning',
                               showCancelButton: true,
-                              confirmButtonText: 'Sí, eliminar mensaje'
+                              confirmButtonText: 'Sí, eliminar mensaje',
+                              cancelButtonText: 'Cancelar'
                             }).then(result => { if (result.isConfirmed) performAdminAction(selected.id, 'eliminar_mensaje'); });
                           }}><FaTrash /> Eliminar Mensaje</button>
                         )}
@@ -784,7 +787,8 @@ const Mensajes = () => {
                                   text: 'Quitar la conversación de TU vista de reportes (acción reversible).',
                                   icon: 'question',
                                   showCancelButton: true,
-                                  confirmButtonText: 'Sí, retirar'
+                                  confirmButtonText: 'Sí, retirar',
+                                  cancelButtonText: 'Cancelar'
                                 }).then(result => { if (result.isConfirmed) hideReportLocally(selected.id); });
                               }}><FaTimesCircle /> Retirar Conversación</button>
                             );
@@ -800,7 +804,8 @@ const Mensajes = () => {
                               text: 'Esta acción marcará al cliente como eliminado.',
                               icon: 'warning',
                               showCancelButton: true,
-                              confirmButtonText: 'Sí, eliminar cliente'
+                              confirmButtonText: 'Sí, eliminar cliente',
+                              cancelButtonText: 'Cancelar'
                             }).then(result => { if (result.isConfirmed) performAdminAction(selected.id, 'eliminar_cliente'); });
                           }}><FaUserSlash /> Eliminar Cliente</button>
                         )}
