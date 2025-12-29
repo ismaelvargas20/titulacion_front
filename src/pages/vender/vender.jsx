@@ -164,6 +164,30 @@ export default function Vender() {
     };
   }, [motoPreview, partPreview]);
 
+  // Escuchar actualizaciones desde header u otras partes de la app
+  useEffect(() => {
+    const onInboxUpdated = (e) => {
+      try {
+        const data = (e && e.detail) ? e.detail : null;
+        if (Array.isArray(data)) setInboxItems(data);
+      } catch (err) { /* ignore */ }
+    };
+    window.addEventListener('inboxUpdated', onInboxUpdated);
+    return () => window.removeEventListener('inboxUpdated', onInboxUpdated);
+  }, []);
+
+  // Mantener sincronizado en sessionStorage y notificar a Header en la misma pestaña
+  useEffect(() => {
+    try {
+      sessionStorage.setItem('inboxItems', JSON.stringify(inboxItems || []));
+    } catch (e) {
+      // ignore
+    }
+    try {
+      window.dispatchEvent(new CustomEvent('inboxUpdated', { detail: inboxItems || [] }));
+    } catch (e) {}
+  }, [inboxItems]);
+
   const handleMotoChange = (e) => {
     const { name, value } = e.target;
     setMotoForm((s) => ({ ...s, [name]: value }));

@@ -6,6 +6,9 @@ $text-light: #e0e0e0;
 $text-dark: #333;
 $danger-red: #d9534f;
 $accent-fire: #ff6b00; // color acento para elementos tipo casco / fuego
+.logo-image img {
+    height: 28px;
+}
 
 /* --- Estilo Base del Header --- */
 .app-header {
@@ -220,51 +223,141 @@ $accent-fire: #ff6b00; // color acento para elementos tipo casco / fuego
   align-items: center;
   gap: 0.5rem;
 
-  .profile-icon {
+  /* Botones circulares: perfil, tema y campana comparten tamaño y estilo */
+  .profile-icon,
+  .theme-toggle,
+  .notif-toggle {
     color: $white;
     cursor: pointer;
-    transition: all 0.3s ease;
-
-    // --- Nuevo Estilo de Botón Circular ---
-    font-size: 2.2rem; // Icono aún más grande
-    width: 48px; // Círculo proporcionalmente más grande
-    height: 48px; // Altura igual al ancho para perfecta circunferencia
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 1.5px solid rgba(255, 255, 255, 0.7);
-    background: rgba(255, 255, 255, 0.1);
-    padding: 11px; // Padding ajustado para el nuevo tamaño
-
-    &:hover {
-      background: rgba(255, 255, 255, 0.1); // Hover igual a botones secundarios
-      border-color: $white;
-      transform: scale(1.05); // Un scale más sutil
-      filter: none; // Quitamos el drop-shadow que tenía antes
-    }
-  }
-
-  /* Theme toggle colocado a la izquierda del perfil */
-  .theme-toggle {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    /* Igual tamaño que .profile-icon para consistencia visual */
     width: 48px;
     height: 48px;
-    padding: 11px; /* igual que profile-icon */
+    padding: 11px;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.1);
-    color: $white;
     border: 1.5px solid rgba(255,255,255,0.7);
-    cursor: pointer;
-    transition: transform 0.18s ease, background 0.18s ease;
-    font-size: 1.15rem; /* icon size inside */
-
+    background: rgba(255,255,255,0.08);
+    transition: transform 0.16s ease, background 0.12s ease;
+    box-shadow: 0 2px 6px rgba(2,6,23,0.06);
+    font-size: 1.15rem;
+    svg { display: block; width: 18px; height: 18px; }
     &:hover { transform: scale(1.04); background: rgba(255,255,255,0.12); }
-    svg { display: block; width: 100%; height: 100%; }
   }
+
+  .notif-container { position: relative; display: inline-flex; align-items: center; margin: 0 6px; }
+  .notif-toggle { position: relative; }
+  .notif-badge { background: #ff4d4f; color: #fff; font-size: 11px; padding: 3px 6px; border-radius: 999px; position: absolute; top: -6px; right: -6px; box-shadow: 0 2px 6px rgba(2,6,23,0.12); }
+
+  /* Estilos para el dropdown de notificaciones (tarjeta) */
+  .notif-dropdown {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 10px);
+    width: 340px;
+    background: $white;
+    color: $text-dark;
+    border-radius: 10px;
+    box-shadow: 0 12px 34px rgba(2,6,23,0.12);
+    z-index: 110;
+    overflow: hidden;
+    animation: fadeIn 0.18s ease-out;
+  }
+
+  .notif-dropdown::before {
+    content: '';
+    position: absolute;
+    top: -6px;
+    right: 22px;
+    width: 12px;
+    height: 12px;
+    background: $white;
+    transform: rotate(45deg);
+    z-index: -1;
+  }
+
+  .notif-header { padding: 12px 14px; border-bottom: 1px solid $light-gray; }
+  .notif-header strong { display: block; font-size: 0.98rem; }
+  .notif-header small { display: block; font-size: 0.85rem; color: #666; margin-top: 4px; }
+
+  .notif-body { max-height: 260px; overflow: auto; padding: 8px; }
+  .notif-list { list-style: none; margin: 0; padding: 8px; display: block; }
+
+  /* Tarjetas celestes más definidas para notificaciones */
+  .notif-item {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    padding: 12px;
+    margin-bottom: 10px;
+    background: linear-gradient(180deg, #eaf9ff, #dff4ff); /* más azul */
+    border-radius: 8px; /* ligeramente más cuadrado */
+    border: 1px solid rgba(11,115,255,0.12);
+    box-shadow: 0 12px 28px rgba(11,115,255,0.06);
+    transition: transform 180ms ease, box-shadow 180ms ease, background 160ms;
+  }
+  .notif-item:last-child { margin-bottom: 0; }
+
+  /* Left content: título arriba, excerpt debajo */
+  .notif-item .left { flex: 1 1 auto; display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
+
+  .notif-item .title { font-weight: 700; font-size: 13px; color: #063a5f; }
+  .notif-item .excerpt { font-size: 12px; color: rgba(6,58,95,0.72); margin-top: 6px; }
+  .notif-item:hover { transform: translateY(-4px); box-shadow: 0 14px 34px rgba(11,115,255,0.07); }
+  .notif-item .right { display: flex; flex-direction: column; gap: 8px; align-items: flex-end; }
+  .notif-item .btn.small { padding: 6px 8px; font-size: 12px; border-radius: 6px; }
+
+  /* Unread accent: mayor contraste y token más azul */
+  .notif-item.unread {
+    background: linear-gradient(180deg, #f6feff, #e6f8ff);
+    border-color: rgba(11,115,255,0.22);
+    box-shadow: 0 16px 40px rgba(11,115,255,0.09);
+  }
+  .notif-item.unread .left::before { background: linear-gradient(180deg,#9fdfff,#60c9ff); }
+
+  .notif-foot { padding: 10px 12px; border-top: 1px solid $light-gray; text-align: center; }
+  .notif-foot .view-all {
+    color: darken($primary-blue, 12%);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.92rem; /* ligeramente más pequeño */
+  }
+
+  /* Icon buttons inside notif items: no hover effects, plain colors */
+  .icon-btn {
+    background: transparent;
+    border: none;
+    padding: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: inherit;
+    cursor: pointer;
+    box-shadow: none;
+    transition: none;
+    font-size: 0.95rem;
+  }
+  .icon-btn svg { width: 16px; height: 16px; display: block; }
+  .icon-btn:focus, .icon-btn:hover { background: transparent; transform: none; }
+  .icon-btn.danger { color: $danger-red; }
+
+  /* Message icon: always blue, no hover transform/color change */
+  .icon-btn.comment { color: $primary-blue; }
+  .icon-btn.comment svg { color: $primary-blue; }
+  .icon-btn.comment:hover, .icon-btn.comment:focus { color: $primary-blue; background: transparent; }
+}
+
+/* Hacer el icono de notificación amarillo para destacarlo */
+.user-profile .notif-toggle svg {
+  color: #ffcc00; /* amarillo suave */
+}
+.user-profile .notif-toggle:hover svg {
+  color: #ffd633;
+}
+
+/* Mantener color en modo oscuro */
+body.global-dark .app-header .notif-toggle svg {
+  color: #ffcc00;
 }
 
 .profile-dropdown {
@@ -280,7 +373,6 @@ $accent-fire: #ff6b00; // color acento para elementos tipo casco / fuego
   overflow: hidden;
   animation: fadeIn 0.2s ease-out;
 
-  // Pequeño triángulo/flecha que apunta al icono
   &::before {
     content: '';
     position: absolute;
@@ -293,70 +385,16 @@ $accent-fire: #ff6b00; // color acento para elementos tipo casco / fuego
     z-index: -1;
   }
 
-  .dropdown-header {
-    padding: 1rem;
-    border-bottom: 1px solid $light-gray;
-    display: flex;
-    flex-direction: column;
+  .dropdown-header { padding: 1rem; border-bottom: 1px solid $light-gray; display: flex; flex-direction: column; }
+  .dropdown-header strong { font-size: 1rem; }
+  .dropdown-header small { font-size: 0.8rem; color: #777; }
 
-    strong {
-      font-size: 1rem;
-    }
-    small {
-      font-size: 0.8rem;
-      color: #777;
-    }
-  }
-
-  .dropdown-menu {
-    list-style: none;
-    padding: 0.5rem 0;
-    margin: 0;
-  }
-
-  .dropdown-item {
-    display: flex;
-    align-items: center;
-    gap: 0.8rem;
-    padding: 0.8rem 1rem;
-    text-decoration: none;
-    color: $text-dark;
-    font-size: 0.95rem;
-    transition: background-color 0.2s ease;
-
-    .dropdown-icon {
-      font-size: 1.1rem;
-      color: $primary-blue;
-    }
-
-    &:hover {
-      background: $light-gray;
-    }
-
-    // Estilo especial para "Cerrar Sesión"
-    &.danger {
-      color: $danger-red;
-      .dropdown-icon {
-        color: $danger-red;
-      }
-      &:hover {
-        background: lighten($danger-red, 40%);
-      }
-    }
-  }
-
-  // Variante sin rectángulo: elimina fondo/borde/outline para links que solo deben navegar
-  .dropdown-item.plain {
-    background: transparent;
-    border: none;
-    box-shadow: none;
-    padding: 0.6rem 0.6rem; // mantener espaciado pero evitar apariencia de botón
-  }
-  .dropdown-item.plain:focus,
-  .dropdown-item.plain:active {
-    outline: none;
-    box-shadow: none;
-  }
+  .dropdown-menu { list-style: none; padding: 0.5rem 0; margin: 0; }
+  .dropdown-item { display: flex; align-items: center; gap: 0.8rem; padding: 0.8rem 1rem; text-decoration: none; color: $text-dark; font-size: 0.95rem; transition: background-color 0.2s ease; }
+  .dropdown-item .dropdown-icon { font-size: 1.1rem; color: $primary-blue; }
+  .dropdown-item:hover { background: $light-gray; }
+  .dropdown-item.danger { color: $danger-red; }
+  .dropdown-item.plain { background: transparent; border: none; box-shadow: none; padding: 0.6rem 0.6rem; }
 }
 
 @keyframes fadeIn {
@@ -424,6 +462,7 @@ $accent-fire: #ff6b00; // color acento para elementos tipo casco / fuego
   .nav-toggle { width: 44px; height: 44px; padding: 9px; }
   .user-profile .profile-icon { width: 44px; height: 44px; font-size: 1.9rem; padding: 9px; }
   .user-profile .theme-toggle { width: 44px; height: 44px; padding: 9px; font-size: 1.05rem; }
+  .user-profile .notif-toggle { width: 44px; height: 44px; padding: 9px; font-size: 1.05rem; }
 
   /* Punto más pequeño: reducir aún más para móviles estrechos */
   @media (max-width: 420px) {
@@ -461,7 +500,8 @@ body.global-dark .app-header .nav-link.cta-link .nav-icon {
 
 /* Profile icon and toggle adjustments in header dark mode */
 body.global-dark .app-header .profile-icon,
-body.global-dark .app-header .theme-toggle {
+body.global-dark .app-header .theme-toggle,
+body.global-dark .app-header .notif-toggle {
   background: rgba(255,255,255,0.03);
   border-color: rgba(255,255,255,0.12);
   color: var(--header-text-dark, $white);
@@ -535,4 +575,52 @@ body.global-dark .app-header {
       background: transparent;
     }
   }
+}
+
+/* Notificaciones: variante en modo oscuro */
+body.global-dark .app-header .notif-dropdown {
+  background: var(--card-bg, #242629);
+  color: var(--text, #e8eaed);
+  border: 1px solid var(--muted-border, rgba(255,255,255,0.04));
+  box-shadow: 0 12px 34px rgba(2,6,23,0.6);
+}
+
+body.global-dark .app-header .notif-dropdown::before {
+  background: var(--card-bg, #242629);
+}
+
+body.global-dark .app-header .notif-dropdown .notif-header {
+  border-bottom: 1px solid var(--muted-border, rgba(255,255,255,0.04));
+}
+
+body.global-dark .app-header .notif-dropdown .notif-body {
+  background: transparent;
+}
+
+body.global-dark .app-header .notif-dropdown .notif-item {
+  background: linear-gradient(180deg, #2b3136, #23272b);
+  border-color: rgba(255,255,255,0.03);
+  box-shadow: 0 10px 26px rgba(2,6,23,0.55);
+}
+
+body.global-dark .app-header .notif-dropdown .notif-item.unread {
+  background: linear-gradient(180deg, #31393f, #263036);
+  border-color: rgba(96,153,255,0.12);
+}
+
+body.global-dark .app-header .notif-dropdown .notif-item .title,
+body.global-dark .app-header .notif-dropdown .notif-item .excerpt {
+  color: var(--text, #e8eaed);
+}
+
+body.global-dark .app-header .notif-dropdown .notif-item .right .icon-btn.comment {
+  color: #7fb6ff; /* icono azul suave en dark */
+}
+
+body.global-dark .app-header .notif-dropdown .notif-foot {
+  border-top: 1px solid var(--muted-border, rgba(255,255,255,0.04));
+}
+
+body.global-dark .app-header .notif-dropdown .notif-foot .view-all {
+  color: lighten(#007bff, 8%);
 }

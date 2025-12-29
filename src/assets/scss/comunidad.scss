@@ -401,6 +401,22 @@ $accent: #00b4ff;
   box-shadow: inset 0 1px 0 rgba(255,255,255,0.01);
 }
 
+/* Evitar fondo blanco en el botón "Eliminar" (tacho) en modo oscuro
+   — aplicar apariencia neutra/oscura y mantener color de peligro legible */
+.app-main.dark-theme .post-header .icon-btn.danger {
+  background: transparent;
+  border-color: rgba(255,255,255,0.06);
+  color: #f19b9b; /* tono suave de peligro usado en otras reglas de modo oscuro */
+}
+.app-main.dark-theme .post-header .icon-btn.danger:hover,
+.app-main.dark-theme .post-header .icon-btn.danger:focus {
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 14px 36px rgba(2,6,23,0.06) !important;
+  background: rgba(255,255,255,0.02) !important;
+  color: #f19b9b !important;
+  border-color: rgba(241,155,155,0.06) !important;
+}
+
 /* Dark mode tweaks for modal and textarea */
 .app-main.dark-theme .comunidad-modal {
   /* modal con fondo gris neutro, evitando tonos azules */
