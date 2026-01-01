@@ -298,8 +298,9 @@ const Motos = () => {
           const updated = res && res.publicacion ? res.publicacion : null;
           // Preferir la imagen devuelta por el backend si existe
           let returnedImg = null;
+          let imgs = null;
           try {
-            const imgs = res && res.imagenes ? res.imagenes : (updated && updated.imagenes ? updated.imagenes : null);
+            imgs = res && res.imagenes ? res.imagenes : (updated && updated.imagenes ? updated.imagenes : null);
             if (Array.isArray(imgs) && imgs.length > 0) {
               const first = imgs[0];
               returnedImg = first.url || first;
@@ -308,6 +309,9 @@ const Motos = () => {
 
           let finalImg = returnedImg || form.img || 'https://loremflickr.com/640/420/motorcycle';
           try { const s = String(finalImg || ''); if (s.startsWith('/uploads')) finalImg = `${api.defaults.baseURL}${s}`; } catch (e) {}
+
+          // add cache-buster to force browser reload when appropriate
+          try { finalImg = `${finalImg}?cb=${Date.now()}`; } catch (e) {}
 
           const updatedMoto = {
             id: updated ? updated.id : editId,
@@ -327,6 +331,8 @@ const Motos = () => {
             ownerId: (current && current.id) || (updated && (updated.clienteId || updated.usuarioId)) || null,
           };
           setRecentMotos((prev) => prev.map(m => (m.id === updatedMoto.id ? updatedMoto : m)));
+          // emitir evento para que otras vistas (p.ej. publicaciones.jsx) actualicen la imagen
+          try { window.dispatchEvent(new CustomEvent('publicacion:updated', { detail: { id: updatedMoto.id, imagenes: imgs } })); } catch (e) {}
           try {
             const curRaw = typeof window !== 'undefined' ? sessionStorage.getItem('currentUser') : null;
             const cur = curRaw ? JSON.parse(curRaw) : null;

@@ -208,6 +208,25 @@ export default function Publicaciones() {
     return () => { mounted = false; };
   }, []);
 
+  // Escuchar actualizaciones de imagenes desde otras vistas (p.ej. edición en /motos)
+  useEffect(() => {
+    const handler = (ev) => {
+      try {
+        const id = ev && ev.detail && ev.detail.id ? Number(ev.detail.id) : null;
+        const imgs = ev && ev.detail && ev.detail.imagenes ? ev.detail.imagenes : null;
+        if (!id) return;
+        if (Array.isArray(imgs) && imgs.length > 0) {
+          let first = imgs[0].url || imgs[0];
+          try { if (String(first).startsWith('/uploads')) first = `${api.defaults.baseURL}${first}`; } catch (e) {}
+          first = `${first}?cb=${Date.now()}`;
+          setPosts(prev => prev.map(p => (Number(p.id) === Number(id) ? { ...p, img: first } : p)));
+        }
+      } catch (e) { /* noop */ }
+    };
+    window.addEventListener('publicacion:updated', handler);
+    return () => window.removeEventListener('publicacion:updated', handler);
+  }, []);
+
   // Contadores globales: la implementación y visualización quedan en `posteadas.jsx`.
 
   const [page, setPage] = useState(1);
