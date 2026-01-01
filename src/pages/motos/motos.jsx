@@ -214,15 +214,46 @@ const Motos = () => {
 
   // Escuchar eventos globales de publicación removida/actualizada para actualizar la lista en esta vista
   useEffect(() => {
-    const handler = (ev) => {
+    const removedHandler = (ev) => {
       try {
         const id = ev && ev.detail && ev.detail.id ? Number(ev.detail.id) : null;
         if (!id) return;
         setRecentMotos(prev => prev.filter(m => Number(m.id) !== Number(id)));
       } catch (e) { /* noop */ }
     };
-    window.addEventListener('publicacion:removed', handler);
-    return () => window.removeEventListener('publicacion:removed', handler);
+
+    const updatedHandler = (ev) => {
+      try {
+        const id = ev && ev.detail && ev.detail.id ? Number(ev.detail.id) : null;
+        if (!id) return;
+        const imgs = ev.detail && ev.detail.imagenes ? ev.detail.imagenes : null;
+        let newImg = null;
+        if (Array.isArray(imgs) && imgs.length > 0) {
+          const first = imgs[0];
+          newImg = first && first.url ? first.url : first;
+        }
+        setRecentMotos(prev => prev.map(m => {
+          if (Number(m.id) !== Number(id)) return m;
+          const updated = { ...m };
+          if (newImg) {
+            try {
+              const s = String(newImg || '');
+              if (s.startsWith('/uploads')) updated.img = `${api.defaults.baseURL}${s}`;
+              else updated.img = newImg;
+            } catch (e) { updated.img = newImg; }
+          }
+          updated.__cb = Date.now();
+          return updated;
+        }));
+      } catch (e) { /* noop */ }
+    };
+
+    window.addEventListener('publicacion:removed', removedHandler);
+    window.addEventListener('publicacion:updated', updatedHandler);
+    return () => {
+      window.removeEventListener('publicacion:removed', removedHandler);
+      window.removeEventListener('publicacion:updated', updatedHandler);
+    };
   }, []);
   const handleImageChange = (e) => {
     const file = e.target.files && e.target.files[0];
@@ -310,9 +341,6 @@ const Motos = () => {
           let finalImg = returnedImg || form.img || 'https://loremflickr.com/640/420/motorcycle';
           try { const s = String(finalImg || ''); if (s.startsWith('/uploads')) finalImg = `${api.defaults.baseURL}${s}`; } catch (e) {}
 
-          // add cache-buster to force browser reload when appropriate
-          try { finalImg = `${finalImg}?cb=${Date.now()}`; } catch (e) {}
-
           const updatedMoto = {
             id: updated ? updated.id : editId,
             title: form.title,
@@ -330,18 +358,19 @@ const Motos = () => {
             transmission: form.transmission || 'manual',
             ownerId: (current && current.id) || (updated && (updated.clienteId || updated.usuarioId)) || null,
           };
+          try { updatedMoto.__cb = Date.now(); } catch (e) {}
           setRecentMotos((prev) => prev.map(m => (m.id === updatedMoto.id ? updatedMoto : m)));
           // emitir evento para que otras vistas (p.ej. publicaciones.jsx) actualicen la imagen
           try { window.dispatchEvent(new CustomEvent('publicacion:updated', { detail: { id: updatedMoto.id, imagenes: imgs } })); } catch (e) {}
-          try {
-            const curRaw = typeof window !== 'undefined' ? sessionStorage.getItem('currentUser') : null;
-            const cur = curRaw ? JSON.parse(curRaw) : null;
-            const key = cur && cur.id ? `removedPublicaciones_user_${cur.id}` : 'removedPublicaciones';
-            const raw = localStorage.getItem(key) || '[]';
-            const arr = Array.isArray(JSON.parse(raw)) ? JSON.parse(raw) : [];
-            const filtered = arr.filter(x => Number(x) !== Number(updatedMoto.id));
-            localStorage.setItem(key, JSON.stringify(filtered));
-          } catch (e) { /* noop */ }
+            try {
+              const curRaw = typeof window !== 'undefined' ? sessionStorage.getItem('currentUser') : null;
+              const cur = curRaw ? JSON.parse(curRaw) : null;
+              const key = cur && cur.id ? `removedPublicaciones_user_${cur.id}` : 'removedPublicaciones';
+              const raw = localStorage.getItem(key) || '[]';
+              const arr = Array.isArray(JSON.parse(raw)) ? JSON.parse(raw) : [];
+              const filtered = arr.filter(x => Number(x) !== Number(updatedMoto.id));
+              localStorage.setItem(key, JSON.stringify(filtered));
+            } catch (e) { /* noop */ }
           setPublishLoading(false);
           setPublishSuccess(true);
           try {
@@ -722,8 +751,15 @@ const Motos = () => {
                 <article id={`moto-${moto.id}`} key={moto.id} className="item-card" tabIndex={0} onClick={() => setSelectedMoto(moto)} onKeyDown={(e) => { if (e.key === 'Enter') setSelectedMoto(moto); }}>
                   <div className="card-image">
                     {(() => {
-                      const imgSrc = (moto.img && String(moto.img).startsWith('data:')) ? moto.img : `${moto.img}?${moto.id}`;
-                      return <img src={imgSrc} alt={moto.title} />;
+                      if (moto.img && String(moto.img).startsWith('data:')) return <img src={moto.img} alt={moto.title} />;
+                      try {
+                        const base = String(moto.img || '');
+                        const cb = moto.__cb || moto.id;
+                        const sep = base.includes('?') ? '&' : '?';
+                        return <img src={`${base}${sep}cb=${cb}`} alt={moto.title} />;
+                      } catch (e) {
+                        return <img src={moto.img} alt={moto.title} />;
+                      }
                     })()}
                     <span className="card-price"><FaTag /> ${moto.price}</span>
                   </div>

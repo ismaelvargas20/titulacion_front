@@ -182,7 +182,15 @@ const Inicio = () => {
             stars: detalle.estrellas || p.estrellas || 0,
             img: finalImg,
             description: p.descripcion || p.description || '',
+            // mapear campos del detalle a propiedades de primer nivel para que los modales/carouseles los muestren
             detalle,
+            model: detalle.modelo || p.modelo || null,
+            revision: detalle.revision || p.revision || null,
+            condition: detalle.condicion || detalle.estado || p.condicion || p.condition || null,
+            year: detalle.anio || p.anio || p.year || null,
+            kilometraje: detalle.kilometraje || p.kilometraje || null,
+            transmission: detalle.transmision || p.transmision || detalle.transmission || p.transmission || null,
+            contact: { phone: detalle.telefono_contacto || detalle.phone || p.telefono || p.phone || null },
             // propietario/autor de la publicación (si viene desde el backend)
             ownerId: p.clienteId || detalle.clienteId || p.usuarioId || null
           };

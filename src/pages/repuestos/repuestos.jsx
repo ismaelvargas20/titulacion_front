@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { FaTag, FaMapMarkerAlt, FaChevronLeft, FaChevronRight, FaStar } from 'react-icons/fa';
 import '../../assets/scss/motos.scss';
 import RepuestosModal from './repuestos_modal';
-import { listarRepuestos, crearRepuesto, detalleRepuesto } from '../../services/repuestos';
+import { listarRepuestos, crearRepuesto, detalleRepuesto, actualizarRepuesto } from '../../services/repuestos';
 import api from '../../api/axios';
 import Swal from 'sweetalert2';
 import chatService from '../../services/chat';
@@ -21,6 +21,7 @@ const Repuestos = () => {
     const [page, setPage] = useState(0);
   const [selectedPart, setSelectedPart] = useState(null);
   const [showContactForm, setShowContactForm] = useState(false);
+  const [editId, setEditId] = useState(null);
   const [contactForm, setContactForm] = useState({ name: '', email: '', message: '' });
   const [contactSent, setContactSent] = useState(false);
 
@@ -52,7 +53,7 @@ const Repuestos = () => {
     return s;
   };
 
-  const handleAddPart = (e) => {
+  const handleAddPart = async (e) => {
     e.preventDefault();
     if (!form.title.trim() || !form.price.trim() || !form.contactPhone.trim()) {
       alert('Por favor completa título, precio y teléfono de contacto.');
@@ -109,6 +110,90 @@ const Repuestos = () => {
       }
     } catch (e) {
       // no bloquear si falla la conversión; seguiremos sin imagen
+    }
+
+    // Si estamos en modo edición, llamar al endpoint de actualización
+    if (editId) {
+      try {
+        const res = await actualizarRepuesto(editId, formData);
+        const updated = res && res.publicacion ? res.publicacion : null;
+        let imgs = null;
+        let returnedImg = null;
+        try {
+          imgs = res && res.imagenes ? res.imagenes : (updated && updated.imagenes ? updated.imagenes : null);
+          if (Array.isArray(imgs) && imgs.length > 0) {
+            const first = imgs[0];
+            returnedImg = first.url || first;
+          }
+        } catch (e) { returnedImg = null; }
+
+        // Recuperar detalle actualizado desde backend para reflejar exactamente lo guardado en BD
+        try {
+          const detailResp = await detalleRepuesto(updated ? updated.id : editId);
+          const pub = (detailResp && detailResp.publicacion) ? { ...detailResp.publicacion, imagenes: detailResp.imagenes || detailResp.publicacion.imagenes || [], detalle: detailResp.detalle || detailResp.publicacion.detalle } : null;
+          if (pub) {
+            const detalle = pub.detalle || {};
+            let imgCandidate = null;
+            if (pub.imagenes && pub.imagenes.length > 0 && pub.imagenes[0].url) imgCandidate = pub.imagenes[0].url;
+            else if (detalle.imagenes && detalle.imagenes[0]) imgCandidate = detalle.imagenes[0];
+            else imgCandidate = returnedImg || form.img || 'https://loremflickr.com/640/420/motorcycle';
+            let finalImg = imgCandidate;
+            try { const s = String(imgCandidate || ''); if (s.startsWith('/uploads')) finalImg = `${api.defaults.baseURL}${s}`; } catch (e) {}
+
+            const mapped = {
+              id: pub.id || (updated ? updated.id : editId),
+              title: pub.titulo || pub.title || form.title,
+              category: detalle.categoria_repuesto || detalle.categoria || form.category || '',
+              condition: detalle.condicion || form.condition || '',
+              price: formatPrice(pub.precio || pub.price || form.price),
+              stars: detalle.estrellas || pub.estrellas || form.stars || 0,
+              location: detalle.ubicacion || pub.ubicacion || form.location || '—',
+              img: finalImg,
+              description: pub.descripcion || pub.description || form.description || '',
+              contact: { phone: detalle.telefono_contacto || detalle.phone || form.contactPhone || null },
+              ownerId: pub.clienteId || detalle.clienteId || pub.usuarioId || null,
+              detalle: detalle,
+              imagenes: pub.imagenes || []
+            };
+
+            setRecentParts((prev) => prev.map(p => (Number(p.id) === Number(mapped.id) ? mapped : p)));
+            try { window.dispatchEvent(new CustomEvent('publicacion:updated', { detail: { id: mapped.id, imagenes: mapped.imagenes, publicacion: pub } })); } catch (e) {}
+          }
+        } catch (detailErr) {
+          // si falla la recuperación, caer en la versión local mínima
+          let finalImg = returnedImg || form.img || 'https://loremflickr.com/640/420/motorcycle';
+          try { const s = String(finalImg || ''); if (s.startsWith('/uploads')) finalImg = `${api.defaults.baseURL}${s}`; } catch (e) {}
+          const updatedPart = {
+            id: updated ? updated.id : editId,
+            title: form.title,
+            category: form.category,
+            condition: form.condition,
+            price: formatPrice(form.price),
+            stars: Number(form.stars) || 0,
+            location: form.location || 'Sin especificar',
+            img: finalImg,
+            description: form.description || '',
+            contact: { phone: form.contactPhone },
+            ownerId: (current && current.id) || (updated && (updated.clienteId || updated.usuarioId)) || null,
+          };
+          setRecentParts((prev) => prev.map(p => (Number(p.id) === Number(updatedPart.id) ? updatedPart : p)));
+          try { window.dispatchEvent(new CustomEvent('publicacion:updated', { detail: { id: updatedPart.id, imagenes: imgs } })); } catch (e) {}
+        }
+        setPublishLoading(false);
+        setPublishSuccess(true);
+        try { Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Repuesto actualizado', showConfirmButton: false, timer: 2000 }); } catch (e) {}
+        setTimeout(() => setPublishSuccess(false), 2200);
+        setForm({ title: '', category: '', condition: 'Nuevo', price: '', location: '', img: '', imageFile: null, description: '', contactPhone: '', stars: 5 });
+        setShowSellForm(false);
+        setEditId(null);
+        return;
+      } catch (err) {
+        console.error('Error actualizando repuesto', err);
+        setPublishLoading(false);
+        const msg = (err && err.response && err.response.data && err.response.data.message) || 'Error al actualizar repuesto';
+        try { Swal.fire({ icon: 'error', title: 'No se pudo actualizar', text: msg }); } catch (e) { alert(msg); }
+        return;
+      }
     }
 
     crearRepuesto(formData).then(async (created) => {
@@ -288,7 +373,7 @@ const Repuestos = () => {
     if (!showSellForm) return;
     const first = document.querySelector('.sell-form input[name="title"]');
     if (first) setTimeout(() => first.focus(), 40);
-    const onKey = (e) => { if (e.key === 'Escape') setShowSellForm(false); };
+    const onKey = (e) => { if (e.key === 'Escape') { setShowSellForm(false); setEditId(null); } };
     document.addEventListener('keydown', onKey);
     document.body.style.overflow = 'hidden';
     return () => { document.removeEventListener('keydown', onKey); document.body.style.overflow = ''; };
@@ -364,6 +449,7 @@ const Repuestos = () => {
           description: part.description || part.descripcion || '',
           contactPhone: resolvedPhone
         }));
+        setEditId(part.id || null);
         setShowSellForm(true);
       }
     } catch (e) {
@@ -458,9 +544,9 @@ const Repuestos = () => {
         </section>
 
         {showSellForm && (
-          <div className="sell-modal-overlay" onClick={(e) => { if (e.target.classList && e.target.classList.contains('sell-modal-overlay')) setShowSellForm(false); }}>
+          <div className="sell-modal-overlay" onClick={(e) => { if (e.target.classList && e.target.classList.contains('sell-modal-overlay')) { setShowSellForm(false); setEditId(null); } }}>
             <div className="sell-modal" role="dialog" aria-modal="true">
-              <button className="modal-close" aria-label="Cerrar" onClick={() => setShowSellForm(false)}>×</button>
+              <button className="modal-close" aria-label="Cerrar" onClick={() => { setShowSellForm(false); setEditId(null); }}>×</button>
               <form className={`sell-form`} onSubmit={handleAddPart}>
                 <div className="sell-form-grid">
                   <div className="sell-form-main">
@@ -529,7 +615,7 @@ const Repuestos = () => {
 
                     <div className="sell-form-actions">
                       <button type="submit" className={`btn btn-primary ${publishLoading ? 'loading' : ''}`} disabled={publishLoading}>{publishLoading ? 'Publicando...' : 'Publicar repuesto'}</button>
-                      <button type="button" className="btn" onClick={() => setShowSellForm(false)} disabled={publishLoading}>Cancelar</button>
+                      <button type="button" className="btn" onClick={() => { setShowSellForm(false); setEditId(null); }} disabled={publishLoading}>Cancelar</button>
                     </div>
                     {publishSuccess && <div className="sell-form-success">Repuesto publicado correctamente.</div>}
                   </div>
