@@ -33,4 +33,33 @@ instance.interceptors.request.use(config => {
   return Promise.reject(error);
 });
 
+// Interceptor de respuestas: si recibimos 403 por CSRF, obtenemos un token nuevo y reintentamos una vez
+instance.interceptors.response.use(
+  response => response,
+  async error => {
+    const originalRequest = error && error.config;
+    const status = error && error.response && error.response.status;
+    const msg = error && error.response && error.response.data && (error.response.data.message || '').toString().toLowerCase();
+
+    if (originalRequest && status === 403 && msg.includes('csrf')) {
+      // Evitar bucles infinitos
+      if (!originalRequest._retry) {
+        originalRequest._retry = true;
+        try {
+          const tokenRes = await instance.get('/csrf-token');
+          if (tokenRes && tokenRes.data && tokenRes.data.csrfToken) {
+            localStorage.setItem('csrfToken', tokenRes.data.csrfToken);
+          } else {
+            localStorage.removeItem('csrfToken');
+          }
+          return instance(originalRequest);
+        } catch (e) {
+          return Promise.reject(error);
+        }
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+
 export default instance;

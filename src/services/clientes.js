@@ -17,12 +17,22 @@ export async function fetchCsrfToken() {
 // Registrar nuevo cliente
 export async function registerClient(payload) {
   try {
-    // Asegurarse de tener token CSRF si el backend lo requiere
-    if (!localStorage.getItem('csrfToken')) {
-      await fetchCsrfToken();
+    // Obtener siempre un token CSRF fresco antes de pedir POST
+    await fetchCsrfToken();
+    try {
+      const res = await api.post('/clientes/registro', payload);
+      return res.data;
+    } catch (err) {
+      // Si falló por CSRF, intentar obtener token de nuevo y reintentar una vez
+      const status = err && err.response && err.response.status;
+      const msg = err && err.response && err.response.data && err.response.data.message;
+      if (status === 403 && msg && msg.toLowerCase().includes('csrf')) {
+        await fetchCsrfToken();
+        const retryRes = await api.post('/clientes/registro', payload);
+        return retryRes.data;
+      }
+      throw err;
     }
-    const res = await api.post('/clientes/registro', payload);
-    return res.data;
   } catch (err) {
     // Lanzar para que el componente maneje el error
     throw err;
